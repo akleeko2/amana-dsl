@@ -15,7 +15,7 @@
 
 <br/>
 
-[![CI](https://github.com/akleeko2/amana-dsl/actions/workflows/ci.yml/badge.svg)](https://github.com/akleeko2/amana-dsl/actions/workflows/ci.yml)
+[![Build](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square&logo=rust)](https://github.com/akleeko2/amana-dsl)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blueviolet?style=for-the-badge)](LICENSE)
 [![Rust 1.75+](https://img.shields.io/badge/rustc-1.75%2B-orange?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
 [![Node Runtime](https://img.shields.io/badge/runtime-Node.js%2FExpress-green?style=for-the-badge&logo=node.js)](#)
