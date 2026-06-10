@@ -54,7 +54,7 @@ All compiler operations support the `--json` flag. Error signals return standard
   "column": 20,
   "message": "In view 'Home': Unknown gradient value \"mesh slate blue\". Valid values: primary, accent, hero, mesh, aurora, spotlight, custom, brand, sunset, ocean, mesh-cyan-indigo, mesh-aurora.",
   "suggestion": "Did you mean \"mesh\"?",
-  "file_path": "examples/08_dashboard_launch.amana"
+  "file_path": "examples/01_saas_aura.amana"
 }
 ```
 
