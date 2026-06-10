@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Amana DSL — A declarative full-stack compiler in Rust. Write one .amana file, get a complete Express/SQLite web app." />
+  <meta property="og:title" content="Amana DSL — Declarative Full-Stack Compiler" />
+  <meta property="og:description" content="Write one .amana file, get a production Express/SQLite web app. Built in Rust." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://akleeko2.github.io/amana-dsl/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Amana DSL — Declarative Full-Stack Compiler" />
+  <meta name="twitter:description" content="Write one .amana file, get a production Express/SQLite web app. Built in Rust." />
+  <title>Amana DSL — Declarative Full-Stack Compiler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #050b18;
+      --surface:  rgba(255,255,255,0.04);
+      --border:   rgba(99,102,241,0.18);
+      --primary:  #6366f1;
+      --accent:   #06b6d4;
+      --text:     #f1f5f9;
+      --muted:    #94a3b8;
+      --glow:     rgba(99,102,241,0.25);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── MESH BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99,102,241,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(6,182,212,0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(5,11,24,0.8);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-brand {
+      font-size: 1.25rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+    }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--primary);
+      color: #fff;
+      padding: 0.5rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 1.5rem 5rem;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: var(--primary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 2rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 7vw, 6rem);
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+      max-width: 14ch;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--muted);
+      max-width: 55ch;
+      line-height: 1.8;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+      color: #fff;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 30px var(--glow);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px var(--glow); }
+    .btn-ghost {
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--primary); background: rgba(99,102,241,0.06); }
+
+    /* ── CODE DEMO ── */
+    .code-section {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 1.5rem 6rem;
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+    .code-window {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 80px rgba(99,102,241,0.1), 0 40px 80px rgba(0,0,0,0.4);
+    }
+    .code-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 1.25rem;
+      background: rgba(255,255,255,0.025);
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red    { background: #ff5f57; }
+    .dot-yellow { background: #febc2e; }
+    .dot-green  { background: #28c840; }
+    .code-filename { color: var(--muted); font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; margin-left: 0.5rem; }
+    pre {
+      padding: 2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.8;
+      overflow-x: auto;
+      color: #e2e8f0;
+    }
+    .kw  { color: #c084fc; }
+    .str { color: #86efac; }
+    .cm  { color: #475569; }
+    .id  { color: #93c5fd; }
+    .op  { color: #06b6d4; }
+    .nm  { color: #fcd34d; }
+
+    /* ── FEATURES ── */
+    .features {
+      position: relative;
+      z-index: 1;
+      padding: 4rem 1.5rem 6rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-label {
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      text-align: center;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+    .section-sub {
+      text-align: center;
+      color: var(--muted);
+      max-width: 50ch;
+      margin: 0 auto 3.5rem;
+      line-height: 1.8;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover { border-color: rgba(99,102,241,0.4); transform: translateY(-3px); }
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .feature-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .feature-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.7; }
+
+    /* ── HOW IT WORKS ── */
+    .how {
+      position: relative;
+      z-index: 1;
+      padding: 2rem 1.5rem 6rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 3rem;
+      text-align: left;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.85rem;
+    }
+    .step-content h4 { font-weight: 700; margin-bottom: 0.25rem; }
+    .step-content p { color: var(--muted); font-size: 0.875rem; }
+    .step-content code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(255,255,255,0.06);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: var(--accent);
+    }
+
+    /* ── CTA FOOTER ── */
+    .cta-section {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 4rem 1.5rem 6rem;
+    }
+    .cta-box {
+      max-width: 640px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.06));
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 24px;
+      padding: 3.5rem 2rem;
+    }
+    .cta-box h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 900; margin-bottom: 1rem; letter-spacing: -0.02em; }
+    .cta-box p { color: var(--muted); margin-bottom: 2rem; line-height: 1.8; }
+
+    footer {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">⬡ Amana</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#quickstart">Quick Start</a>
+    <a href="https://github.com/akleeko2/amana-dsl/tree/main/doc">Docs</a>
+  </div>
+  <a href="https://github.com/akleeko2/amana-dsl" class="nav-cta">⭐ Star on GitHub</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🦀 Built in Rust · Open Source · AGPLv3</div>
+  <h1>Write <span>one file</span>,<br/>ship a full-stack app.</h1>
+  <p class="hero-sub">
+    Amana is a declarative DSL compiler. You write a single <code style="color:var(--accent);background:rgba(6,182,212,0.1);padding:2px 8px;border-radius:4px;font-family:monospace">.amana</code> file describing your app — models, routes, layouts, and forms. The Rust compiler does the rest.
+  </p>
+  <div class="hero-actions">
+    <a href="https://github.com/akleeko2/amana-dsl" class="btn-primary">View on GitHub →</a>
+    <a href="#quickstart" class="btn-ghost">Quick Start</a>
+  </div>
+</section>
+
+<!-- CODE DEMO -->
+<section class="code-section">
+  <div class="code-window">
+    <div class="code-titlebar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <span class="code-filename">analytics.amana</span>
+    </div>
+    <pre><span class="kw">app</span> <span class="id">Analytics</span>:
+    <span class="nm">title</span>:   <span class="str">"Analytics Dashboard"</span>
+    <span class="nm">db_path</span>: <span class="str">"analytics.db"</span>
+
+<span class="kw">theme</span>:
+    <span class="nm">mode</span>:    dark
+    <span class="nm">primary</span>: <span class="str">"#6366f1"</span>
+    <span class="nm">surface</span>: glass
+
+<span class="kw">model</span> <span class="id">Metric</span>:
+    <span class="nm">kpi_name</span>: str unique required
+    <span class="nm">value</span>:    str required
+    <span class="nm">trend</span>:   str default <span class="str">"+0.0%"</span>
+
+<span class="kw">seed</span> <span class="id">Metric</span>:
+    row: { kpi_name: <span class="str">"Active Users"</span>, value: <span class="str">"12,482"</span>, trend: <span class="str">"+8.3%"</span> }
+    row: { kpi_name: <span class="str">"Uptime"</span>,       value: <span class="str">"99.98%"</span>, trend: <span class="str">"+0.1%"</span> }
+
+<span class="kw">route</span> / <span class="op">-&gt;</span> <span class="kw">view</span> <span class="id">Dashboard</span>
+
+<span class="kw">view</span> <span class="id">Dashboard</span>:
+    <span class="kw">server</span>:
+        <span class="kw">fetch</span> metrics = <span class="id">Metric</span>.all()
+    <span class="kw">render</span>:
+        div.page:
+            <span class="id">Navbar</span>(brand: <span class="str">"Analytics"</span>, sticky: true)
+            section:
+                <span class="kw">compose</span>:
+                    layout: bento
+                <span class="kw">for</span> m <span class="kw">in</span> metrics:
+                    <span class="id">Kpi</span>(label: m.kpi_name, value: m.value, trend: m.trend)
+            <span class="id">Footer</span>()</pre>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">Why Amana</div>
+  <h2 class="section-title">Everything included.<br/>Zero configuration.</h2>
+  <p class="section-sub">The compiler handles the full stack — from database migrations to responsive layouts.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>Full-Stack Codegen</h3>
+      <p>One source file compiles into a complete Express server, SQLite migrations, EJS templates, and production CSS.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎨</div>
+      <h3>8 Layout Engines</h3>
+      <p>Bento, masonry, magazine, asymmetric, sidebar, command-center and more — all validated at compile time.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>4-Layer CSS Sanitizer</h3>
+      <p>Selector safety, property allowlist, value sanitizer, and CSS layer isolation — enforced before code generation.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🗄️</div>
+      <h3>Database Native</h3>
+      <p>Declare a model, get migrations, seeds, and parameterized query handlers — no ORM needed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>JSON Diagnostics</h3>
+      <p>Structured compiler errors with file, line, and message — ready for AI-assisted repair loops.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🦀</div>
+      <h3>Built in Rust</h3>
+      <p>Fast, memory-safe compiler with zero runtime dependencies. Compiles in milliseconds.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="quickstart">
+  <div class="section-label">Quick Start</div>
+  <h2 class="section-title">Up and running in 3 steps.</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Clone &amp; Build the Compiler</h4>
+        <p><code>git clone https://github.com/akleeko2/amana-dsl.git</code> then <code>cargo build --release</code></p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Compile an Example</h4>
+        <p><code>cargo run -- build examples/01_saas_aura.amana .amana_dist</code></p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Launch the App</h4>
+        <p><code>cd .amana_dist &amp;&amp; npm install &amp;&amp; npm run dev</code> — visit <code>localhost:3000</code></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-box">
+    <h2>Start building with Amana.</h2>
+    <p>Open source. No vendor lock-in. Full source code available under AGPLv3.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="https://github.com/akleeko2/amana-dsl" class="btn-primary">⭐ Star on GitHub</a>
+      <a href="https://github.com/akleeko2/amana-dsl/tree/main/doc" class="btn-ghost">Read the Docs</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>
+    <strong style="color:var(--text)">Amana DSL</strong> &nbsp;·&nbsp;
+    <a href="https://github.com/akleeko2/amana-dsl">GitHub</a> &nbsp;·&nbsp;
+    <a href="https://github.com/akleeko2/amana-dsl/blob/main/LICENSE">AGPLv3 License</a> &nbsp;·&nbsp;
+    <a href="https://github.com/akleeko2/amana-dsl/blob/main/CONTRIBUTING.md">Contribute</a>
+  </p>
+</footer>
+
+</body>
+</html>
