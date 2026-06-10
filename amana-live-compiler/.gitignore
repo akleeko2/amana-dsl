@@ -1,0 +1,6 @@
+.amana_live_dist/
+node_modules/
+*.log
+*.db
+*.sqlite
+*.sqlite3

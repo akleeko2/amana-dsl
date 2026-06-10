@@ -1,0 +1,248 @@
+app VortexConsole:
+    title: "Vortex | Deployment Console"
+    db_path: "vortex.db"
+    capabilities:
+        - auth
+
+theme:
+    mode: dark
+    direction: ltr
+    language: en
+    primary: "#10b981"
+    accent: "#a3e635"
+    canvas: "#020813"
+    base: "#070f1e"
+    elevated: "rgba(7,15,30,0.82)"
+    text: "#d1fae5"
+    muted: "#6ee7b7"
+    border: "rgba(16,185,129,0.16)"
+    radius: soft
+    surface: custom
+    density: compact
+    gradient_hero: "linear-gradient(135deg, #020813 0%, #070f1e 48%, #022c22 100%)"
+
+model DeployLog:
+    stage: str unique required
+    duration: str required
+    status: str default "success"
+    details: str required
+
+model AccessRequest:
+    email: email unique required
+
+seed DeployLog:
+    row:
+        stage: "Static Analysis"
+        duration: "0.28s"
+        status: "success"
+        details: "AST validation, CSS allowlist checked."
+    row:
+        stage: "Database Migration"
+        duration: "0.42s"
+        status: "success"
+        details: "SQLite schema synced, seed rows written."
+    row:
+        stage: "EJS Precompilation"
+        duration: "0.18s"
+        status: "success"
+        details: "Scoped variables injected inside views/."
+
+seed AccessRequest:
+    row:
+        email: "lead@vortex.sh"
+
+route / -> view Home
+
+view Home:
+    server:
+        fetch logs = DeployLog.all()
+
+    render:
+        div.console-page(dir: "ltr"):
+            Navbar(brand: "Vortex Console", sticky: true)
+
+            section.command-shell:
+                compose:
+                    layout: command-center
+                    rhythm: steady
+                visual:
+                    gradient: spotlight
+                    surface: custom
+                    border: "rgba(16,185,129,0.20)"
+                responsive:
+                    desktop:
+                        columns: "1.2fr 0.8fr"
+                        gap: 2xl
+                        padding: 3xl
+                    mobile:
+                        columns: "1fr"
+                        padding: lg
+
+                Container(width: "wide"):
+                    div.console-copy:
+                        Badge(label: "Edge Orchestrator")
+                        h1.console-title: "The build terminal that executes intent."
+                        p.console-sub: "Vortex compiles and deploys secure web apps at the edge. AST-level checks ensure code output is sanitized and formatted dynamically."
+                        div.console-actions:
+                            Button(label: "Run pipeline", href: "#timeline")
+                            Button(label: "View logs", href: "#diagnostics", variant: "ghost")
+
+                    div.terminal-mock:
+                        Card(title: "vortex build --json", subtitle: "Edge precompiler signals"):
+                            div.term-line:
+                                span.prompt: "$"
+                                span.code: "vortex check app.amana"
+                            div.term-line:
+                                span.prompt: ">"
+                                span.code: "ok: true, modules: 4, security: green"
+
+            section.timeline-section(id: "timeline"):
+                Container(width: "wide"):
+                    div.section-head:
+                        Badge(label: "Build Loop")
+                        h2.section-title: "Pipeline Stages"
+                        p.section-desc: "declarative steps executed sequentially during compilation."
+
+                    Timeline():
+                        TimelineItem(meta: "01", title: "Lexer & Parser"):
+                            p: "Source text is resolved into AST nodes safely."
+                        TimelineItem(meta: "02", title: "CSS Sanitizer"):
+                            p: "Checks selectors, properties, and values against whitelist."
+                        TimelineItem(meta: "03", title: "SQL Generation"):
+                            p: "Model fields are compiled into secure SQLite schemas."
+
+            section.diagnostics-section(id: "diagnostics"):
+                Container(width: "wide"):
+                    div.section-head:
+                        Badge(label: "Diagnostics")
+                        h2.section-title: "Edge Database Sync"
+                        p.section-desc: "Live logs showing compilation duration for each pipeline stage."
+
+                    div.masonry-grid:
+                        compose:
+                            layout: masonry
+                        
+                        for log in logs:
+                            Card(title: log.stage, subtitle: log.details, price: log.duration, badge: log.status)
+
+            section.access-section:
+                Container(width: "readable"):
+                    div.access-card:
+                        compose:
+                            layout: stack
+                            gap: xl
+                        visual:
+                            surface: custom
+                            border: "rgba(16,185,129,0.18)"
+
+                        div.access-head:
+                            Badge(label: "Console Access")
+                            h2.access-title: "Request Terminal Access"
+                            p.access-desc: "Leave your email address to receive custom credentials for the dashboard."
+
+                        form [email]:
+                            connect AccessRequest.create
+                            ui: card
+                            submit: "Generate Credentials"
+                            redirect success -> /
+
+                            field email:
+                                label: "Email Address"
+                                placeholder: "dev@vortex.sh"
+                                type: email
+                                required: true
+
+            Footer()
+
+    style:
+        .console-page:
+            background: canvas
+            color: text
+            min-height: screen
+
+        .command-shell:
+            padding: 7rem 1.25rem 4rem
+            gradient: hero
+
+        .console-copy:
+            layout: stack
+            gap: lg
+
+        .console-title:
+            font-size: clamp(2.4rem, 6vw, 5rem)
+            line-height: 1.04
+            font-weight: 900
+            max-width: 13ch
+            margin: 0
+
+        .console-sub:
+            color: muted
+            font-size: clamp(1rem, 2vw, 1.18rem)
+            line-height: 1.85
+            max-width: 60ch
+            margin: 0
+
+        .console-actions:
+            layout: row
+            gap: md
+            flex-wrap: wrap
+
+        .terminal-mock:
+            surface: custom
+            border: subtle
+            radius: xl
+            shadow: floating
+            glow: primary
+            padding: 1.5rem
+
+        .term-line:
+            layout: row
+            gap: sm
+            align-items: start
+            padding: 0.2rem 0
+
+        .prompt:
+            color: accent
+            font-weight: 900
+
+        .code:
+            font-family: monospace
+            color: text
+
+        .timeline-section,
+        .diagnostics-section,
+        .access-section:
+            padding: 0 1.25rem 6rem
+
+        .section-head:
+            text-align: center
+            max-width: 760px
+            margin: 0 auto 2.5rem
+            layout: stack
+            gap: sm
+
+        .section-title:
+            font-size: clamp(2rem, 4vw, 3.2rem)
+            line-height: 1.12
+            font-weight: 900
+            margin: 0
+
+        .section-desc:
+            color: muted
+            line-height: 1.8
+            margin: 0
+
+        .access-head:
+            layout: stack
+            gap: sm
+            text-align: center
+
+        .access-title:
+            font-size: clamp(1.8rem, 4vw, 2.8rem)
+            font-weight: 900
+            margin: 0
+
+        .access-desc:
+            color: muted
+            line-height: 1.8
+            margin: 0

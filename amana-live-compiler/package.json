@@ -1,0 +1,10 @@
+{
+  "name": "amana-live-compiler",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser-based live editor for the local Amana compiler.",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  }
+}

@@ -1,0 +1,263 @@
+app SaasAura:
+    title: "SaasAura | Analytics Control Room"
+    db_path: "saasaura.db"
+    capabilities:
+        - auth
+        - api.rest
+
+theme:
+    mode: dark
+    direction: ltr
+    language: en
+    primary: "#6366f1"
+    accent: "#06b6d4"
+    canvas: "#050b18"
+    base: "#0b0f19"
+    elevated: "rgba(11,15,25,0.75)"
+    text: "#f8fafc"
+    muted: "#94a3b8"
+    border: "rgba(99,102,241,0.18)"
+    radius: soft
+    surface: glass
+    density: comfortable
+    gradient_hero: "linear-gradient(135deg, #050b18 0%, #0b0f19 55%, #1e1b4b 100%)"
+
+model Metric:
+    kpi_name: str unique required
+    value: str required
+    trend: str default "+0.0%"
+    source: str default "saas_system"
+
+model Feedback:
+    email: email required
+    msg: str required min 5
+
+seed Metric:
+    row:
+        kpi_name: "Active Pipelines"
+        value: "1,248"
+        trend: "+14.2%"
+        source: "agent_orchestrator"
+    row:
+        kpi_name: "Model Latency"
+        value: "0.24s"
+        trend: "-8.4%"
+        source: "inference_node"
+    row:
+        kpi_name: "Token Efficiency"
+        value: "99.8%"
+        trend: "+0.4%"
+        source: "context_compressor"
+
+route / -> view Home
+
+view Home:
+    server:
+        fetch metrics = Metric.all()
+
+    render:
+        div.aura-page(dir: "ltr"):
+            Navbar(brand: "SaaS Aura", sticky: true)
+
+            section.hero-shell:
+                compose:
+                    layout: split
+                visual:
+                    gradient: hero
+                    surface: glass
+                    border: "rgba(99,102,241,0.22)"
+                responsive:
+                    desktop:
+                        columns: "1.1fr 0.9fr"
+                        gap: 3xl
+                        padding: 4xl
+                    mobile:
+                        columns: "1fr"
+                        padding: xl
+
+                Container(width: "wide"):
+                    div.hero-content:
+                        Badge(label: "Next-Gen AI Orchestration")
+                        h1.hero-title: "The intelligence layer your product was waiting for."
+                        p.hero-sub: "Amana compiles your declarative intent into live Express endpoints, production-hardened SQL, and beautiful responsive layouts automatically."
+                        div.hero-actions:
+                            Button(label: "Launch dashboard", href: "#metrics")
+                            Button(label: "Read manifesto", href: "#brief", variant: "ghost")
+
+                    div.hero-preview:
+                        Card(title: "Agent Engine", subtitle: "Active deployment loops"):
+                            div.terminal-mock:
+                                div.term-row: "System initialized successfully."
+                                div.term-row: "Active pipelines: 1,248 nodes online."
+                                div.term-row: "Model latency stable at 0.24s."
+
+            section.metrics-section(id: "metrics"):
+                Container(width: "wide"):
+                    div.section-head:
+                        Badge(label: "Live Signals")
+                        h2.section-title: "Operations Board"
+                        p.section-desc: "declarative KPIs mapped and compiled directly from database tables."
+
+                    div.metrics-bento:
+                        compose:
+                            layout: bento
+                            rhythm: steady
+                            density: compact
+                        
+                        for met in metrics:
+                            Kpi(label: met.kpi_name, value: met.value, trend: met.trend)
+
+            section.showcase-section(id: "brief"):
+                Container(width: "wide"):
+                    div.showcase-split:
+                        compose:
+                            layout: asymmetric
+                            rhythm: dramatic
+                        visual:
+                            surface: glass-layered
+                            border: "rgba(6,182,212,0.25)"
+                        responsive:
+                            desktop:
+                                columns: "0.8fr 1.2fr"
+                                gap: 2xl
+                                padding: 3xl
+                            mobile:
+                                columns: "1fr"
+                                padding: xl
+
+                        div.showcase-copy:
+                            Badge(label: "Architecture")
+                            h2.showcase-title: "Zero-dependency compiler runtime."
+                            p.showcase-desc: "No mock data, no templates placeholders. The compiler builds direct EJS pages with security-first middlewares."
+
+                        div.showcase-card:
+                            Card(title: "Diagnostics Engine", subtitle: "JSON Diagnostic Loop"):
+                                p: "The compiler detects design errors, whitelists keys, and prevents unsafe script injections dynamically before code generation."
+
+            section.feedback-section:
+                Container(width: "readable"):
+                    div.feedback-card:
+                        compose:
+                            layout: stack
+                            gap: xl
+                        visual:
+                            surface: glass-layered
+                            border: "rgba(99,102,241,0.20)"
+
+                        div.feedback-head:
+                            Badge(label: "Connect")
+                            h2.feedback-title: "Request System Access"
+                            p.feedback-desc: "Leave your email to register in the beta queue."
+
+                        form [email, msg]:
+                            connect Feedback.create
+                            ui: card
+                            submit: "Submit Request"
+                            redirect success -> /
+
+                            field email:
+                                label: "Email Address"
+                                placeholder: "you@domain.com"
+                                type: email
+                                required: true
+
+                            field msg:
+                                label: "Project Details"
+                                placeholder: "Describe what you're building..."
+                                type: textarea
+                                required: true
+
+            Footer()
+
+    style:
+        .aura-page:
+            background: canvas
+            color: text
+            min-height: screen
+
+        .hero-shell:
+            padding: 7rem 1.25rem 4rem
+            gradient: hero
+
+        .hero-content:
+            layout: stack
+            gap: lg
+
+        .hero-title:
+            font-size: clamp(2.6rem, 6vw, 5.2rem)
+            line-height: 1.02
+            font-weight: 900
+            max-width: 12ch
+            margin: 0
+
+        .hero-sub:
+            color: muted
+            font-size: clamp(1rem, 2vw, 1.2rem)
+            line-height: 1.9
+            max-width: 62ch
+            margin: 0
+
+        .hero-actions:
+            layout: row
+            gap: md
+            flex-wrap: wrap
+
+        .hero-preview:
+            surface: glass
+            border: subtle
+            radius: xl
+            shadow: floating
+            glow: accent
+            padding: 2rem
+
+        .terminal-mock:
+            layout: stack
+            gap: sm
+            font-family: monospace
+            color: accent
+            padding: 1rem
+            background: "#020617"
+            radius: md
+            border: subtle
+
+        .term-row:
+            border-bottom: 1px solid rgba(6,182,212,0.08)
+            padding-bottom: 0.25rem
+
+        .metrics-section,
+        .showcase-section,
+        .feedback-section:
+            padding: 0 1.25rem 6rem
+
+        .section-head:
+            text-align: center
+            max-width: 760px
+            margin: 0 auto 2.5rem
+            layout: stack
+            gap: sm
+
+        .section-title:
+            font-size: clamp(2rem, 4vw, 3.2rem)
+            line-height: 1.12
+            font-weight: 900
+            margin: 0
+
+        .section-desc:
+            color: muted
+            line-height: 1.8
+            margin: 0
+
+        .feedback-head:
+            layout: stack
+            gap: sm
+            text-align: center
+
+        .feedback-title:
+            font-size: clamp(1.8rem, 4vw, 2.8rem)
+            font-weight: 900
+            margin: 0
+
+        .feedback-desc:
+            color: muted
+            line-height: 1.8
+            margin: 0
