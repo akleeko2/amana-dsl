@@ -1,0 +1,55 @@
+---
+name: Feature Request
+about: Propose a new language feature, layout engine, component, or CLI command
+title: "[Feat]: "
+labels: ["enhancement"]
+assignees: []
+---
+
+## 💡 Summary
+
+<!-- One sentence describing what you want to add -->
+
+## 🔥 Motivation
+
+<!-- Why does this feature matter? What problem does it solve? What use case does it unlock? -->
+
+## 🎨 Proposed Amana Syntax
+
+<!-- Show what the new feature would look like in .amana source -->
+
+```amana
+# Example of how a user would write this feature
+
+```
+
+## 📦 Expected Compiler Output
+
+<!-- Describe what Express/EJS/CSS code you'd expect the compiler to generate -->
+
+```javascript
+// expected generated output (rough sketch is fine)
+
+```
+
+## 🏗️ Implementation Hints
+
+<!-- Optional: if you have ideas about where in the codebase to implement this -->
+
+- [ ] Lexer changes needed?
+- [ ] Parser AST node changes?
+- [ ] Semantic validation?
+- [ ] Codegen (express.rs) changes?
+- [ ] New documentation?
+
+## 🔗 Related Issues / Discussions
+
+<!-- Link to any related issues or GitHub discussions -->
+
+## ✅ Definition of Done
+
+<!-- What does "done" look like for this feature? -->
+- [ ] Compiler accepts the new syntax
+- [ ] Generated output is correct
+- [ ] Tests added
+- [ ] Documentation updated in `doc/`

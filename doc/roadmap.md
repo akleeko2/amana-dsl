@@ -1,47 +1,64 @@
-# Roadmap
+# Amana DSL — Roadmap
 
-This roadmap reflects the current direction of the project.
+This document tracks the public roadmap for Amana. It is updated as features are planned, in progress, or completed.
 
-## Completed or mostly complete
+---
 
-- JSON diagnostics
-- component calls without `:`
-- formatter foundation
-- build/check consistency
-- IR snapshots
-- CSS DSL v2
-- theme system
-- responsive system
-- HTML render v2
-- standard components
-- forms v2
-- seeds
-- multi-file imports
-- basic LSP
-- runtime hardening
+## ✅ Shipped (v0.1 — Current)
 
-## Next priorities
+| Feature | Status |
+|---|---|
+| Full-stack compiler pipeline (Lexer → Parser → Semantic → Codegen) | ✅ Done |
+| SQLite model → migration → seed pipeline | ✅ Done |
+| 8+ premium layout engines (`bento`, `masonry`, `split`, `asymmetric`, `magazine`, `sidebar`, `command-center`, `showcase-rail`) | ✅ Done |
+| 4-layer CSS security sanitizer (selector, property, value, layer scope) | ✅ Done |
+| Custom components with named slots and optional slots | ✅ Done |
+| Variant registry (`variant Component.style`) | ✅ Done |
+| JSON diagnostic output (`--json` flag) | ✅ Done |
+| `amana fmt` — source code formatter | ✅ Done |
+| `amana inspect-design` — layout diversity analysis | ✅ Done |
+| Language Server Protocol (LSP) skeleton | ✅ Done |
+| 5 premium example applications | ✅ Done |
+| AGPLv3 open-source license | ✅ Done |
 
-- stronger LSP features
-  - go-to-definition
-  - project-graph completion
-  - workspace diagnostics
-- better design feedback
-  - contrast analysis
-  - clipping and overflow detection
-  - screenshot-based review
-- better live-preview health checks
-- richer component composition
-  - named slots
-  - typed props
-- improved migration reporting
+---
 
-## Boundaries
+## 🔄 In Progress (v0.2)
 
-These are still deliberate limits for now:
+| Feature | Status |
+|---|---|
+| VS Code extension with syntax highlighting and inline errors | 🔄 Active |
+| `amana check` — improved error messages with line-number spans | 🔄 Active |
+| `amana dev` — watch mode with live rebuild on save | 🔄 Active |
 
-- no React/Vue runtime targets
-- no static HTML export as a primary path
-- no multi-password hash strategy
-- no CSRF toggle in the DSL
+---
 
+## 🗓️ Planned (v0.3)
+
+| Feature | Notes |
+|---|---|
+| **PostgreSQL backend** | Alternative to SQLite for production deployments |
+| **Auth scaffolding** | `capabilities: auth` generates full login, signup, session middleware |
+| **`amana cloud` deploy** | One-command deploy to Fly.io / Railway |
+| **RTL / Arabic-first design** | Full RTL layout support for Arabic and Persian apps |
+
+---
+
+## 🔮 Future (v1.0)
+
+| Feature | Notes |
+|---|---|
+| **WASM compiler target** | Run the Amana compiler entirely in the browser |
+| **Multi-file import graph** | `import "./models/user.amana"` across files |
+| **`amana ui`** | Visual drag-and-drop `.amana` editor |
+| **React / Vue output target** | Compile `.amana` to React components instead of EJS |
+| **AI design-to-amana** | Describe a UI in natural language → generate `.amana` |
+| **Plugin system** | Community-built layout engines and component libraries |
+
+---
+
+## 💬 Request a Feature
+
+Open a [Feature Request](https://github.com/akleeko2/amana-dsl/issues/new?template=feature_request.yml) on GitHub.
+
+We prioritize features based on community demand and sponsor support.

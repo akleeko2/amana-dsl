@@ -53,3 +53,7 @@ $RECYCLE.BIN/
 *.swp
 *.swo
 *~
+
+# Internal planning artifacts
+implementation_plan.md
+app.py

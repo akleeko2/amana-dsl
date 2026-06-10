@@ -1,87 +1,298 @@
-# 🌌 Amana
+<div align="center">
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
-[![Rust Version](https://img.shields.io/badge/rustc-1.75%2B-orange.svg)](#)
-[![DX Rating](https://img.shields.io/badge/DX-Premium-purple.svg)](#)
+<br/>
 
-Amana is a declarative, zero-dependency, full-stack **Design-to-Code DSL** and compiler. It compiles a single `.amana` file into a production-hardened Node.js/Express web application with automated SQLite database migrations, secure server-side forms, and premium CSS layouts.
+```
+ █████╗ ███╗   ███╗ █████╗ ███╗   ██╗ █████╗
+██╔══██╗████╗ ████║██╔══██╗████╗  ██║██╔══██╗
+███████║██╔████╔██║███████║██╔██╗ ██║███████║
+██╔══██║██║╚██╔╝██║██╔══██║██║╚██╗██║██╔══██║
+██║  ██║██║ ╚═╝ ██║██║  ██║██║ ╚████║██║  ██║
+╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝
+```
 
-With its advanced **v2 Design Engine**, Amana bridges the gap between design tokens and real-world database actions, compiling high-end layouts (such as Bento grids, asymmetrical showcases, editorial columns, and technical consoles) with zero configuration.
+### The Declarative DSL that compiles design intent into full-stack reality.
 
----
+<br/>
 
-## 🚀 Key Architectural Pillars
+[![CI](https://github.com/akleeko2/amana-dsl/actions/workflows/ci.yml/badge.svg)](https://github.com/akleeko2/amana-dsl/actions/workflows/ci.yml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blueviolet?style=for-the-badge)](LICENSE)
+[![Rust 1.75+](https://img.shields.io/badge/rustc-1.75%2B-orange?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
+[![Node Runtime](https://img.shields.io/badge/runtime-Node.js%2FExpress-green?style=for-the-badge&logo=node.js)](#)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4?style=for-the-badge)](CONTRIBUTING.md)
 
-*   **⚡ Compile to Node/Express & EJS:** The compiler produces a highly structured Express server using optimized database handlers, security middleware, and lightweight EJS layouts.
-*   **🎨 Declarative Design Grammar v2:** Design blocks like `compose:`, `visual:`, and `responsive:` compile into responsive flex/grid layouts with automatic HSL themes, mesh gradients, spotlights, and custom border/surface tokens.
-*   **🛡️ 4-Layer Scoped CSS Sanitizer:** A static compiler-level security shield that sanitizes selector hierarchies, whitelists property types, blocks javascript protocols (`javascript:`), and prevents styling-based data leakage.
-*   **📊 Database & Forms Integration:** Declaring a `model` generates SQLite migrations, seeds, and server-side validated `form` submission pipelines automatically.
-*   **🔍 DX & AI-Ready Toolchain:** Built-in code formatter (`amana fmt`), language server (LSP), layout diversity inspections, and JSON diagnostic outputs for automated AI repair loops.
+<br/>
 
----
+> **Write once in `.amana`. Get a production-ready Express app, a live SQLite database, secured forms, and beautiful responsive layouts — all compiled automatically.**
 
-## 🏗️ Visual Layout Gallery
+<br/>
 
-Amana includes 5 pre-built, premium-designed examples in the `examples/` directory demonstrating different design directions and layouts:
+[✨ See Examples](#-visual-showcase) · [🚀 Quick Start](#-quick-start) · [📖 Docs](#-documentation) · [🤝 Contributing](#contributing)
 
-| Example | Visual Aesthetic | Layout Primitives | Database Models |
-| :--- | :--- | :--- | :--- |
-| [saas_aura](examples/01_saas_aura.amana) | **Dark Neon Space Glass**<br>Mesh gradients, glow highlights | `split` (Hero), `bento` (Live metrics grid), `asymmetric` | `Metric`, `Feedback` |
-| [maison_luxe](examples/02_maison_luxe.amana) | **Editorial Luxe Day Mode**<br>Gold & Emerald accent, Serif fonts | `split-diagonal` (Diagonal cuts), `magazine` (12-col spans), `editorial` | `CollectionItem`, `Booking` |
-| [vortex_console](examples/03_vortex_console.amana) | **Obsidian DevOps Tech**<br>Blueprint grid, lime glow | `command-center` (3-column terminal), `masonry` (Diagnostics logs) | `DeployLog`, `AccessRequest` |
-| [nova_creative](examples/04_nova_creative.amana) | **Deep Orchid Motion**<br>Purple blob visual shapes, smooth animations | `asymmetric` (Stagger-up hero), `showcase-rail` (Horizontal portfolio) | `ProjectBrief` |
-| [cura_wellness](examples/05_cura_wellness.amana) | **Modern Day Healing**<br>Mint & Teal rounded surfaces | `split` (Hero stats), `sidebar` (Sticky Specialties), `bento` | `Appointment` |
+</div>
 
 ---
 
-## ⚡ Quick Start
+## 🌟 What is Amana?
 
-### 1. Build and Test the compiler
-Clone the repository and run the cargo test suite:
-```powershell
+Amana is an **opinionated, full-stack Design-to-Code compiler** written in Rust. You write a single `.amana` file — a human-readable declarative specification — and the compiler generates:
+
+| Output | Technology |
+|---|---|
+| 🌐 HTTP server with routing | Express.js |
+| 🗄️ Database schema + migrations + seeds | SQLite (better-sqlite3) |
+| 🔒 Server-side validated form pipelines | Express middleware |
+| 🎨 Premium responsive layouts + themes | Custom CSS (Grid / Flex) |
+| 🖼️ Templated views | EJS |
+| 🔍 JSON diagnostic output | Compiler error reports |
+
+No boilerplate. No configuration hell. No placeholder data.
+
+---
+
+## ✨ Visual Showcase
+
+Amana ships with **5 premium examples**, each representing a different design direction. All are compiled from a single `.amana` source file.
+
+<br/>
+
+<table>
+<tr>
+<td align="center" width="20%">
+<b>01 · SaaS Aura</b><br/>
+<sub>Dark Neon Glass · Bento Metrics</sub>
+</td>
+<td align="center" width="20%">
+<b>02 · Maison Luxe</b><br/>
+<sub>Editorial Gold · Magazine Grid</sub>
+</td>
+<td align="center" width="20%">
+<b>03 · Vortex Console</b><br/>
+<sub>Obsidian DevOps · Terminal UI</sub>
+</td>
+<td align="center" width="20%">
+<b>04 · Nova Creative</b><br/>
+<sub>Deep Orchid · Blob Animations</sub>
+</td>
+<td align="center" width="20%">
+<b>05 · Cura Wellness</b><br/>
+<sub>Mint Teal · Healing Layout</sub>
+</td>
+</tr>
+<tr>
+<td align="center">
+
+```
+layout: split
+layout: bento
+layout: asymmetric
+```
+</td>
+<td align="center">
+
+```
+layout: split-diagonal
+layout: magazine
+layout: editorial
+```
+</td>
+<td align="center">
+
+```
+layout: command-center
+layout: masonry
+```
+</td>
+<td align="center">
+
+```
+layout: asymmetric
+layout: showcase-rail
+```
+</td>
+<td align="center">
+
+```
+layout: split
+layout: sidebar
+layout: bento
+```
+</td>
+</tr>
+</table>
+
+▶ See [`examples/`](examples/) and [`doc/examples-gallery.md`](doc/examples-gallery.md) for full specs.
+
+---
+
+## 🔥 The Amana Language at a Glance
+
+A complete, full-stack application in fewer lines than a typical `index.html`:
+
+```amana
+app Analytics:
+    title: "Analytics Dashboard"
+    db_path: "analytics.db"
+    capabilities:
+        - auth
+        - api.rest
+
+theme:
+    mode: dark
+    primary: "#6366f1"
+    accent: "#06b6d4"
+    surface: glass
+    radius: soft
+
+model Metric:
+    kpi_name: str unique required
+    value:     str required
+    trend:     str default "+0.0%"
+
+seed Metric:
+    row: { kpi_name: "Active Users", value: "12,482", trend: "+8.3%" }
+    row: { kpi_name: "Uptime",       value: "99.98%", trend: "+0.1%" }
+
+route / -> view Dashboard
+
+view Dashboard:
+    server:
+        fetch metrics = Metric.all()
+    render:
+        div.page:
+            Navbar(brand: "Analytics", sticky: true)
+            section.hero:
+                compose:
+                    layout: bento
+                    rhythm: steady
+                for m in metrics:
+                    Kpi(label: m.kpi_name, value: m.value, trend: m.trend)
+            Footer()
+    style:
+        .page:
+            background: canvas
+            color: text
+            min-height: screen
+```
+
+**That's it.** `amana build app.amana ./dist` → full Express server, migrations, live database, premium UI. ✅
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    .amana  Source File                           │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+                    ┌───────▼────────┐
+                    │   Lexer (Rust) │  ← Tokenization
+                    └───────┬────────┘
+                            │
+                    ┌───────▼────────┐
+                    │  Parser (Rust) │  ← AST Construction
+                    └───────┬────────┘
+                            │
+                   ┌────────▼─────────┐
+                   │ Semantic Analyzer │  ← Type checking, layout
+                   │     (Rust)        │    validation, scope analysis
+                   └────────┬─────────┘
+                            │
+                   ┌────────▼─────────┐
+                   │  Code Generator  │  ← Express routes, EJS views,
+                   │     (Rust)       │    CSS themes, SQL migrations
+                   └────────┬─────────┘
+                            │
+          ┌─────────────────┼──────────────────┐
+          │                 │                  │
+   ┌──────▼──────┐  ┌───────▼──────┐  ┌───────▼──────┐
+   │ server.js   │  │  views/*.ejs │  │ schema.sql   │
+   │ (Express)   │  │  (EJS + CSS) │  │ (SQLite)     │
+   └─────────────┘  └──────────────┘  └──────────────┘
+```
+
+### The 4-Layer CSS Security Pipeline
+
+Amana's CSS sanitizer enforces strict security at compile time — not runtime:
+
+```
+Layer 1: Selector Safety  →  Blocks body, html, *, [onclick], etc.
+Layer 2: Property Allowlist →  Only safe layout/paint properties pass
+Layer 3: Value Sanitizer  →  Strips javascript:, expression(), url(data:...)
+Layer 4: CSS Layer Scope  →  @layer components, variants, overrides
+```
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- [Rust 1.75+](https://rustup.rs/) (for the compiler)
+- [Node.js 18+](https://nodejs.org/) (for the generated runtime)
+
+### 1. Clone & Build
+
+```bash
+git clone https://github.com/akleeko2/amana-dsl.git
+cd amana-dsl
+cargo build --release
+```
+
+### 2. Run the Test Suite
+
+```bash
 cargo test
 ```
 
-### 2. Verify an Example
-Run semantic checks and build one of the premium examples:
-```powershell
-# Run compiler analysis check
-cargo run -- check examples/01_saas_aura.amana --json
+All tests must pass on a clean clone. ✅
 
-# Build the complete full-stack web application
-cargo run -- build examples/01_saas_aura.amana .amana_saas_dist
+### 3. Check a Source File
+
+```bash
+# Validate syntax and semantics
+cargo run -- check examples/01_saas_aura.amana
+
+# Get structured JSON diagnostics (AI-ready)
+cargo run -- check examples/01_saas_aura.amana --json
 ```
 
-### 3. Launch the Web Application
-Inside the generated directory, install dependencies and launch the server:
-```powershell
+### 4. Compile to a Full-Stack App
+
+```bash
+# Build the SaaS Aura example
+cargo run -- build examples/01_saas_aura.amana .amana_saas_dist
+
+# Enter generated app and start
 cd .amana_saas_dist
 npm install
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to view your live, interactive Amana application!
+
+Open [http://localhost:3000](http://localhost:3000) 🎉
 
 ---
 
-## 🛠️ The Amana CLI Toolchain
-
-The Amana binary supports several commands to maximize developer experience:
+## 🛠️ CLI Reference
 
 ```bash
-# Check syntax and semantics (prints JSON diagnostics)
-amana check <file.amana> [--json]
+# Compile a source file to a target directory
+amana build  <file.amana> [output-dir]
 
-# Format Amana source files recursively
-amana fmt <file.amana> [--all] [--check]
+# Check syntax, semantics, and design validation
+amana check  <file.amana> [--json]
+
+# Format source files (formatter)
+amana fmt    <file.amana> [--all] [--check]
 
 # Analyze layout diversity and design scores
 amana inspect-design <file.amana>
 
-# Start developer watch mode with live hot reloading
-amana dev <file.amana> [output-dir]
+# Watch mode: live rebuild on change
+amana dev    <file.amana> [output-dir]
 
-# Run the Amana Language Server Protocol (LSP)
+# Start Amana Language Server (LSP / IDE integration)
 amana lsp
 ```
 
@@ -89,15 +300,65 @@ amana lsp
 
 ## 📂 Documentation
 
-Deep dive into Amana's specifications:
-*   📖 **[Language Reference](doc/language.md):** Syntax guidelines, custom components, and database mapping.
-*   🛡️ **[Security Architecture](doc/node-runtime-security.md):** 4-layer scoped CSS sanitizer and SQL protection.
-*   📐 **[CSS Layout & Theme System](doc/css-theme-rtl.md):** RTL support, visual tokens, and grids.
-*   💻 **[CLI Developer Experience](doc/cli-dx.md):** Code formatting, inspections, and LSP.
-*   🎨 **[Examples Gallery Info](doc/examples-gallery.md):** Complete specifications of all pre-built layouts.
+| Document | Description |
+|---|---|
+| 📖 [Language Reference](doc/language.md) | Complete syntax: `app`, `theme`, `model`, `view`, `route`, `component`, `slot`, `variant` |
+| 🏗️ [CSS Layout & Theme System](doc/css-theme-rtl.md) | Design tokens, layout engines, RTL, gradients |
+| 🛡️ [Security Architecture](doc/node-runtime-security.md) | 4-layer CSS sanitizer, SQL injection protection |
+| 💻 [CLI & DX Guide](doc/cli-dx.md) | Formatter, LSP, inspector, diagnostics |
+| 🎨 [Examples Gallery](doc/examples-gallery.md) | All 5 premium examples explained |
+| 🗺️ [Roadmap](doc/roadmap.md) | What's coming next |
+
+---
+
+## 🗺️ Roadmap
+
+| Status | Feature |
+|---|---|
+| ✅ | Full-stack compiler (Lexer → Parser → Semantic → Codegen) |
+| ✅ | SQLite model → migration → seed pipeline |
+| ✅ | 8 premium layout engines (bento, masonry, split, asymmetric, magazine…) |
+| ✅ | 4-layer CSS security sanitizer |
+| ✅ | Custom components, named slots, variant registry |
+| ✅ | JSON diagnostic output + `check` command |
+| ✅ | `fmt` formatter + `inspect-design` |
+| ✅ | Language Server Protocol (LSP) skeleton |
+| 🔄 | VS Code extension with syntax highlighting |
+| 🔄 | `amana cloud` deploy (one-command Fly.io / Railway deploy) |
+| 🔄 | PostgreSQL backend (in addition to SQLite) |
+| 🔄 | Auth scaffolding (`capabilities: auth` → full login/signup) |
+| 🔮 | WASM compiler target (run Amana in the browser) |
+| 🔮 | Multi-page import graph (`import "./models/user.amana"`) |
+| 🔮 | `amana ui` — visual drag-and-drop `.amana` editor |
+
+---
+
+## 🤝 Contributing
+
+We love contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
+
+**Quick guide:**
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/my-feature`
+3. Make your changes and add tests
+4. Run `cargo test` — all tests must pass
+5. Open a Pull Request
+
+Check out [Good First Issues](https://github.com/akleeko2/amana-dsl/labels/good%20first%20issue) if you're new!
 
 ---
 
 ## 📜 License
 
-This project is licensed under the **GNU Affero General Public License v3.0** - see the [LICENSE](LICENSE) file for details. If you use Amana over the network (e.g. as a cloud SaaS compiler), you must make your modified source code available.
+**GNU Affero General Public License v3.0** — see [LICENSE](LICENSE).
+
+> If you run Amana as a network service (e.g., a SaaS compiler), you **must** make any modifications publicly available under the same license. This ensures Amana remains open for everyone.
+
+---
+
+<div align="center">
+
+Made with ❤️ and a lot of Rust.<br/>
+<sub>If Amana saved you hours, consider starring ⭐ the repo — it helps more than you think.</sub>
+
+</div>

@@ -1,0 +1,59 @@
+---
+name: Bug Report
+about: Report a crash, incorrect output, or unexpected compiler behavior
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+assignees: []
+---
+
+## 🐛 Bug Description
+
+<!-- A clear, concise description of the bug. What happened? What did you expect? -->
+
+## 📄 Minimal .amana Reproduction
+
+<!-- Paste the smallest possible .amana file that triggers the bug -->
+
+```amana
+app BugRepro:
+    title: "Bug"
+    db_path: "bug.db"
+
+# ... paste your minimal reproduction here
+```
+
+## 🖥️ Command Used
+
+```bash
+# e.g.
+cargo run -- build repro.amana ./out
+# or
+cargo run -- check repro.amana --json
+```
+
+## 📋 Error Output
+
+<details>
+<summary>Compiler output / panic trace</summary>
+
+```
+paste the full error or panic output here
+```
+
+</details>
+
+## 🔢 Environment
+
+| | |
+|---|---|
+| **OS** | <!-- e.g. Windows 11, Ubuntu 22.04, macOS 14 --> |
+| **Rust version** | <!-- `rustc --version` --> |
+| **Amana version / commit** | <!-- `git rev-parse --short HEAD` --> |
+
+## ✅ Expected Behavior
+
+<!-- What should have happened? -->
+
+## 🔍 Additional Context
+
+<!-- Screenshots, related issues, or any other context -->
