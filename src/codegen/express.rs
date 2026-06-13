@@ -1616,6 +1616,9 @@ document.addEventListener('DOMContentLoaded', () => {\n\
         attrs += ` x-show="${compileExpressionToJs(expr)}"`;
       } else if (key === 'text') {
         attrs += ` x-text="${compileExpressionToJs(expr)}"`;
+      } else if (key === 'init') {
+        const code = expr.StringLiteral !== undefined ? expr.StringLiteral : compileExpressionToJs(expr);
+        attrs += ` x-init="${escapeAttr(code)}"`;
       } else if (['disabled', 'checked', 'selected', 'readonly'].includes(key)) {
         attrs += ` :${key}="${compileExpressionToJs(expr)}"`;
       } else {

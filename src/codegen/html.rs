@@ -843,6 +843,16 @@ fn generate_ejs_scoped(
                         " x-text=\"{}\"",
                         compile_expression_to_js_scoped(expr, aliases)
                     ));
+                } else if *key == "init" {
+                    let code = match expr {
+                        Expression::StringLiteral(s) => s.clone(),
+                        _ => compile_expression_to_js_scoped(expr, aliases),
+                    };
+                    let escaped = code.replace('&', "&amp;")
+                                      .replace('"', "&quot;")
+                                      .replace('<', "&lt;")
+                                      .replace('>', "&gt;");
+                    attrs.push_str(&format!(" x-init=\"{}\"", escaped));
                 } else if matches!(
                     key.as_str(),
                     "disabled" | "checked" | "selected" | "readonly"
