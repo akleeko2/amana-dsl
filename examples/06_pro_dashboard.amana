@@ -432,6 +432,7 @@ view Home:
             font-size: 1.35rem
             font-weight: 700
             letter-spacing: 0.05em
+            white-space: nowrap
 
         .sidebar-links:
             layout: stack
@@ -446,6 +447,7 @@ view Home:
             text-decoration: none
             font-weight: 500
             transition: all 0.2s ease-in-out
+            white-space: nowrap
 
         .sidebar-link:hover:
             color: #ffffff
@@ -526,6 +528,7 @@ view Home:
             font-size: 0.9rem
             font-weight: 600
             color: rgba(0, 0, 0, 0.85)
+            white-space: nowrap
 
         .content-body:
             padding: 1rem 1.5rem
@@ -623,6 +626,7 @@ view Home:
             padding-bottom: 0.5rem
             border-bottom: 2px solid transparent
             transition: all 0.2s
+            white-space: nowrap
 
         .chart-tab-btn:hover:
             color: #1890ff
@@ -642,6 +646,7 @@ view Home:
             color: rgba(0, 0, 0, 0.65)
             cursor: pointer
             transition: color 0.2s
+            white-space: nowrap
 
         .filter-link:hover:
             color: #1890ff

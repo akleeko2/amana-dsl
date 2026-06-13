@@ -438,6 +438,7 @@ view Home:
             font-size: 1.5rem
             font-weight: 900
             letter-spacing: 0.15em
+            white-space: nowrap
     
         .landing-nav:
             layout: row
@@ -450,6 +451,7 @@ view Home:
             text-decoration: none
             font-weight: 500
             transition: color 0.2s
+            white-space: nowrap
     
         .landing-nav a:hover:
             color: #00f0ff
@@ -466,6 +468,7 @@ view Home:
             font-weight: 700
             cursor: pointer
             transition: all 0.2s ease-in-out
+            white-space: nowrap
     
         .btn-launch:hover:
             background: #00f0ff
@@ -538,6 +541,7 @@ view Home:
             font-weight: 700
             cursor: pointer
             transition: all 0.2s
+            white-space: nowrap
     
         .hero-btn-primary:hover:
             background: #ffffff
@@ -554,6 +558,7 @@ view Home:
             border-radius: 2px
             font-weight: 600
             transition: all 0.2s
+            white-space: nowrap
     
         .hero-btn-secondary:hover:
             background: rgba(255, 255, 255, 0.08)

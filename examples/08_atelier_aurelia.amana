@@ -398,6 +398,7 @@ view Home:
             letter-spacing: 0.25em
             font-size: 1.25rem
             color: #d4af37
+            white-space: nowrap
     
         .nav-menu:
             layout: row
@@ -413,6 +414,7 @@ view Home:
             text-transform: uppercase
             letter-spacing: 0.1em
             transition: color 0.2s
+            white-space: nowrap
     
         .nav-menu a:hover:
             color: #d4af37
@@ -425,6 +427,7 @@ view Home:
             font-weight: 700
             cursor: pointer
             transition: all 0.2s ease-in-out
+            white-space: nowrap
     
         .nav-cta:hover:
             background: #d4af37
@@ -591,6 +594,7 @@ view Home:
             padding: 0.5rem 1rem
             cursor: pointer
             transition: all 0.2s
+            white-space: nowrap
     
         .selector-btn:hover:
             color: #f3ece0
@@ -692,6 +696,7 @@ view Home:
             align-items: center
             gap: xs
             transition: all 0.2s
+            white-space: nowrap
     
         .timeline-step:hover .step-title:
             color: #f3ece0
@@ -790,6 +795,7 @@ view Home:
             font-weight: 600
             cursor: pointer
             transition: all 0.2s
+            white-space: nowrap
     
         .option-btn:hover:
             color: #f3ece0
