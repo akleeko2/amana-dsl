@@ -260,11 +260,15 @@ Layout blocks check configuration properties strictly. Supported layout engines 
 
 ## custom css & 4-layer sanitizer
 
-Custom component and variant CSS blocks are rewritten to prevent style pollution and secure applications:
+Custom component, view, and variant CSS blocks are normalized and rewritten by the compiler to prevent style pollution and secure applications:
 
-1. **Selector Safety Validator**: Globally blocked tags (`body`, `html`, `*`, `script`, etc.) and attribute handlers (`[onclick]`) are rejected.
-2. **Property Safety Allowlist**: Restricted to modern, safe layout and painting properties.
+1. **Selector Safety Validator**: Globally blocked tags (`body`, `html`, `*`, `script`, etc.) and attribute selectors (`[onclick]`) are rejected.
+2. **Property Safety Allowlist**: Restricted to modern, safe layout, sizing, typography, and painting properties.
 3. **Value Sanitizer**: Strips dangerous patterns (`javascript:`, `expression(`, `url(...)`, etc.).
 4. **CSS Layers Isolation**: Output is scoped and isolated into `@layer components, variants, overrides` to ensure predictable rendering order.
 
+### Parser & Syntax Enhancements (Amana v2.0.3)
 
+- **Hyphenated Element Tags**: You can use elements and custom elements containing hyphens (e.g. `iconify-icon`) directly inside views. The parser automatically scans and reconstructs hyphenated element tags.
+- **Multi-line Grouped Selectors**: Grouped CSS selectors separated by commas can span across multiple lines to improve readability (e.g. `.class1, \n .class2:`). The parser consumes the trailing newline automatically.
+- **Keyframe and Media Query Nesting Constraint**: Nested blocks (like `@keyframes` percentages or `@media` queries) are **not supported** in the flat `.amana` stylesheet block due to the single-level selector-declaration mapping. Keyframes or media-specific behaviors should be implemented using global overrides, pre-built utility classes, or custom plugins if required.

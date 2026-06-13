@@ -56,6 +56,6 @@ The `examples/` folder currently contains 5 premium verified examples showcasing
 ```powershell
 cargo test
 cargo run -- check examples\01_saas_aura.amana --json
-cargo run -- build examples\01_saas_aura.amana .amana_saas_dist --json
+cargo run -- build examples\01_saas_aura.amana examples\01_saas_aura_dist --json
 ```
 

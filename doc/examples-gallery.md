@@ -1,28 +1,89 @@
-# Examples Gallery
+# Amana Examples Gallery
 
-The `examples/` folder contains 5 premium-designed examples showcasing the advanced v2 Design Engine's layout primitives, visual themes, custom typography, micro-animations, and database integrations.
+The `examples/` directory contains five premium-designed showcases demonstrating the capabilities of the **Amana DSL v2 Design Engine**. These examples showcase advanced layout primitives, custom visual themes, typography scales, micro-animations, secure database mappings, and real-time form handlers.
 
-## Verification
+---
 
-Each example compiles successfully and passes node syntax and EJS tag validation checks:
+## 🚀 Build & Verification Commands
+
+All examples are verified to compile successfully without warnings and produce fully valid Node.js/Express runtimes with EJS views. You can compile them using the following commands:
 
 ```powershell
-cargo run -- build examples/01_saas_aura.amana .amana_verify_dist/01_saas_aura
+# 1. SaaS Aura (AI Analytics Dashboard)
+cargo run -- build examples/01_saas_aura.amana examples/01_saas_aura_dist
+
+# 2. Maison Luxe (Luxury Editorial Atelier)
+cargo run -- build examples/02_maison_luxe.amana examples/02_maison_luxe_dist
+
+# 3. Vortex Console (DevOps Cyber Telemetry Center)
+cargo run -- build examples/03_vortex_console.amana examples/03_vortex_console_dist
+
+# 4. Nova Creative (Design Studio & Showcase)
+cargo run -- build examples/04_nova_creative.amana examples/04_nova_creative_dist
+
+# 5. Cura Wellness (Teal Health & Wellness Directory)
+cargo run -- build examples/05_cura_wellness.amana examples/05_cura_wellness_dist
 ```
 
-## Index
+---
 
-| Example | Title & Theme | Layout Primitives | Models & Actions |
-| --- | --- | --- | --- |
-| `examples/01_saas_aura.amana` | **SaasAura Analytics Control Room**<br>Dark Neon Space Glassmorphism | `split` (Hero), `bento` (Operations Board), `asymmetric` (Architecture) | `Metric`, `Feedback` |
-| `examples/02_maison_luxe.amana` | **MaisonLuxe Luxury Atelier**<br>Light Mode Editorial Day Mode (Serif typography) | `split-diagonal` (Hero), `magazine` (Catalogue), `editorial` (Heritage) | `CollectionItem`, `Booking` |
-| `examples/03_vortex_console.amana` | **Vortex Console Room**<br>Obsidian High-Tech Developer (Lime/Emerald) | `command-center` (Hero Terminal), `masonry` (Diagnostics), `stack` | `DeployLog`, `AccessRequest` |
-| `examples/04_nova_creative.amana` | **Nova Creative Studio**<br>Deep Orchid Motion Theme (Pink/Blue Blobs) | `asymmetric` (Hero), `showcase-rail` (Portfolio), `split` (Ethos) | `ProjectBrief` |
-| `examples/05_cura_wellness.amana` | **Cura Wellness Platform**<br>Modern Day Healing Theme (Teal/Mint Emerald) | `split` (Hero), `sidebar` (Specialties), `bento` (Doctor Directory) | `Appointment` |
+## 🎨 Premium Examples Showcase
 
-## Why These Matter
+### 1. SaaS Aura (`01_saas_aura.amana`)
+* **Theme & Voice:** Futuristic Space Dark Mode (`canvas: "#050b18"`, `accent: "#06b6d4"`, `surface: glass`). Technical and analytical voice.
+* **Layout Blocks:**
+  * `dashboard-shell` (responsive fixed sidebar next to main content flow).
+  * `grid` (KPI cards grid with automatic layout scaling).
+  * `split` (asymmetric division for zero-dependency compiler brief).
+  * `stack` (form registry stack).
+* **Key Features:**
+  * Aura core heartbeat indicator with micro-animations.
+  * System latency and resource load bars mapping compiler telemetry.
+  * Monospace command logger simulator displaying mock compile timelines.
+  * Database models: `Metric` (KPI records) and `Feedback` (user queue requests).
 
-- **Visual Diversity:** Ranging from premium luxury day-mode editorial layout to high-contrast developer obsidian blueprint terminal.
-- **Layout Sophistication:** Utilizes `bento` auto-placements, `showcase-rail` horizontal flows, `magazine` spanning grids, `sidebar` sticky columns, and `split-diagonal` cutouts.
-- **Data Integrations:** Connects front-end inputs (e.g. feedback, scheduling, access signup) directly to database models with secure handlers.
-- **Micro-Animations & Visuals:** Features hover states (`lift-glow`, `scale`), entrance transitions (`stagger-up`), gradient accents (`spotlight`, `aurora`), and layered borders.
+### 2. Maison Luxe (`02_maison_luxe.amana`)
+* **Theme & Voice:** Light Mode Luxury Day Editorial (`canvas: "#fcfbf7"`, `primary: "#111111"`, `accent: "#d4af37"` gold, `font_family: "Playfair Display"` serif). Elegant and architectural voice.
+* **Layout Blocks:**
+  * `split` (hero showcase with high-contrast text and boutique reservation entry).
+  * `grid` (catalog sections with gold borders and custom metadata badges).
+  * `stack` (heritage timeline and reservation flow).
+* **Key Features:**
+  * Floating transparent header menu with custom luxury styling.
+  * Clean bottom-border input fields for scheduling atelier bookings.
+  * Serif typography-driven visual hierarchy.
+  * Database models: `CollectionItem` (seasonal fashion lines) and `Booking` (atelier sessions).
+
+### 3. Vortex Console (`03_vortex_console.amana`)
+* **Theme & Voice:** Obsidian Hacker Cyberpunk (`canvas: "#020813"`, `primary: "#10b981"` emerald, `accent: "#34d399"` neon mint, `font_family: "Space Mono"` / `"Fira Code"`). Dev-ops technical command style.
+* **Layout Blocks:**
+  * `split` (active DevOps stage telemetry header).
+  * `grid` (bento diagnostic reading cards with glowing borders).
+  * `stack` (stage build timelines and diagnostic command prompt input).
+* **Key Features:**
+  * Alternate stage timeline with monospace indicators.
+  * Interactive CLI input simulator displaying stdout/stderr logs.
+  * Custom code success badges (`.code.success`) with glowing shadows.
+  * Database models: `DeployLog` (stage log lines) and `AccessRequest` (developer telemetry logs).
+
+### 5. Nova Creative (`04_nova_creative.amana`)
+* **Theme & Voice:** Deep Orchid Neon Purple (`canvas: "#090514"`, `primary: "#d946ef"`, `accent: "#8b5cf6"` violet, `surface: glass`). Creative and bold voice.
+* **Layout Blocks:**
+  * `split` (hero asymmetric showcase showcasing design philosophies).
+  * `grid` (portfolio rail showcasing visual works).
+  * `stack` (client request questionnaire).
+* **Key Features:**
+  * Vibrant gradient blobs and orchid glow backdrops.
+  * Lift-on-hover card transformations with smooth scale.
+  * Database models: `ProjectBrief` (design client requests).
+
+### 6. Cura Wellness (`05_cura_wellness.amana`)
+* **Theme & Voice:** Modern Healing Teal Clean Mode (`canvas: "#f0fdf4"`, `primary: "#0f766e"`, `accent: "#14b8a6"`, `surface: elevated`). Soft, clean, and reliable voice.
+* **Layout Blocks:**
+  * `split` (clean hero section with appointment scheduler).
+  * `grid` (doctor directory grid cards).
+  * `stack` (clinical specialties list).
+* **Key Features:**
+  * High-density clean layout optimized for medical search.
+  * Seamless reservation form connecting clients directly to caregivers.
+  * Database models: `Appointment` (medical visit slots).
