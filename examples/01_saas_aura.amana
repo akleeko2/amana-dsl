@@ -1,5 +1,5 @@
 app SaasAura:
-    title: "SaasAura | Analytics Control Room"
+    title: "AETHERIS // QUANTUM CORE COMMAND"
     db_path: "saasaura.db"
     capabilities:
         - auth
@@ -9,23 +9,26 @@ theme:
     mode: dark
     direction: ltr
     language: en
-    primary: "#6366f1"
-    accent: "#06b6d4"
-    canvas: "#050b18"
-    base: "#0b0f19"
-    elevated: "rgba(11,15,25,0.75)"
-    text: "#f8fafc"
-    muted: "#94a3b8"
-    border: "rgba(99,102,241,0.18)"
-    radius: soft
+    font_provider: google
+    font_family: "Space Mono"
+    heading_font_family: "Orbitron"
+    primary: "#00f0ff"
+    accent: "#ff007f"
+    canvas: "#05070f"
+    base: "#0b0e17"
+    elevated: "#121724"
+    text: "#ffffff"
+    muted: "#8b949e"
+    border: "#202538"
+    radius: hard
     surface: glass
     density: comfortable
-    gradient_hero: "linear-gradient(135deg, #050b18 0%, #0b0f19 55%, #1e1b4b 100%)"
 
 model Metric:
     kpi_name: str unique required
     value: str required
     trend: str default "+0.0%"
+    is_trend_up: bool default true
     source: str default "saas_system"
 
 model Feedback:
@@ -34,528 +37,800 @@ model Feedback:
 
 seed Metric:
     row:
-        kpi_name: "Active Pipelines"
-        value: "1,248"
-        trend: "+14.2%"
-        source: "agent_orchestrator"
+        kpi_name: "Fusion Core Temperature"
+        value: "148.2 MK"
+        trend: "+3.4%"
+        is_trend_up: true
+        source: "thermal_sensor_09"
     row:
-        kpi_name: "Model Latency"
-        value: "0.24s"
-        trend: "-8.4%"
-        source: "inference_node"
+        kpi_name: "Containment Field Strength"
+        value: "98.7 T"
+        trend: "-0.2%"
+        is_trend_up: false
+        source: "magnetic_solenoid_beta"
     row:
-        kpi_name: "Token Efficiency"
-        value: "99.8%"
-        trend: "+0.4%"
-        source: "context_compressor"
+        kpi_name: "Plasma Fuel Flow Rate"
+        value: "4.85 mg/s"
+        trend: "+12.1%"
+        is_trend_up: true
+        source: "injector_manifold_z"
+    row:
+        kpi_name: "Energy Grid Efficiency"
+        value: "94.2%"
+        trend: "+1.5%"
+        is_trend_up: true
+        source: "power_converter_alpha"
 
 route / -> view Home
 
 view Home:
     canvas:
-        layout: dashboard-shell
+        layout: column
         surface: glass
         density: comfortable
 
+    client:
+        state active_tab = "monitor"
+        state coolant_valve = 60
+        state magnetic_shield = 80
+        state override_activated = false
+        state sim_particle = "Deuterium"
+        state sim_speed = 2
+        state sim_yield = 5000
+        state sim_stable = true
+
     server:
         fetch metrics = Metric.all()
+        fetch logs = Feedback.all(limit: 10)
 
     render:
-        div.aura-dashboard:
-            aside.amana-sidebar:
+        div.quantum-portal:
+            Navbar(brand: "Aetheris Command", sticky: true, links: "Monitor #monitor, Simulator #simulator, Registry #registry")
+
+            section.hero-shell:
+                compose:
+                    layout: split
+                    ratio: "1:1"
+                visual:
+                    gradient: spotlight
+                    surface: glass
+                    border: "rgba(0, 240, 255, 0.15)"
                 creative:
                     uniqueness: signature
+                    signature: "quantum-reactor-console"
                 brand:
                     voice: technical
+                    personality: high-fidelity
+                    colorway: "cyan-neon-pink"
                 art:
-                    direction: abstract
+                    direction: cyberpunk
+                    motif: reactor-interface
+                    lighting: dark-neon
+                    texture: translucent
                 responsive:
-                    desktop:
-                        padding: xl
-                    mobile:
-                        padding: md
-                visual:
-                    surface: glass
-                    gradient: aurora
+                    desktop_columns: "1.2fr 0.8fr"
+                    mobile_columns: "1fr"
                 type:
-                    scale: compact
-                    align: left
+                    scale: spacious
+                    align: center
                 motion:
                     entrance: fade
-                    hover: scale
+                    hover: glow
+                interaction:
+                    feedback: tactile
+                a11y:
+                    contrast: high
 
-                div.sidebar-brand:
-                    div.status-pulse-wrapper:
-                        span.status-dot: ""
-                        span.status-text: "AURA CORE ONLINE"
-                    Badge(label: "Next-Gen AI")
-                    h2: "SaaS Aura"
-                    p.brand-sub: "Control Room"
-                
-                div.sidebar-links:
-                    a.sidebar-link.active(href: "#metrics"):
-                        iconify-icon(icon: "material-symbols:dashboard-rounded"): ""
-                        span: "Dashboard"
-                    a.sidebar-link(href: "#brief"):
-                        iconify-icon(icon: "material-symbols:info-outline-rounded"): ""
-                        span: "System Brief"
-                    a.sidebar-link(href: "#access"):
-                        iconify-icon(icon: "material-symbols:vpn-key-rounded"): ""
-                        span: "Access Request"
+                Container(width: "wide"):
+                    div.hero-grid:
+                        div.hero-text-area:
+                            span.eyebrow: "SYSTEM CORE DIAGNOSTICS"
+                            h1.hero-title: "THE ART OF QUANTUM ENERGY OPERATIONS"
+                            p.hero-description: "Manage orbital reactor arrays, test particle collision yields, and report telemetry deviations directly to the SQLite secure central log network."
+                            div.hero-actions:
+                                button.btn-cyan(click: "active_tab = 'monitor'"): "Access Reactor Monitor"
+                                button.btn-pink(click: "active_tab = 'simulator'"): "Initialize Particle Lab"
+                        div.hero-media-area:
+                            div.terminal-mockup:
+                                div.terminal-header:
+                                    div.term-dots:
+                                        span.dot.red: ""
+                                        span.dot.yellow: ""
+                                        span.dot.green: ""
+                                    span.term-title: "aetheris_core_telemetry.log"
+                                div.terminal-body:
+                                    p.term-line: "[INFO] Initializing magnetic coils... OK"
+                                    p.term-line: "[INFO] Coolant flow synchronized: Nominal"
+                                    p.term-line: "[INFO] Level-5 security protocol: Active"
+                                    p.term-line.cyan: "[OK] Core Containment Field: 98.7 T"
+                                    p.term-line.pink: "[WARN] Flux loop drift detected on Sector 4"
 
-                div.sidebar-footer:
-                    div.resource-widget:
-                        div.widget-header:
-                            span: "System Latency"
-                            span.value-tag: "24ms"
-                        div.bar-track:
-                            div.bar-fill.latency-fill: ""
-                    div.resource-widget:
-                        div.widget-header:
-                            span: "Resource Load"
-                            span.value-tag: "42%"
-                        div.bar-track:
-                            div.bar-fill.load-fill: ""
+            # ----------------------------------------------------
+            # MONITOR TAB
+            # ----------------------------------------------------
+            div.view-container(show: active_tab == "monitor"):
+                div.sub-header:
+                    h2: "QUANTUM REACTOR MONITOR"
+                    p: "Real-time telemetry and containment field diagnostics directly from SQLite storage."
 
-            div.main-content:
-                header.main-header:
-                    div.header-search:
-                        iconify-icon(icon: "material-symbols:search-rounded"): ""
-                        input.search-input(placeholder: "Search telemetry... (Ctrl+K)")
-                    div.header-actions:
-                        div.notification-bell:
-                            iconify-icon(icon: "material-symbols:notifications-outline-rounded"): ""
-                            span.bell-badge: "3"
-                        div.user-profile:
-                            div.user-avatar:
-                                span: "AM"
-                            div.user-info:
-                                span.user-name: "Alex Mercer"
-                                span.user-role: "Orchestrator"
-
-                section.metrics-grid(id: "metrics"):
-                    compose:
-                        layout: grid
+                # Telemetry Grid of SQLite data
+                div.telemetry-grid:
                     for met in metrics:
-                        div.premium-kpi-card:
-                            div.kpi-header:
-                                span.kpi-label: met.kpi_name
-                                div.kpi-icon-wrapper:
-                                    iconify-icon(icon: "material-symbols:bolt-rounded"): ""
-                            div.kpi-body:
-                                strong.kpi-value: met.value
-                                span.kpi-trend: met.trend
-                            div.kpi-chart-mock:
-                                div.chart-line: ""
+                        div.telemetry-card:
+                            div.card-top:
+                                span.lbl: met.kpi_name
+                                span.src: met.source
+                            div.card-body:
+                                span.val: met.value
+                                span.trend.trend-up(show: met.is_trend_up): met.trend
+                                span.trend.trend-down(show: !met.is_trend_up): met.trend
 
-                section.showcase-panel(id: "brief"):
-                    compose:
-                        layout: split
-                    
-                    div.showcase-text:
-                        Badge(label: "Architecture")
-                        h2: "Zero-dependency compiler runtime"
-                        p: "Amana compiles your declarative intent into live Express endpoints, production-hardened SQL, and beautiful responsive layouts automatically."
-                    
-                    div.showcase-preview:
-                        div.terminal-mock:
-                            div.terminal-header:
-                                div.terminal-dots:
-                                    span.dot.red: ""
-                                    span.dot.yellow: ""
-                                    span.dot.green: ""
-                                span.terminal-title: "vortex_build.log"
-                            div.terminal-body:
-                                div.terminal-line:
-                                    span.term-time: "[19:46:01]"
-                                    span.term-text: "Analyzing project graph..."
-                                div.terminal-line:
-                                    span.term-time: "[19:46:02]"
-                                    span.term-text.success: "✔ AST parsing complete (12ms)"
-                                div.terminal-line:
-                                    span.term-time: "[19:46:02]"
-                                    span.term-text.success: "✔ CSS normalization complete (4ms)"
-                                div.terminal-line:
-                                    span.term-time: "[19:46:03]"
-                                    span.term-text.info: "ℹ Seed data synchronized: Metric (50 rows)"
+                # Manual Control Panel
+                div.monitor-layout:
+                    div.controls-panel:
+                        h3: "Containment Operations"
+                        p.help-text: "Adjust valve levels and magnetic coils. Integrated systems trigger automatic safety warnings."
+                        
+                        # Coolant Valve Slider
+                        div.slider-group:
+                            div.slider-header:
+                                span: "Coolant Valve Level"
+                                span.val-highlight:
+                                    span(text: coolant_valve): ""
+                                    span: "%"
+                            input.range-slider(type: "range", min: "0", max: "100", model: coolant_valve)
+                        
+                        # Magnetic Shield Slider
+                        div.slider-group:
+                            div.slider-header:
+                                span: "Magnetic Containment Shield"
+                                span.val-highlight:
+                                    span(text: magnetic_shield): ""
+                                    span: "%"
+                            input.range-slider(type: "range", min: "0", max: "100", model: magnetic_shield)
 
-                section.feedback-panel(id: "access"):
-                    compose:
-                        layout: stack
-                    
-                    div.premium-form-container:
-                        div.form-header:
-                            h3: "Request System Access"
-                            p: "Enter your developer credentials to register in the beta queue."
+                        # Override Toggle Button
+                        div.toggle-row:
+                            span: "Manual Safety Override"
+                            button.toggle-btn.active(show: override_activated, click: override_activated = false): "ACTIVATED"
+                            button.toggle-btn(show: !override_activated, click: override_activated = true): "DEACTIVATED"
+
+                    # Diagnostic Alerts
+                    div.status-panel:
+                        h3: "Containment Diagnostics"
+                        
+                        # Case 1: DANGER
+                        div.diagnostic-alert.danger(show: "coolant_valve < 25 || magnetic_shield < 40"):
+                            div.alert-title: "CRITICAL CORE MELTDOWN RISK"
+                            p: "Danger: Coolant flow rate or magnetic shielding is below containment thresholds. Critical thermal accumulation detected. Increase parameters immediately!"
+                        
+                        # Case 2: WARNING
+                        div.diagnostic-alert.warning(show: "(coolant_valve >= 25 && coolant_valve < 45 && magnetic_shield >= 40) || (coolant_valve > 80 && magnetic_shield >= 40)"):
+                            div.alert-title: "GRID STABILITY WARNING"
+                            p: "Warning: Unbalanced flow rates are causing flux cycles. Reactor is stable but efficiency is degraded."
+                        
+                        # Case 3: NOMINAL
+                        div.diagnostic-alert.nominal(show: "coolant_valve >= 45 && coolant_valve <= 80 && magnetic_shield >= 40"):
+                            div.alert-title: "CORE STATUS: NOMINAL"
+                            p: "Aetheris system is operating within optimal bounds. Fusion containment fields are fully synchronized."
+
+            # ----------------------------------------------------
+            # SIMULATION TAB
+            # ----------------------------------------------------
+            div.view-container(show: active_tab == "simulator"):
+                div.sub-header:
+                    h2: "PARTICLE ACCELERATOR SIMULATOR"
+                    p: "Test fusion yields. Exciting heavier particles at higher levels yields superior energy output."
+
+                div.sim-layout:
+                    div.sim-controls:
+                        h3: "Accelerator Configurator"
+                        
+                        # Choose Particle
+                        div.config-section:
+                            label: "Select Target Particle"
+                            div.options-grid:
+                                button.opt-btn.active(show: sim_particle == "Deuterium", click: "sim_particle = 'Deuterium'"): "Deuterium"
+                                button.opt-btn(show: sim_particle != "Deuterium", click: "sim_particle = 'Deuterium'"): "Deuterium"
+                                
+                                button.opt-btn.active(show: sim_particle == "Tritium", click: "sim_particle = 'Tritium'"): "Tritium"
+                                button.opt-btn(show: sim_particle != "Tritium", click: "sim_particle = 'Tritium'"): "Tritium"
+
+                                button.opt-btn.active(show: sim_particle == "Helium-3", click: "sim_particle = 'Helium-3'"): "Helium-3"
+                                button.opt-btn(show: sim_particle != "Helium-3", click: "sim_particle = 'Helium-3'"): "Helium-3"
+
+                        # Choose Speed
+                        div.config-section:
+                            label: "Energy Excitation Level"
+                            div.options-grid:
+                                button.opt-btn.active(show: sim_speed == 1, click: "sim_speed = 1"): "1.0x (Base)"
+                                button.opt-btn(show: sim_speed != 1, click: "sim_speed = 1"): "1.0x (Base)"
+
+                                button.opt-btn.active(show: sim_speed == 2, click: "sim_speed = 2"): "2.0x (High)"
+                                button.opt-btn(show: sim_speed != 2, click: "sim_speed = 2"): "2.0x (High)"
+
+                                button.opt-btn.active(show: sim_speed == 3, click: "sim_speed = 3"): "3.0x (Peak)"
+                                button.opt-btn(show: sim_speed != 3, click: "sim_speed = 3"): "3.0x (Peak)"
+
+                        # Trigger simulation buttons
+                        div.sim-triggers:
+                            label: "Initialize Fusion Sequence"
+                            div.options-grid:
+                                button.action-btn(click: "sim_yield = 2500 * sim_speed; sim_stable = sim_yield < 7000; sim_particle = 'Deuterium'"): "Deuterium"
+                                button.action-btn(click: "sim_yield = 5000 * sim_speed; sim_stable = sim_yield < 12000; sim_particle = 'Tritium'"): "Tritium"
+                                button.action-btn(click: "sim_yield = 7500 * sim_speed; sim_stable = sim_yield < 20000; sim_particle = 'Helium-3'"): "Helium-3"
+
+                    div.sim-results:
+                        h3: "Simulation Telemetry"
+                        
+                        div.result-card:
+                            div.res-row:
+                                span.res-lbl: "Configured Particle:"
+                                span.res-val(text: sim_particle): ""
+                            div.res-row:
+                                span.res-lbl: "Excitation Level:"
+                                span.res-val(text: sim_speed): ""
+                            div.res-row:
+                                span.res-lbl: "Simulated Energy Yield:"
+                                span.res-val.cyan:
+                                    span(text: sim_yield): ""
+                                    span: " MeV"
+
+                            div.status-banner.stable(show: sim_stable):
+                                span: "COLLISION SEQUENCE: SAFE & STABLE"
+                            div.status-banner.unstable(show: !sim_stable):
+                                span: "COLLISION WARNING: EXTREME RADIATION RISK"
+
+            # ----------------------------------------------------
+            # REGISTRY & SUBMISSION LOGS TAB
+            # ----------------------------------------------------
+            div.view-container(show: active_tab == "registry"):
+                div.sub-header:
+                    h2: "SECTOR ANOMALY REGISTRY"
+                    p: "Submit sector telemetry disturbances and log them to SQLite server archive."
+
+                div.registry-layout:
+                    # Form
+                    div.form-container:
+                        h3: "Log Structural Anomaly"
                         form [email, msg]:
                             connect Feedback.create
                             ui: card
-                            submit: "Submit Request"
+                            submit: "Archive Anomaly Record"
                             redirect success -> /
 
                             field email:
-                                label: "Email Address"
-                                placeholder: "you@domain.com"
+                                label: "Engineer Signature Email"
+                                placeholder: "e.g., sector_officer@aetheris.gov"
                                 type: email
                                 required: true
 
                             field msg:
-                                label: "Project Details"
-                                placeholder: "Describe what you're building..."
+                                label: "Telemetry Log Observations"
+                                placeholder: "Describe any anomalies, flux leaks, or magnetic containment cracks..."
                                 type: textarea
                                 required: true
 
-                footer.premium-footer:
-                    div.footer-left:
-                        p: "© 2026 SaaS Aura. Powered by Amana DSL."
-                    div.footer-right:
-                        a(href: "#"): "System Status"
-                        a(href: "#"): "Docs"
-                        a(href: "#"): "Security"
+                    # Database logs list
+                    div.logs-container:
+                        h3: "System Telemetry Log Archive"
+                        div.logs-list:
+                            for log in logs:
+                                div.log-item:
+                                    div.log-item-header:
+                                        span.log-email: log.email
+                                        span.log-tag: "LOG RECORDED"
+                                    p.log-msg: log.msg
+
+            Footer()
 
     style:
-        .aura-dashboard:
-            background: canvas
-            color: text
-            min-height: screen
-
-        .sidebar-brand:
-            layout: stack
-            gap: sm
-            margin-bottom: 2.5rem
-
-        .status-pulse-wrapper:
-            layout: row
-            align-items: center
-            gap: xs
-            margin-bottom: 0.5rem
-
-        .status-dot:
-            width: 8px
-            height: 8px
-            border-radius: 999px
-            background: #22c55e
-            box-shadow: 0 0 8px #22c55e
-            animation: pulse 1.8s infinite
-
-        .status-text:
-            font-size: 0.75rem
-            font-weight: 800
-            color: #22c55e
-            letter-spacing: 0.05em
-
-        .brand-sub:
-            color: muted
-            font-size: 0.85rem
-            margin: 0
-
-        .sidebar-links:
-            layout: stack
-            gap: xs
-            margin-bottom: auto
-
-        .sidebar-link:
-            layout: row
-            align-items: center
-            gap: sm
-            padding: 0.75rem 1rem
-            border-radius: 12px
-            color: muted
-            text-decoration: none
-            font-weight: 700
-            transition: all 0.2s ease
-
-        .sidebar-link:hover:
-            color: text
-            background: rgba(255, 255, 255, 0.04)
-
-        .sidebar-link.active:
-            color: text
-            background: rgba(99, 102, 241, 0.15)
-            border: 1px solid rgba(99, 102, 241, 0.25)
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05)
-
-        .sidebar-footer:
-            layout: stack
-            gap: md
-            margin-top: 2rem
-            padding-top: 1.5rem
-            border-top: 1px solid rgba(255, 255, 255, 0.06)
-
-        .resource-widget:
-            layout: stack
-            gap: xs
-
-        .widget-header:
-            layout: row
-            justify-content: space-between
-            font-size: 0.75rem
-            color: muted
-
-        .value-tag:
-            font-weight: 800
-            color: text
-
-        .bar-track:
-            height: 6px
-            border-radius: 999px
-            background: rgba(255, 255, 255, 0.08)
-            overflow: hidden
-
-        .bar-fill:
-            height: 100%
-            border-radius: 999px
-
-        .latency-fill:
-            width: 24%
-            background: var(--color-accent)
-
-        .load-fill:
-            width: 42%
-            background: var(--color-primary)
-
-        .main-content:
-            padding: 2rem
-
-        .main-header:
-            layout: row
-            justify-content: space-between
-            align-items: center
-            padding-bottom: 1.5rem
-            margin-bottom: 2rem
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06)
-
-        .header-search:
-            layout: row
-            align-items: center
-            gap: sm
-            background: rgba(255, 255, 255, 0.03)
-            border: 1px solid rgba(255, 255, 255, 0.08)
-            border-radius: 12px
-            padding: 0.5rem 1rem
-            width: 320px
-
-        .search-input:
-            background: transparent
-            border: none
-            color: text
-            font-size: 0.85rem
+        .quantum-portal:
+            min-height: 100vh
+            background: #05070f
+            color: #ffffff
+            font-family: "Space Mono", monospace
+            display: flex
+            flex-direction: column
+            gap: 2rem
             width: 100%
-            outline: none
+            max-width: 100%
+            overflow-x: hidden
 
-        .header-actions:
-            layout: row
-            align-items: center
-            gap: lg
+        .hero-shell:
+            background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.05), transparent 70%), #0b0e17
+            border-bottom: 1px solid #202538
+            padding: 3rem 1.5rem
+            width: 100%
 
-        .notification-bell:
-            position: relative
-            font-size: 1.25rem
-            color: muted
-            cursor: pointer
-
-        .bell-badge:
-            position: absolute
-            top: -4px
-            right: -4px
-            background: #ef4444
-            color: white
-            font-size: 0.65rem
-            font-weight: 900
-            padding: 1px 4px
-            border-radius: 999px
-
-        .user-profile:
-            layout: row
-            align-items: center
-            gap: sm
-
-        .user-avatar:
-            width: 36px
-            height: 36px
-            border-radius: 999px
-            background: var(--gradient-primary)
+        .hero-grid:
             display: grid
-            place-items: center
-            font-weight: 900
-            font-size: 0.85rem
-            color: white
-
-        .user-info:
-            layout: stack
-            gap: none
-
-        .user-name:
-            font-size: 0.85rem
-            font-weight: 800
-
-        .user-role:
-            font-size: 0.7rem
-            color: muted
-
-        .metrics-grid,
-        .showcase-panel,
-        .feedback-panel:
-            margin-bottom: 3.5rem
-            layout: stack
-            gap: lg
-
-        .premium-kpi-card:
-            layout: stack
-            gap: sm
-            padding: 1.5rem
-            background: rgba(255, 255, 255, 0.02)
-            border: 1px solid rgba(255, 255, 255, 0.06)
-            border-radius: 16px
-            transition: all 0.2s ease
-
-        .premium-kpi-card:hover:
-            border-color: rgba(99, 102, 241, 0.3)
-            background: rgba(255, 255, 255, 0.04)
-            transform: translateY(-2px)
-
-        .kpi-header:
-            layout: row
-            justify-content: space-between
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+            gap: 2rem
             align-items: center
+            max-width: 1200px
+            margin: 0 auto
 
-        .kpi-label:
-            font-size: 0.85rem
-            color: muted
-            font-weight: 700
+        .hero-text-area:
+            display: flex
+            flex-direction: column
+            gap: 1rem
 
-        .kpi-icon-wrapper:
-            font-size: 1.15rem
-            color: var(--color-accent)
-
-        .kpi-body:
-            layout: row
-            align-items: baseline
-            gap: sm
-
-        .kpi-value:
-            font-size: 2.25rem
-            font-weight: 900
-
-        .kpi-trend:
+        .eyebrow:
             font-size: 0.85rem
             font-weight: 800
-            color: #22c55e
+            color: #ff007f
+            letter-spacing: 0.15em
 
-        .kpi-chart-mock:
-            height: 4px
-            background: rgba(255, 255, 255, 0.06)
-            border-radius: 999px
-            margin-top: 0.5rem
+        .hero-title:
+            font-size: clamp(2rem, 5vw, 3.2rem)
+            font-weight: 900
+            line-height: 1.1
+            color: #ffffff
+            letter-spacing: -0.02em
+
+        .hero-description:
+            font-size: 1rem
+            color: #8b949e
+            line-height: 1.6
+
+        .hero-actions:
+            display: flex
+            flex-direction: row
+            gap: 1rem
+            flex-wrap: wrap
+            margin-top: 1rem
+
+        .btn-cyan:
+            background: #00f0ff
+            color: #05070f
+            border: none
+            padding: 0.75rem 1.5rem
+            font-weight: 800
+            cursor: pointer
+            transition: all 0.25s
+            font-family: inherit
+
+        .btn-cyan:hover:
+            background: #ffffff
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4)
+
+        .btn-pink:
+            background: transparent
+            color: #ff007f
+            border: 1px solid #ff007f
+            padding: 0.75rem 1.5rem
+            font-weight: 800
+            cursor: pointer
+            transition: all 0.25s
+            font-family: inherit
+
+        .btn-pink:hover:
+            background: rgba(255, 0, 127, 0.1)
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.3)
+
+        .terminal-mockup:
+            background: #05070f
+            border: 1px solid #202538
+            border-radius: 8px
             overflow: hidden
-
-        .chart-line:
-            width: 70%
-            height: 100%
-            background: var(--gradient-primary)
-            border-radius: 999px
-
-        .showcase-text:
-            layout: stack
-            gap: md
-
-        .terminal-mock:
-            background: #020617
-            border: 1px solid rgba(255, 255, 255, 0.08)
-            border-radius: 16px
-            overflow: hidden
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5)
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5)
 
         .terminal-header:
-            layout: row
-            align-items: center
+            background: #0b0e17
+            padding: 0.5rem 1rem
+            border-bottom: 1px solid #202538
+            display: flex
+            flex-direction: row
             justify-content: space-between
-            background: #0f172a
-            padding: 0.75rem 1.25rem
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06)
+            align-items: center
 
-        .terminal-dots:
-            layout: row
-            gap: xs
+        .term-dots:
+            display: flex
+            flex-direction: row
+            gap: 0.4rem
 
         .dot:
-            width: 10px
-            height: 10px
-            border-radius: 999px
+            width: 8px
+            height: 8px
+            border-radius: 50%
 
         .dot.red:
-            background: #ef4444
-
+            background: #ff5f56
         .dot.yellow:
-            background: #f59e0b
-
+            background: #ffbd2e
         .dot.green:
-            background: #22c55e
+            background: #27c93f
 
-        .terminal-title:
-            font-family: monospace
+        .term-title:
             font-size: 0.75rem
-            color: muted
+            color: #8b949e
 
         .terminal-body:
-            padding: 1.25rem
-            font-family: monospace
+            padding: 1.5rem
             font-size: 0.8rem
             line-height: 1.6
-            background: #030712
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
 
-        .terminal-line:
-            layout: row
-            gap: md
+        .term-line:
+            margin: 0
+            color: #8b949e
 
-        .term-time:
-            color: rgba(255, 255, 255, 0.3)
+        .term-line.cyan:
+            color: #00f0ff
 
-        .term-text.success:
-            color: #22c55e
+        .term-line.pink:
+            color: #ff007f
 
-        .term-text.info:
-            color: var(--color-accent)
+        .view-container:
+            max-width: 1200px
+            width: 100%
+            margin: 0 auto
+            padding: 1.5rem
+            display: flex
+            flex-direction: column
+            gap: 2rem
 
-        .premium-form-container:
-            background: rgba(255, 255, 255, 0.02)
-            border: 1px solid rgba(255, 255, 255, 0.06)
-            border-radius: 20px
-            padding: 2.25rem
-            box-shadow: var(--shadow-large)
+        .sub-header:
+            border-left: 3px solid #ff007f
+            padding-left: 1rem
 
-        .form-header:
-            margin-bottom: 2rem
-
-        .form-header h3:
+        .sub-header h2:
             font-size: 1.5rem
             font-weight: 900
-            margin: 0 0 0.5rem 0
-
-        .form-header p:
-            color: muted
+            color: #ffffff
             margin: 0
+
+        .sub-header p:
+            color: #8b949e
+            margin: 0.5rem 0 0 0
             font-size: 0.9rem
 
-        .premium-footer:
-            layout: row
+        .telemetry-grid:
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))
+            gap: 1.5rem
+
+        .telemetry-card:
+            background: #0b0e17
+            border: 1px solid #202538
+            padding: 1.5rem
+            display: flex
+            flex-direction: column
+            gap: 1rem
+            transition: all 0.25s
+
+        .telemetry-card:hover:
+            border-color: #00f0ff
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1)
+            transform: translateY(-4px)
+
+        .card-top:
+            display: flex
+            flex-direction: row
             justify-content: space-between
             align-items: center
-            margin-top: 4rem
-            padding-top: 2rem
-            border-top: 1px solid rgba(255, 255, 255, 0.06)
-            color: muted
-            font-size: 0.85rem
 
-        .footer-right:
-            layout: row
-            gap: md
-
-        .footer-right a:
-            color: muted
-            text-decoration: none
+        .card-top .lbl:
+            font-size: 0.8rem
+            color: #8b949e
             font-weight: 700
 
-        .footer-right a:hover:
-            color: text
+        .card-top .src:
+            font-size: 0.7rem
+            color: #ff007f
+            background: rgba(255, 0, 127, 0.08)
+            padding: 0.1rem 0.4rem
 
+        .card-body:
+            display: flex
+            flex-direction: row
+            justify-content: space-between
+            align-items: baseline
+
+        .card-body .val:
+            font-size: 1.8rem
+            font-weight: 800
+
+        .card-body .trend:
+            font-size: 0.85rem
+            font-weight: 800
+
+        .trend-up:
+            color: #00f0ff
+
+        .trend-down:
+            color: #ff007f
+
+        .monitor-layout:
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+            gap: 2rem
+            align-items: start
+
+        .controls-panel, .status-panel, .sim-controls, .sim-results, .form-container, .logs-container:
+            background: #0b0e17
+            border: 1px solid #202538
+            padding: 2rem
+            display: flex
+            flex-direction: column
+            gap: 1.5rem
+
+        .controls-panel h3, .status-panel h3, .sim-controls h3, .sim-results h3, .form-container h3, .logs-container h3:
+            font-size: 1.1rem
+            font-weight: 800
+            color: #00f0ff
+            border-bottom: 1px solid #202538
+            padding-bottom: 0.75rem
+            margin: 0
+
+        .help-text:
+            color: #8b949e
+            font-size: 0.8rem
+            line-height: 1.5
+            margin: 0
+
+        .slider-group:
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+
+        .slider-header:
+            display: flex
+            flex-direction: row
+            justify-content: space-between
+            font-size: 0.85rem
+            font-weight: 700
+
+        .val-highlight:
+            color: #00f0ff
+
+        .range-slider:
+            width: 100%
+            accent-color: #00f0ff
+            cursor: pointer
+
+        .toggle-row:
+            display: flex
+            flex-direction: row
+            justify-content: space-between
+            align-items: center
+            font-size: 0.85rem
+            font-weight: 700
+
+        .toggle-btn:
+            background: transparent
+            border: 1px solid #ff007f
+            color: #ff007f
+            padding: 0.4rem 1rem
+            cursor: pointer
+            transition: all 0.2s
+            font-family: inherit
+
+        .toggle-btn.active:
+            background: #ff007f
+            color: #ffffff
+            box-shadow: 0 0 8px rgba(255, 0, 127, 0.3)
+
+        .diagnostic-alert:
+            border-left: 4px solid transparent
+            padding: 1.25rem
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+
+        .diagnostic-alert.danger:
+            background: rgba(255, 0, 127, 0.05)
+            border-color: #ff007f
+
+        .diagnostic-alert.danger .alert-title:
+            color: #ff007f
+            font-weight: 800
+
+        .diagnostic-alert.warning:
+            background: rgba(224, 169, 109, 0.05)
+            border-color: #e0a96d
+
+        .diagnostic-alert.warning .alert-title:
+            color: #e0a96d
+            font-weight: 800
+
+        .diagnostic-alert.nominal:
+            background: rgba(0, 240, 255, 0.05)
+            border-color: #00f0ff
+
+        .diagnostic-alert.nominal .alert-title:
+            color: #00f0ff
+            font-weight: 800
+
+        .diagnostic-alert p:
+            color: #8b949e
+            margin: 0
+            font-size: 0.8rem
+            line-height: 1.6
+
+        .sim-layout, .registry-layout:
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+            gap: 2rem
+            align-items: start
+
+        .config-section:
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+
+        .config-section label:
+            font-size: 0.8rem
+            color: #8b949e
+
+        .options-grid:
+            display: grid
+            grid-template-columns: repeat(3, 1fr)
+            gap: 0.5rem
+
+        .opt-btn:
+            background: transparent
+            border: 1px solid #202538
+            color: #8b949e
+            padding: 0.5rem
+            font-size: 0.75rem
+            font-weight: 700
+            cursor: pointer
+            transition: all 0.15s
+            font-family: inherit
+
+        .opt-btn:hover:
+            border-color: #00f0ff
+            color: #ffffff
+
+        .opt-btn.active:
+            background: rgba(0, 240, 255, 0.08)
+            border-color: #00f0ff
+            color: #00f0ff
+
+        .sim-triggers:
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+
+        .sim-triggers label:
+            font-size: 0.8rem
+            color: #8b949e
+
+        .action-btn:
+            background: #ff007f
+            color: #ffffff
+            border: none
+            padding: 0.75rem
+            font-size: 0.75rem
+            font-weight: 800
+            cursor: pointer
+            transition: all 0.25s
+            font-family: inherit
+
+        .action-btn:hover:
+            background: #ffffff
+            color: #05070f
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4)
+
+        .result-card:
+            background: #05070f
+            border: 1px solid #202538
+            padding: 1.5rem
+            display: flex
+            flex-direction: column
+            gap: 1rem
+
+        .res-row:
+            display: flex
+            flex-direction: row
+            justify-content: space-between
+            font-size: 0.85rem
+
+        .res-lbl:
+            color: #8b949e
+
+        .res-val:
+            font-weight: 700
+
+        .cyan:
+            color: #00f0ff
+
+        .status-banner:
+            padding: 0.75rem
+            text-align: center
+            font-size: 0.75rem
+            font-weight: 800
+            margin-top: 0.5rem
+
+        .status-banner.stable:
+            background: rgba(0, 240, 255, 0.08)
+            color: #00f0ff
+            border: 1px solid #00f0ff
+
+        .status-banner.unstable:
+            background: rgba(255, 0, 127, 0.08)
+            color: #ff007f
+            border: 1px solid #ff007f
+
+        .amana-form:
+            display: flex
+            flex-direction: column
+            gap: 1rem
+
+        .amana-field:
+            display: flex
+            flex-direction: column
+            gap: 0.4rem
+            font-size: 0.8rem
+            color: #8b949e
+
+        .amana-field span:
+            font-weight: 700
+
+        .amana-form-control:
+            background: #05070f
+            border: 1px solid #202538
+            color: #ffffff
+            padding: 0.75rem
+            outline: none
+            font-family: inherit
+
+        .amana-form-control:focus:
+            border-color: #ff007f
+
+        .amana-btn:
+            background: #00f0ff
+            color: #05070f
+            border: none
+            padding: 0.75rem 1.5rem
+            font-weight: 800
+            cursor: pointer
+            transition: all 0.25s
+            margin-top: 0.5rem
+            font-family: inherit
+
+        .amana-btn:hover:
+            background: #ffffff
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4)
+
+        .logs-list:
+            display: flex
+            flex-direction: column
+            gap: 1rem
+            max-height: 400px
+            overflow-y: auto
+
+        .log-item:
+            background: #05070f
+            border: 1px solid #202538
+            padding: 1rem
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+
+        .log-item-header:
+            display: flex
+            flex-direction: row
+            justify-content: space-between
+            font-size: 0.75rem
+
+        .log-email:
+            color: #00f0ff
+            font-weight: 700
+
+        .log-tag:
+            color: #8b949e
+            font-size: 0.65rem
+            border: 1px solid #8b949e
+            padding: 0 0.4rem
+
+        .log-msg:
+            color: #ffffff
+            margin: 0
+            font-size: 0.8rem
+            line-height: 1.5
+            word-break: break-all

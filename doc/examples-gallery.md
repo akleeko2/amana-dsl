@@ -30,17 +30,16 @@ cargo run -- build examples/05_cura_wellness.amana examples/05_cura_wellness_dis
 ## 🎨 Premium Examples Showcase
 
 ### 1. SaaS Aura (`01_saas_aura.amana`)
-* **Theme & Voice:** Futuristic Space Dark Mode (`canvas: "#050b18"`, `accent: "#06b6d4"`, `surface: glass`). Technical and analytical voice.
+* **Theme & Voice:** Cyberpunk/Space Control Center (`canvas: "#05070f"`, `primary: "#00f0ff"` glowing cyan, `accent: "#ff007f"` neon magenta, `font_family: "Space Mono"`). Strict technical command room voice.
 * **Layout Blocks:**
-  * `dashboard-shell` (responsive fixed sidebar next to main content flow).
-  * `grid` (KPI cards grid with automatic layout scaling).
-  * `split` (asymmetric division for zero-dependency compiler brief).
-  * `stack` (form registry stack).
+  * `column` (main container stack).
+  * `grid` (Bento diagnostic panels and sliders).
+  * `flex` (interactive control panels and particle colliders).
 * **Key Features:**
-  * Aura core heartbeat indicator with micro-animations.
-  * System latency and resource load bars mapping compiler telemetry.
-  * Monospace command logger simulator displaying mock compile timelines.
-  * Database models: `Metric` (KPI records) and `Feedback` (user queue requests).
+  * Interactive Coolant and Magnetic Containment sliders that dynamically update status banners (SAFE/WARNING/DANGER) based on thresholds.
+  * Built-in Particle Accelerator simulator to compute simulated fusion yields based on particle choices and excitation states.
+  * System Anomaly Registry with a database form connected directly to SQLite `Feedback.create` and live telemetry log archives.
+  * Database models: `Metric` (reactor metrics) and `Feedback` (telemetry anomaly logs).
 
 ### 2. Maison Luxe (`02_maison_luxe.amana`)
 * **Theme & Voice:** Light Mode Luxury Day Editorial (`canvas: "#fcfbf7"`, `primary: "#111111"`, `accent: "#d4af37"` gold, `font_family: "Playfair Display"` serif). Elegant and architectural voice.
