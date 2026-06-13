@@ -402,7 +402,7 @@ view Home:
     style:
         .dashboard-container:
             layout: grid
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr))
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr))
             min-height: 100vh
             background: #f0f2f5
 
@@ -476,6 +476,7 @@ view Home:
         .header-left:
             layout: row
             align-items: center
+            flex-shrink: 0
 
         .menu-toggle:
             background: none
@@ -489,6 +490,7 @@ view Home:
             align-items: center
             flex-wrap: wrap
             gap: md
+            flex-shrink: 0
 
         .header-icon:
             font-size: 1.25rem
@@ -535,7 +537,7 @@ view Home:
 
         .kpi-row:
             layout: grid
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr))
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))
             gap: md
             margin-bottom: 1.5rem
 
@@ -668,7 +670,7 @@ view Home:
 
         .chart-grid:
             layout: grid
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr))
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
             gap: xl
 
         .grid-left:

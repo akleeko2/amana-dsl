@@ -384,6 +384,7 @@ view Home:
             layout: row
             align-items: center
             gap: sm
+            flex-shrink: 0
     
         .brand-logo:
             width: 14px
@@ -405,6 +406,7 @@ view Home:
             flex-wrap: wrap
             gap: md
             justify-content: center
+            flex-shrink: 0
     
         .nav-menu a:
             color: #a49e93
@@ -415,6 +417,7 @@ view Home:
             letter-spacing: 0.1em
             transition: color 0.2s
             white-space: nowrap
+            flex-shrink: 0
     
         .nav-menu a:hover:
             color: #d4af37
@@ -428,6 +431,7 @@ view Home:
             cursor: pointer
             transition: all 0.2s ease-in-out
             white-space: nowrap
+            flex-shrink: 0
     
         .nav-cta:hover:
             background: #d4af37
@@ -452,7 +456,7 @@ view Home:
     
         .hero-grid:
             layout: grid
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr))
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
             gap: xl
             max-width: 1200px
             margin: 0 auto
@@ -609,7 +613,7 @@ view Home:
     
         .showcase-grid:
             layout: grid
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr))
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
             gap: xl
             align-items: center
     
@@ -729,7 +733,7 @@ view Home:
     
         .timeline-grid:
             layout: grid
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr))
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
             gap: xl
             align-items: center
     
@@ -762,7 +766,7 @@ view Home:
     
         .customizer-grid:
             layout: grid
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr))
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
             gap: xl
             max-width: 1000px
             margin: 0 auto
@@ -873,7 +877,7 @@ view Home:
     
         .booking-grid:
             layout: grid
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr))
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
             gap: xl
             max-width: 1000px
             margin: 0 auto

@@ -426,6 +426,7 @@ view Home:
             layout: row
             align-items: center
             gap: sm
+            flex-shrink: 0
     
         .logo-pulse:
             width: 12px
@@ -445,6 +446,7 @@ view Home:
             flex-wrap: wrap
             gap: md
             justify-content: center
+            flex-shrink: 0
     
         .landing-nav a:
             color: #8892b0
@@ -452,6 +454,7 @@ view Home:
             font-weight: 500
             transition: color 0.2s
             white-space: nowrap
+            flex-shrink: 0
     
         .landing-nav a:hover:
             color: #00f0ff
@@ -464,11 +467,12 @@ view Home:
             background: transparent
             border: 1px solid #00f0ff
             color: #00f0ff
-            border-radius: 2px
+            text-decoration: none
             font-weight: 700
             cursor: pointer
             transition: all 0.2s ease-in-out
             white-space: nowrap
+            flex-shrink: 0
     
         .btn-launch:hover:
             background: #00f0ff
@@ -573,7 +577,7 @@ view Home:
     
         .features-grid:
             layout: grid
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr))
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
             gap: lg
     
         .feature-card:
@@ -617,7 +621,7 @@ view Home:
     
         .dashboard-container:
             layout: grid
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr))
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))
             min-height: 100vh
     
         .sidebar:
@@ -704,12 +708,14 @@ view Home:
             font-weight: 700
             letter-spacing: 0.05em
             color: #ffffff
+            flex-shrink: 0
     
         .header-right:
             layout: row
             align-items: center
             flex-wrap: wrap
             gap: md
+            flex-shrink: 0
     
         .alert-toggle:
             background: transparent
@@ -772,7 +778,7 @@ view Home:
     
         .kpi-row:
             layout: grid
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr))
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))
             gap: md
     
         .kpi-card:
