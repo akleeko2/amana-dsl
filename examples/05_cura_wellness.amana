@@ -42,11 +42,16 @@ seed Appointment:
 route / -> view Home
 
 view Home:
+    canvas:
+        layout: sidebar
+        surface: base
+        density: comfortable
+
     server:
         fetch bookings = Appointment.all()
 
     render:
-        div.cura-page(dir: "ltr"):
+        div.cura-page:
             Navbar(brand: "Cura Wellness", sticky: true)
 
             section.hero-shell:
@@ -56,6 +61,12 @@ view Home:
                     gradient: spotlight
                     surface: elevated
                     border: "rgba(13,148,136,0.12)"
+                creative:
+                    uniqueness: signature
+                brand:
+                    voice: friendly
+                art:
+                    direction: organic
                 responsive:
                     desktop:
                         columns: "1.1fr 0.9fr"
@@ -64,6 +75,12 @@ view Home:
                     mobile:
                         columns: "1fr"
                         padding: xl
+                type:
+                    scale: spacious
+                    align: center
+                motion:
+                    entrance: slide-up
+                    hover: scale
 
                 Container(width: "wide"):
                     div.hero-copy:
@@ -75,7 +92,7 @@ view Home:
                             Button(label: "Specialties catalog", href: "#specialties", variant: "ghost")
 
                     div.hero-preview:
-                        Card(title: "Wellness Stats", subtitle: "Operational signals"):
+                        Card(title: "Wellness Stats", subtitle: "Operational signals", variant: "luxury"):
                             p: "Verified doctors: 48 practitioners. Average response: 12 mins. Patient satisfaction: 99.4%."
 
             section.specialties-section(id: "specialties"):
@@ -101,7 +118,7 @@ view Home:
                                 div.sidebar-link: "Internal Medicine"
                         
                         div.specialties-content:
-                            Card(title: "Cardiology Division", subtitle: "Heart & Vascular Health"):
+                            Card(title: "Cardiology Division", subtitle: "Heart & Vascular Health", variant: "luxury"):
                                 p: "Advanced electrocardiogram (ECG) readouts, stress testing, and vascular consultations directed by lead specialists."
 
             section.doctors-section:
@@ -117,11 +134,11 @@ view Home:
                             rhythm: steady
                             density: compact
                         
-                        Card(title: "Dr. Laila Salem", subtitle: "Lead Cardiologist"):
+                        Card(title: "Dr. Laila Salem", subtitle: "Lead Cardiologist", variant: "luxury"):
                             p: "MD from Harvard Medical School, 14 years clinical experience."
-                        Card(title: "Dr. Karim Fahmy", subtitle: "Chief Pediatrician"):
+                        Card(title: "Dr. Karim Fahmy", subtitle: "Chief Pediatrician", variant: "luxury"):
                             p: "MD from Oxford Health, specializes in neonatal development."
-                        Card(title: "Dr. Mona Rashed", subtitle: "Clinical Dermatologist"):
+                        Card(title: "Dr. Mona Rashed", subtitle: "Clinical Dermatologist", variant: "luxury"):
                             p: "MD from Sorbonne Medicine, aesthetic consultations."
 
             section.booking-section(id: "booking"):

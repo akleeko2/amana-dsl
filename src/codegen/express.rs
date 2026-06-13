@@ -1536,11 +1536,19 @@ function generateEjs(element, clientStates, dataVar = null) {
       const label = opts.label || f;
       const placeholder = opts.placeholder ? ` placeholder="${opts.placeholder}"` : '';
       const help = opts.help ? `\n    <small class="amana-help">${opts.help}</small>` : '';
-      const valueAttr = dataVar && inputType !== 'password'
-        ? ` value="<%= typeof ${dataVar} !== 'undefined' && ${dataVar}.${f} !== undefined ? ${dataVar}.${f} : '' %>"`
-        : '';
       const requiredAttr = opts.required === false || (actionName === 'update' && inputType === 'password') ? '' : ' required';
-      formInner += `  <label class="amana-field" for="${f}">\n    <span>${label}</span>\n    <input class="amana-form-control" type="${inputType}" id="${f}" name="${f}"${placeholder}${valueAttr}${requiredAttr}>${help}\n  </label>\n`;
+      
+      if (inputType === 'textarea') {
+        const textareaValue = dataVar
+          ? `<%= typeof ${dataVar} !== 'undefined' && ${dataVar}.${f} !== undefined ? ${dataVar}.${f} : '' %>`
+          : '';
+        formInner += `  <label class="amana-field" for="${f}">\n    <span>${label}</span>\n    <textarea class="amana-form-control" id="${f}" name="${f}"${placeholder}${requiredAttr} rows="4">${textareaValue}</textarea>${help}\n  </label>\n`;
+      } else {
+        const valueAttr = dataVar && inputType !== 'password'
+          ? ` value="<%= typeof ${dataVar} !== 'undefined' && ${dataVar}.${f} !== undefined ? ${dataVar}.${f} : '' %>"`
+          : '';
+        formInner += `  <label class="amana-field" for="${f}">\n    <span>${label}</span>\n    <input class="amana-form-control" type="${inputType}" id="${f}" name="${f}"${placeholder}${valueAttr}${requiredAttr}>${help}\n  </label>\n`;
+      }
     }
     const submitText = submit_label || 'Submit';
     formInner += `  <button type="submit" class="amana-btn amana-btn-primary">${submitText}</button>\n`;
@@ -3281,6 +3289,13 @@ fn theme_direction(theme: Option<&ThemeIR>) -> &str {
 }
 
 fn theme_language(theme: Option<&ThemeIR>) -> &str {
+    if let Some(t) = theme {
+        for (key, val) in &t.settings {
+            if key == "language" {
+                return val;
+            }
+        }
+    }
     if theme_direction(theme) == "rtl" {
         "ar"
     } else {

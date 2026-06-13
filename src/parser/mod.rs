@@ -12,27 +12,73 @@ fn normalize_css_value(value: &str) -> String {
     let units = ["px", "rem", "em", "vh", "vw", "fr", "ms", "s"];
     let chars: Vec<char> = value.trim().chars().collect();
     let mut normalized = String::new();
-    for (idx, ch) in chars.iter().enumerate() {
-        if *ch == ' ' {
+    
+    let mut idx = 0;
+    while idx < chars.len() {
+        let ch = chars[idx];
+        if ch == ' ' {
             let prev = idx.checked_sub(1).and_then(|i| chars.get(i)).copied();
-            let next = chars.get(idx + 1).copied();
-            if prev.is_some_and(|c| c.is_ascii_digit() || c == '.')
-                && next.is_some_and(|c| c.is_ascii_alphabetic() || c == '%')
-            {
+            let next_is_unit = if prev.is_some_and(|c| c.is_ascii_digit() || c == '.') {
+                let mut found_unit = false;
+                for &unit in &units {
+                    let unit_len = unit.chars().count();
+                    if idx + 1 + unit_len <= chars.len() {
+                        let matches_unit = chars[idx + 1 .. idx + 1 + unit_len]
+                            .iter()
+                            .zip(unit.chars())
+                            .all(|(&c1, c2)| c1 == c2);
+                        if matches_unit {
+                            let after_idx = idx + 1 + unit_len;
+                            let is_word_boundary = after_idx >= chars.len() || !chars[after_idx].is_ascii_alphanumeric();
+                            if is_word_boundary {
+                                found_unit = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                found_unit
+            } else {
+                false
+            };
+
+            if next_is_unit {
+                idx += 1;
+                continue;
+            }
+
+            let next_char = chars.get(idx + 1).copied();
+            if next_char == Some('%') {
+                idx += 1;
                 continue;
             }
         }
-        normalized.push(*ch);
+        normalized.push(ch);
+        idx += 1;
     }
-    for unit in units {
-        normalized = normalized.replace(&format!(" {}", unit), unit);
-    }
+
     normalized = normalized
-        .replace(" %", "%")
         .replace("( ", "(")
         .replace(" )", ")")
         .replace(" ,", ",");
-    normalized
+        
+    let mut final_res = String::new();
+    let final_chars: Vec<char> = normalized.chars().collect();
+    let mut i = 0;
+    while i < final_chars.len() {
+        let c = final_chars[i];
+        if c == ' ' {
+            final_res.push(' ');
+            while i + 1 < final_chars.len() && final_chars[i + 1] == ' ' {
+                i += 1;
+            }
+        } else {
+            final_res.push(c);
+        }
+        i += 1;
+    }
+
+    final_res
 }
 
 fn ensure_safe_css_value(value: &str) -> Result<(), String> {

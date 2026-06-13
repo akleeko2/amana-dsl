@@ -1031,10 +1031,17 @@ fn generate_ejs_scoped(
                 } else {
                     ""
                 };
-                form_inner.push_str(&format!(
-                    "  <label class=\"amana-field\" for=\"{}\">\n    <span>{}</span>\n    <input class=\"amana-form-control\" type=\"{}\" id=\"{}\" name=\"{}\"{}{}>{}\n  </label>\n",
-                    f, label, input_type, f, f, placeholder, required, help
-                ));
+                if input_type == "textarea" {
+                    form_inner.push_str(&format!(
+                        "  <label class=\"amana-field\" for=\"{}\">\n    <span>{}</span>\n    <textarea class=\"amana-form-control\" id=\"{}\" name=\"{}\"{}{} rows=\"4\"></textarea>{}\n  </label>\n",
+                        f, label, f, f, placeholder, required, help
+                    ));
+                } else {
+                    form_inner.push_str(&format!(
+                        "  <label class=\"amana-field\" for=\"{}\">\n    <span>{}</span>\n    <input class=\"amana-form-control\" type=\"{}\" id=\"{}\" name=\"{}\"{}{}>{}\n  </label>\n",
+                        f, label, input_type, f, f, placeholder, required, help
+                    ));
+                }
             }
             form_inner.push_str(&format!(
                 "  <button type=\"submit\" class=\"amana-btn amana-btn-primary\">{}</button>\n",

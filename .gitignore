@@ -57,3 +57,10 @@ $RECYCLE.BIN/
 # Internal planning artifacts
 implementation_plan.md
 app.py
+
+# Amana examples dist
+examples/*_dist/
+
+# Amana build plan & issues
+AMANA_BUILD_PLAN.md
+مشاكل لغة امانة*.md

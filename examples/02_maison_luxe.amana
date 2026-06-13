@@ -52,11 +52,16 @@ seed CollectionItem:
 route / -> view Home
 
 view Home:
+    canvas:
+        layout: editorial
+        surface: elevated
+        density: spacious
+
     server:
         fetch items = CollectionItem.all()
 
     render:
-        div.luxe-page(dir: "ltr"):
+        div.luxe-page:
             Navbar(brand: "Maison Luxe")
 
             section.masthead:
@@ -67,6 +72,12 @@ view Home:
                     gradient: spotlight
                     shape: diagonal-cut
                     border: "rgba(15,118,110,0.12)"
+                creative:
+                    uniqueness: signature
+                brand:
+                    voice: luxury
+                art:
+                    direction: classical
                 responsive:
                     desktop:
                         columns: "1.1fr 0.9fr"
@@ -75,6 +86,12 @@ view Home:
                     mobile:
                         columns: "1fr"
                         padding: xl
+                type:
+                    scale: spacious
+                    align: center
+                motion:
+                    entrance: slide-up
+                    hover: lift-glow
 
                 Container(width: "wide"):
                     div.masthead-copy:
@@ -100,7 +117,7 @@ view Home:
                             layout: magazine
                         
                         for item in items:
-                            Card(title: item.title, subtitle: item.description, price: item.price, badge: item.season)
+                            Card(title: item.title, subtitle: item.description, price: item.price, badge: item.season, variant: "luxury")
 
             section.heritage-section:
                 Container(width: "wide"):
@@ -126,7 +143,7 @@ view Home:
                             p.heritage-desc: "Each item represents weeks of detailing, from fiber selection to hand-finished stitches."
 
                         div.heritage-right:
-                            Card(title: "The Atelier Principles", subtitle: "Made in France"):
+                            Card(title: "The Atelier Principles", subtitle: "Made in France", variant: "luxury"):
                                 Timeline():
                                     TimelineItem(meta: "01", title: "Material purity"):
                                         p: "Only organic cashmere and hand-woven silk."
