@@ -1988,7 +1988,8 @@ impl Parser {
                     }
                 }
             }
-            TokenKind::Identifier(tag) => {
+            TokenKind::Identifier(ref orig_tag) => {
+                let mut tag = orig_tag.clone();
                 let element_line = self.peek_line();
                 let element_column = self.peek_column();
                 if tag == "ResourceGrid" || tag == "ResourceTable" {
@@ -2105,8 +2106,14 @@ impl Parser {
                             sort_fields,
                         });
                     }
+                } else {
+                    self.advance();
+                    while self.check(TokenKind::Minus) {
+                        self.advance();
+                        let part = self.expect_identifier()?;
+                        tag = format!("{}-{}", tag, part);
+                    }
                 }
-                self.advance();
                 let mut classes = Vec::new();
                 while self.check(TokenKind::Dot) {
                     self.advance();
@@ -2247,33 +2254,49 @@ impl Parser {
                 break;
             }
 
-            // 1. Parse Selector. Collect until Colon.
+            // 1. Parse Selector. Collect until terminal Colon.
             let mut selector = String::new();
-            while !self.check(TokenKind::Colon) && self.peek_kind().is_some() {
+            while self.peek_kind().is_some() {
                 let tk = self.peek_kind().unwrap();
+                if tk == TokenKind::Colon {
+                    let is_terminal = match self.tokens.get(self.position + 1).map(|t| &t.kind) {
+                        Some(TokenKind::NewLine) | Some(TokenKind::Indent) | Some(TokenKind::Dedent) | None => true,
+                        _ => false,
+                    };
+                    if is_terminal {
+                        break;
+                    }
+                }
+                if tk == TokenKind::NewLine || tk == TokenKind::Indent || tk == TokenKind::Dedent {
+                    break;
+                }
+
                 if Self::is_identifier_like_token(&tk) {
                     selector.push_str(&self.expect_identifier()?);
                     continue;
                 }
+
+                self.advance();
                 match tk {
                     TokenKind::Dot => {
-                        self.advance();
                         selector.push('.');
                     }
                     TokenKind::Star => {
-                        self.advance();
                         selector.push('*');
                     }
                     TokenKind::Minus => {
-                        self.advance();
                         selector.push('-');
                     }
                     TokenKind::Colon => {
-                        break;
+                        selector.push(':');
                     }
-                    _ => {
-                        self.advance();
+                    TokenKind::Comma => {
+                        selector.push_str(", ");
+                        if self.check(TokenKind::NewLine) {
+                            self.advance();
+                        }
                     }
+                    _ => {}
                 }
             }
             self.expect(TokenKind::Colon)?;

@@ -62,7 +62,7 @@ view Home:
 
     render:
         div.aura-dashboard:
-            Sidebar():
+            aside.amana-sidebar:
                 creative:
                     uniqueness: signature
                 brand:
@@ -85,23 +85,68 @@ view Home:
                     hover: scale
 
                 div.sidebar-brand:
+                    div.status-pulse-wrapper:
+                        span.status-dot: ""
+                        span.status-text: "AURA CORE ONLINE"
                     Badge(label: "Next-Gen AI")
                     h2: "SaaS Aura"
                     p.brand-sub: "Control Room"
                 
                 div.sidebar-links:
-                    Button(label: "Dashboard", href: "#metrics", variant: "glass")
-                    Button(label: "System Brief", href: "#brief", variant: "ghost")
-                    Button(label: "Access Request", href: "#access", variant: "ghost")
+                    a.sidebar-link.active(href: "#metrics"):
+                        iconify-icon(icon: "material-symbols:dashboard-rounded"): ""
+                        span: "Dashboard"
+                    a.sidebar-link(href: "#brief"):
+                        iconify-icon(icon: "material-symbols:info-outline-rounded"): ""
+                        span: "System Brief"
+                    a.sidebar-link(href: "#access"):
+                        iconify-icon(icon: "material-symbols:vpn-key-rounded"): ""
+                        span: "Access Request"
+
+                div.sidebar-footer:
+                    div.resource-widget:
+                        div.widget-header:
+                            span: "System Latency"
+                            span.value-tag: "24ms"
+                        div.bar-track:
+                            div.bar-fill.latency-fill: ""
+                    div.resource-widget:
+                        div.widget-header:
+                            span: "Resource Load"
+                            span.value-tag: "42%"
+                        div.bar-track:
+                            div.bar-fill.load-fill: ""
 
             div.main-content:
-                Navbar(brand: "Analytics Control Center", sticky: true)
+                header.main-header:
+                    div.header-search:
+                        iconify-icon(icon: "material-symbols:search-rounded"): ""
+                        input.search-input(placeholder: "Search telemetry... (Ctrl+K)")
+                    div.header-actions:
+                        div.notification-bell:
+                            iconify-icon(icon: "material-symbols:notifications-outline-rounded"): ""
+                            span.bell-badge: "3"
+                        div.user-profile:
+                            div.user-avatar:
+                                span: "AM"
+                            div.user-info:
+                                span.user-name: "Alex Mercer"
+                                span.user-role: "Orchestrator"
 
                 section.metrics-grid(id: "metrics"):
                     compose:
                         layout: grid
                     for met in metrics:
-                        Kpi(label: met.kpi_name, value: met.value, trend: met.trend)
+                        div.premium-kpi-card:
+                            div.kpi-header:
+                                span.kpi-label: met.kpi_name
+                                div.kpi-icon-wrapper:
+                                    iconify-icon(icon: "material-symbols:bolt-rounded"): ""
+                            div.kpi-body:
+                                strong.kpi-value: met.value
+                                span.kpi-trend: met.trend
+                            div.kpi-chart-mock:
+                                div.chart-line: ""
 
                 section.showcase-panel(id: "brief"):
                     compose:
@@ -113,14 +158,35 @@ view Home:
                         p: "Amana compiles your declarative intent into live Express endpoints, production-hardened SQL, and beautiful responsive layouts automatically."
                     
                     div.showcase-preview:
-                        Card(title: "Agent Engine", subtitle: "Active deployment loops", variant: "glass"):
-                            p: "The compiler detects design errors, whitelists keys, and prevents unsafe script injections dynamically."
+                        div.terminal-mock:
+                            div.terminal-header:
+                                div.terminal-dots:
+                                    span.dot.red: ""
+                                    span.dot.yellow: ""
+                                    span.dot.green: ""
+                                span.terminal-title: "vortex_build.log"
+                            div.terminal-body:
+                                div.terminal-line:
+                                    span.term-time: "[19:46:01]"
+                                    span.term-text: "Analyzing project graph..."
+                                div.terminal-line:
+                                    span.term-time: "[19:46:02]"
+                                    span.term-text.success: "✔ AST parsing complete (12ms)"
+                                div.terminal-line:
+                                    span.term-time: "[19:46:02]"
+                                    span.term-text.success: "✔ CSS normalization complete (4ms)"
+                                div.terminal-line:
+                                    span.term-time: "[19:46:03]"
+                                    span.term-text.info: "ℹ Seed data synchronized: Metric (50 rows)"
 
                 section.feedback-panel(id: "access"):
                     compose:
                         layout: stack
                     
-                    Card(title: "Request System Access", subtitle: "Leave your email to register in the beta queue", variant: "glass"):
+                    div.premium-form-container:
+                        div.form-header:
+                            h3: "Request System Access"
+                            p: "Enter your developer credentials to register in the beta queue."
                         form [email, msg]:
                             connect Feedback.create
                             ui: card
@@ -139,7 +205,13 @@ view Home:
                                 type: textarea
                                 required: true
 
-                Footer()
+                footer.premium-footer:
+                    div.footer-left:
+                        p: "© 2026 SaaS Aura. Powered by Amana DSL."
+                    div.footer-right:
+                        a(href: "#"): "System Status"
+                        a(href: "#"): "Docs"
+                        a(href: "#"): "Security"
 
     style:
         .aura-dashboard:
@@ -150,7 +222,27 @@ view Home:
         .sidebar-brand:
             layout: stack
             gap: sm
-            margin-bottom: 2rem
+            margin-bottom: 2.5rem
+
+        .status-pulse-wrapper:
+            layout: row
+            align-items: center
+            gap: xs
+            margin-bottom: 0.5rem
+
+        .status-dot:
+            width: 8px
+            height: 8px
+            border-radius: 999px
+            background: #22c55e
+            box-shadow: 0 0 8px #22c55e
+            animation: pulse 1.8s infinite
+
+        .status-text:
+            font-size: 0.75rem
+            font-weight: 800
+            color: #22c55e
+            letter-spacing: 0.05em
 
         .brand-sub:
             color: muted
@@ -159,18 +251,311 @@ view Home:
 
         .sidebar-links:
             layout: stack
+            gap: xs
+            margin-bottom: auto
+
+        .sidebar-link:
+            layout: row
+            align-items: center
             gap: sm
+            padding: 0.75rem 1rem
+            border-radius: 12px
+            color: muted
+            text-decoration: none
+            font-weight: 700
+            transition: all 0.2s ease
+
+        .sidebar-link:hover:
+            color: text
+            background: rgba(255, 255, 255, 0.04)
+
+        .sidebar-link.active:
+            color: text
+            background: rgba(99, 102, 241, 0.15)
+            border: 1px solid rgba(99, 102, 241, 0.25)
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05)
+
+        .sidebar-footer:
+            layout: stack
+            gap: md
+            margin-top: 2rem
+            padding-top: 1.5rem
+            border-top: 1px solid rgba(255, 255, 255, 0.06)
+
+        .resource-widget:
+            layout: stack
+            gap: xs
+
+        .widget-header:
+            layout: row
+            justify-content: space-between
+            font-size: 0.75rem
+            color: muted
+
+        .value-tag:
+            font-weight: 800
+            color: text
+
+        .bar-track:
+            height: 6px
+            border-radius: 999px
+            background: rgba(255, 255, 255, 0.08)
+            overflow: hidden
+
+        .bar-fill:
+            height: 100%
+            border-radius: 999px
+
+        .latency-fill:
+            width: 24%
+            background: var(--color-accent)
+
+        .load-fill:
+            width: 42%
+            background: var(--color-primary)
 
         .main-content:
             padding: 2rem
 
+        .main-header:
+            layout: row
+            justify-content: space-between
+            align-items: center
+            padding-bottom: 1.5rem
+            margin-bottom: 2rem
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06)
+
+        .header-search:
+            layout: row
+            align-items: center
+            gap: sm
+            background: rgba(255, 255, 255, 0.03)
+            border: 1px solid rgba(255, 255, 255, 0.08)
+            border-radius: 12px
+            padding: 0.5rem 1rem
+            width: 320px
+
+        .search-input:
+            background: transparent
+            border: none
+            color: text
+            font-size: 0.85rem
+            width: 100%
+            outline: none
+
+        .header-actions:
+            layout: row
+            align-items: center
+            gap: lg
+
+        .notification-bell:
+            position: relative
+            font-size: 1.25rem
+            color: muted
+            cursor: pointer
+
+        .bell-badge:
+            position: absolute
+            top: -4px
+            right: -4px
+            background: #ef4444
+            color: white
+            font-size: 0.65rem
+            font-weight: 900
+            padding: 1px 4px
+            border-radius: 999px
+
+        .user-profile:
+            layout: row
+            align-items: center
+            gap: sm
+
+        .user-avatar:
+            width: 36px
+            height: 36px
+            border-radius: 999px
+            background: var(--gradient-primary)
+            display: grid
+            place-items: center
+            font-weight: 900
+            font-size: 0.85rem
+            color: white
+
+        .user-info:
+            layout: stack
+            gap: none
+
+        .user-name:
+            font-size: 0.85rem
+            font-weight: 800
+
+        .user-role:
+            font-size: 0.7rem
+            color: muted
+
         .metrics-grid,
         .showcase-panel,
         .feedback-panel:
-            margin-bottom: 4rem
+            margin-bottom: 3.5rem
             layout: stack
             gap: lg
+
+        .premium-kpi-card:
+            layout: stack
+            gap: sm
+            padding: 1.5rem
+            background: rgba(255, 255, 255, 0.02)
+            border: 1px solid rgba(255, 255, 255, 0.06)
+            border-radius: 16px
+            transition: all 0.2s ease
+
+        .premium-kpi-card:hover:
+            border-color: rgba(99, 102, 241, 0.3)
+            background: rgba(255, 255, 255, 0.04)
+            transform: translateY(-2px)
+
+        .kpi-header:
+            layout: row
+            justify-content: space-between
+            align-items: center
+
+        .kpi-label:
+            font-size: 0.85rem
+            color: muted
+            font-weight: 700
+
+        .kpi-icon-wrapper:
+            font-size: 1.15rem
+            color: var(--color-accent)
+
+        .kpi-body:
+            layout: row
+            align-items: baseline
+            gap: sm
+
+        .kpi-value:
+            font-size: 2.25rem
+            font-weight: 900
+
+        .kpi-trend:
+            font-size: 0.85rem
+            font-weight: 800
+            color: #22c55e
+
+        .kpi-chart-mock:
+            height: 4px
+            background: rgba(255, 255, 255, 0.06)
+            border-radius: 999px
+            margin-top: 0.5rem
+            overflow: hidden
+
+        .chart-line:
+            width: 70%
+            height: 100%
+            background: var(--gradient-primary)
+            border-radius: 999px
 
         .showcase-text:
             layout: stack
             gap: md
+
+        .terminal-mock:
+            background: #020617
+            border: 1px solid rgba(255, 255, 255, 0.08)
+            border-radius: 16px
+            overflow: hidden
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5)
+
+        .terminal-header:
+            layout: row
+            align-items: center
+            justify-content: space-between
+            background: #0f172a
+            padding: 0.75rem 1.25rem
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06)
+
+        .terminal-dots:
+            layout: row
+            gap: xs
+
+        .dot:
+            width: 10px
+            height: 10px
+            border-radius: 999px
+
+        .dot.red:
+            background: #ef4444
+
+        .dot.yellow:
+            background: #f59e0b
+
+        .dot.green:
+            background: #22c55e
+
+        .terminal-title:
+            font-family: monospace
+            font-size: 0.75rem
+            color: muted
+
+        .terminal-body:
+            padding: 1.25rem
+            font-family: monospace
+            font-size: 0.8rem
+            line-height: 1.6
+            background: #030712
+
+        .terminal-line:
+            layout: row
+            gap: md
+
+        .term-time:
+            color: rgba(255, 255, 255, 0.3)
+
+        .term-text.success:
+            color: #22c55e
+
+        .term-text.info:
+            color: var(--color-accent)
+
+        .premium-form-container:
+            background: rgba(255, 255, 255, 0.02)
+            border: 1px solid rgba(255, 255, 255, 0.06)
+            border-radius: 20px
+            padding: 2.25rem
+            box-shadow: var(--shadow-large)
+
+        .form-header:
+            margin-bottom: 2rem
+
+        .form-header h3:
+            font-size: 1.5rem
+            font-weight: 900
+            margin: 0 0 0.5rem 0
+
+        .form-header p:
+            color: muted
+            margin: 0
+            font-size: 0.9rem
+
+        .premium-footer:
+            layout: row
+            justify-content: space-between
+            align-items: center
+            margin-top: 4rem
+            padding-top: 2rem
+            border-top: 1px solid rgba(255, 255, 255, 0.06)
+            color: muted
+            font-size: 0.85rem
+
+        .footer-right:
+            layout: row
+            gap: md
+
+        .footer-right a:
+            color: muted
+            text-decoration: none
+            font-weight: 700
+
+        .footer-right a:hover:
+            color: text
+
