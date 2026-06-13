@@ -1611,16 +1611,16 @@ document.addEventListener('DOMContentLoaded', () => {\n\
           }
         }
       } else if (eventKeys.includes(key)) {
-        attrs += ` x-on:${key}="${compileExpressionToJs(expr)}"`;
+        attrs += ` x-on:${key}="${escapeAttr(compileExpressionToJs(expr))}"`;
       } else if (key === 'show') {
-        attrs += ` x-show="${compileExpressionToJs(expr)}"`;
+        attrs += ` x-show="${escapeAttr(compileExpressionToJs(expr))}"`;
       } else if (key === 'text') {
-        attrs += ` x-text="${compileExpressionToJs(expr)}"`;
+        attrs += ` x-text="${escapeAttr(compileExpressionToJs(expr))}"`;
       } else if (key === 'init') {
         const code = expr.StringLiteral !== undefined ? expr.StringLiteral : compileExpressionToJs(expr);
         attrs += ` x-init="${escapeAttr(code)}"`;
       } else if (['disabled', 'checked', 'selected', 'readonly'].includes(key)) {
-        attrs += ` :${key}="${compileExpressionToJs(expr)}"`;
+        attrs += ` :${key}="${escapeAttr(compileExpressionToJs(expr))}"`;
       } else {
         attrs += ` ${key}="<%= ${compileExpressionToJs(expr)} %>"`;
       }
@@ -2504,7 +2504,7 @@ class AmanaEngine {
           return `${state.name}: ${initialJs}`;
         });
         const xDataStr = `{ ${stateFields.join(', ')} }`;
-        ejs_template = `<div x-data="${xDataStr}">\n${ejs_template}\n</div>`;
+        ejs_template = `<div x-data="${escapeAttr(xDataStr)}">\n${ejs_template}\n</div>`;
       }
       const bodyAttrs = canvasAttributes(view.canvas);
       
@@ -3765,7 +3765,11 @@ fn compile_view_ejs(
             state_fields.push(format!("{}: {}", state.name, initial_js));
         }
         let x_data_str = format!("{{ {} }}", state_fields.join(", "));
-        ejs_body = format!("<div x-data=\"{}\">\n{}\n</div>", x_data_str, ejs_body);
+        let escaped_x_data = x_data_str.replace('&', "&amp;")
+                                       .replace('"', "&quot;")
+                                       .replace('<', "&lt;")
+                                       .replace('>', "&gt;");
+        ejs_body = format!("<div x-data=\"{}\">\n{}\n</div>", escaped_x_data, ejs_body);
     }
 
     let body_attrs = canvas_attributes(view.canvas.as_ref());

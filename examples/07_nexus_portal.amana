@@ -1,0 +1,947 @@
+app NexusPortal:
+    title: "Nexus Portal | Futuristic Cognitive Console"
+    db_path: "nexusportal.db"
+    capabilities:
+        - auth
+        - api.rest
+
+theme:
+    mode: dark
+    direction: ltr
+    language: en
+    primary: "#00f0ff"
+    accent: "#7000ff"
+    canvas: "#06070a"
+    base: "#0d0e14"
+    elevated: "#161722"
+    text: "#ffffff"
+    muted: "#8892b0"
+    border: "#1f2235"
+    radius: hard
+    surface: custom
+    density: comfortable
+
+model TelemetryLog:
+    name: str unique required
+    load: str required
+    status: str required
+
+seed TelemetryLog:
+    row:
+        name: "Core Orchestrator"
+        load: "12%"
+        status: "HEALTHY"
+    row:
+        name: "API Gatekeeper"
+        load: "28%"
+        status: "HEALTHY"
+    row:
+        name: "Distributed DB Proxy"
+        load: "45%"
+        status: "WARNING"
+    row:
+        name: "Cognitive Engine"
+        load: "88%"
+        status: "CRITICAL"
+    row:
+        name: "Edge Node Alpha"
+        load: "4%"
+        status: "HEALTHY"
+
+route / -> view Home
+
+view Home:
+    canvas:
+        layout: column
+        surface: custom
+        density: comfortable
+
+    client:
+        state view_mode = "landing"
+        state dashboard_tab = "Overview"
+        state active_alert = false
+
+    server:
+        fetch logs = TelemetryLog.all()
+
+    render:
+        div.portal-root:
+            # ----------------------------------------------------
+            # LANDING PAGE VIEW
+            # ----------------------------------------------------
+            div.landing-view(show: view_mode == "landing"):
+                header.landing-header:
+                    div.landing-logo:
+                        div.logo-pulse: ""
+                        span.logo-text: "NEXUS"
+                    div.landing-nav:
+                        a(href: "#features"): "Features"
+                        a(href: "#telemetry"): "Live Metrics"
+                    button.btn-launch(click: view_mode = "dashboard"):
+                        span: "Launch Console"
+                        iconify-icon(icon: "material-symbols:arrow-forward-rounded"): ""
+
+                section.hero-section:
+                    div.hero-glow-cyan: ""
+                    div.hero-glow-violet: ""
+                    h1.hero-title: "THE FUTURISTIC COGNITIVE NETWORK"
+                    p.hero-subtitle: "Hyper-scalable cloud orchestration, real-time telemetry analysis, and autonomous AI system console."
+                    div.hero-actions:
+                        button.hero-btn-primary(click: view_mode = "dashboard"):
+                            iconify-icon(icon: "material-symbols:terminal-rounded"): ""
+                            span: "Launch Control Panel"
+                        a.hero-btn-secondary(href: "#features"):
+                            span: "Learn More"
+
+                section.features-section(id: "features"):
+                    h2.section-title: "ENGINEERED FOR SCALE"
+                    div.features-grid:
+                        div.feature-card:
+                            iconify-icon(icon: "material-symbols:grid-view-rounded"): ""
+                            h3: "Hyper-scalable Grid"
+                            p: "Instantly distribute container clusters across multiple clouds with automated load levelling."
+                        div.feature-card:
+                            iconify-icon(icon: "material-symbols:bolt-rounded"): ""
+                            h3: "Edge Processing"
+                            p: "Process real-time telemetry at the nearest network boundary to achieve sub-millisecond latencies."
+                        div.feature-card:
+                            iconify-icon(icon: "material-symbols:psychology-rounded"): ""
+                            h3: "Cognitive Insights"
+                            p: "AI-powered anomaly detection alerts your operations center before hardware degradation occurs."
+
+                footer.landing-footer:
+                    p: "© 2026 Nexus Cognitive Networks. All rights reserved."
+
+            # ----------------------------------------------------
+            # DASHBOARD VIEW
+            # ----------------------------------------------------
+            div.dashboard-view(show: view_mode == "dashboard"):
+                div.dashboard-container:
+                    aside.sidebar:
+                        div.sidebar-logo:
+                            div.logo-pulse: ""
+                            span.logo-text: "NEXUS CONSOLE"
+                        
+                        div.sidebar-links:
+                            button.sidebar-back-btn(click: view_mode = "landing"):
+                                iconify-icon(icon: "material-symbols:arrow-back-rounded"): ""
+                                span: "Exit Console"
+
+                            div.divider: ""
+
+                            button.sidebar-link.active(show: dashboard_tab == "Overview", click: dashboard_tab = "Overview"):
+                                iconify-icon(icon: "material-symbols:grid-view-outline-rounded"): ""
+                                span: "Overview"
+                            button.sidebar-link(show: dashboard_tab != "Overview", click: dashboard_tab = "Overview"):
+                                iconify-icon(icon: "material-symbols:grid-view-outline-rounded"): ""
+                                span: "Overview"
+
+                            button.sidebar-link.active(show: dashboard_tab == "Analytics", click: dashboard_tab = "Analytics"):
+                                iconify-icon(icon: "material-symbols:monitoring-rounded"): ""
+                                span: "Analytics"
+                            button.sidebar-link(show: dashboard_tab != "Analytics", click: dashboard_tab = "Analytics"):
+                                iconify-icon(icon: "material-symbols:monitoring-rounded"): ""
+                                span: "Analytics"
+
+                            button.sidebar-link.active(show: dashboard_tab == "Control", click: dashboard_tab = "Control"):
+                                iconify-icon(icon: "material-symbols:terminal-rounded"): ""
+                                span: "Control Panel"
+                            button.sidebar-link(show: dashboard_tab != "Control", click: dashboard_tab = "Control"):
+                                iconify-icon(icon: "material-symbols:terminal-rounded"): ""
+                                span: "Control Panel"
+
+                            button.sidebar-link.active(show: dashboard_tab == "Config", click: dashboard_tab = "Config"):
+                                iconify-icon(icon: "material-symbols:settings-suggest-outline-rounded"): ""
+                                span: "System Config"
+                            button.sidebar-link(show: dashboard_tab != "Config", click: dashboard_tab = "Config"):
+                                iconify-icon(icon: "material-symbols:settings-suggest-outline-rounded"): ""
+                                span: "System Config"
+
+                    div.main-area:
+                        header.top-header:
+                            div.header-left:
+                                span.active-tab-title: dashboard_tab
+                            div.header-right:
+                                button.alert-toggle(click: active_alert = !active_alert):
+                                    iconify-icon(icon: "material-symbols:notifications-outline-rounded"): ""
+                                    span.alert-indicator(show: active_alert): ""
+                                div.user-profile:
+                                    img(src: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80", alt: "User Avatar")
+                                    span: "Administrator"
+
+                        div.content-body:
+                            div.alert-banner(show: active_alert):
+                                iconify-icon(icon: "material-symbols:warning-outline-rounded"): ""
+                                span: "Critical resource warning on Cognitive Engine: Load at 88%!"
+                                button.alert-close(click: active_alert = false): "✕"
+
+                            # --------------------------------------------
+                            # DASHBOARD TAB: OVERVIEW
+                            # --------------------------------------------
+                            div.tab-view(show: dashboard_tab == "Overview"):
+                                section.kpi-row:
+                                    div.kpi-card:
+                                        div.kpi-title-row:
+                                            span: "CPU stress"
+                                            iconify-icon(icon: "material-symbols:memory-rounded"): ""
+                                        h2: "45%"
+                                        div.chart-box:
+                                            canvas(id: "cpuChart", init: """
+                                            new Chart($el, {
+                                                type: 'line',
+                                                data: {
+                                                    labels: ['1', '2', '3', '4', '5'],
+                                                    datasets: [{
+                                                        data: [15, 30, 25, 40, 45],
+                                                        borderColor: '#00f0ff',
+                                                        backgroundColor: 'rgba(0, 240, 255, 0.1)',
+                                                        fill: true,
+                                                        tension: 0.3,
+                                                        borderWidth: 1.5,
+                                                        pointRadius: 0
+                                                    }]
+                                                },
+                                                options: {
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    scales: { x: { display: false }, y: { display: false } },
+                                                    plugins: { legend: { display: false } }
+                                                }
+                                            });
+                                            """): ""
+
+                                    div.kpi-card:
+                                        div.kpi-title-row:
+                                            span: "Memory usage"
+                                            iconify-icon(icon: "material-symbols:database-rounded"): ""
+                                        h2: "8.4 GB"
+                                        div.chart-box:
+                                            canvas(id: "memoryChart", init: """
+                                            new Chart($el, {
+                                                type: 'bar',
+                                                data: {
+                                                    labels: ['1', '2', '3', '4', '5'],
+                                                    datasets: [{
+                                                        data: [6.1, 7.2, 7.8, 8.2, 8.4],
+                                                        backgroundColor: '#7000ff',
+                                                        borderRadius: 1
+                                                    }]
+                                                },
+                                                options: {
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    scales: { x: { display: false }, y: { display: false } },
+                                                    plugins: { legend: { display: false } }
+                                                }
+                                            });
+                                            """): ""
+
+                                    div.kpi-card:
+                                        div.kpi-title-row:
+                                            span: "Network ingress"
+                                            iconify-icon(icon: "material-symbols:network-ping-rounded"): ""
+                                        h2: "1.2 Gbps"
+                                        div.chart-box:
+                                            canvas(id: "networkChart", init: """
+                                            new Chart($el, {
+                                                type: 'line',
+                                                data: {
+                                                    labels: ['1', '2', '3', '4', '5'],
+                                                    datasets: [{
+                                                        data: [0.8, 1.0, 1.1, 0.9, 1.2],
+                                                        borderColor: '#00ff66',
+                                                        backgroundColor: 'rgba(0, 255, 102, 0.1)',
+                                                        fill: true,
+                                                        tension: 0.2,
+                                                        borderWidth: 1.5,
+                                                        pointRadius: 0
+                                                    }]
+                                                },
+                                                options: {
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    scales: { x: { display: false }, y: { display: false } },
+                                                    plugins: { legend: { display: false } }
+                                                }
+                                            });
+                                            """): ""
+
+                                    div.kpi-card:
+                                        div.kpi-title-row:
+                                            span: "Global efficiency"
+                                            iconify-icon(icon: "material-symbols:star-outline-rounded"): ""
+                                        h2: "92%"
+                                        div.chart-box:
+                                            canvas(id: "healthChart", init: """
+                                            new Chart($el, {
+                                                type: 'doughnut',
+                                                data: {
+                                                    datasets: [{
+                                                        data: [92, 8],
+                                                        backgroundColor: ['#00f0ff', '#1f2235'],
+                                                        borderWidth: 0
+                                                    }]
+                                                },
+                                                options: {
+                                                    responsive: true,
+                                                    maintainAspectRatio: false,
+                                                    cutout: '70%',
+                                                    plugins: { legend: { display: false } }
+                                                }
+                                            });
+                                            """): ""
+
+                                div.logs-section:
+                                    h3.section-title: "Cluster Service Status"
+                                    table.logs-table:
+                                        thead:
+                                            tr:
+                                                th: "Service Node"
+                                                th: "Current Load"
+                                                th: "Operational Status"
+                                        tbody:
+                                            for log in logs:
+                                                tr:
+                                                    td: log.name
+                                                    td: log.load
+                                                    td:
+                                                        if log.status == "HEALTHY":
+                                                            span.badge.badge-healthy: log.status
+                                                        if log.status == "WARNING":
+                                                            span.badge.badge-warning: log.status
+                                                        if log.status == "CRITICAL":
+                                                            span.badge.badge-critical: log.status
+
+                            # --------------------------------------------
+                            # DASHBOARD TAB: ANALYTICS
+                            # --------------------------------------------
+                            div.tab-view(show: dashboard_tab == "Analytics"):
+                                div.analytics-wrapper:
+                                    div.chart-header:
+                                        h3: "Resource Load Forecasting (Next 24 Hours)"
+                                    div.main-chart-box:
+                                        canvas(id: "analyticsMainChart", init: """
+                                        new Chart($el, {
+                                            type: 'bar',
+                                            data: {
+                                                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                                                datasets: [
+                                                    {
+                                                        label: 'CPU Stress limit',
+                                                        data: [42, 55, 68, 80, 52, 45],
+                                                        backgroundColor: '#00f0ff',
+                                                        borderRadius: 2
+                                                    },
+                                                    {
+                                                        label: 'Memory Limit',
+                                                        data: [50, 58, 62, 70, 75, 78],
+                                                        backgroundColor: '#7000ff',
+                                                        borderRadius: 2
+                                                    }
+                                                ]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                plugins: {
+                                                    legend: { labels: { color: '#8892b0' } }
+                                                },
+                                                scales: {
+                                                    x: { grid: { color: '#1f2235' }, ticks: { color: '#8892b0' } },
+                                                    y: { grid: { color: '#1f2235' }, ticks: { color: '#8892b0' } }
+                                                }
+                                            }
+                                        });
+                                        """): ""
+
+                            # --------------------------------------------
+                            # DASHBOARD TAB: CONTROL
+                            # --------------------------------------------
+                            div.tab-view(show: dashboard_tab == "Control"):
+                                div.control-wrapper:
+                                    h3.section-title: "Provision New Telemetry Node"
+                                    form [name, load, status]:
+                                        connect TelemetryLog.create
+                                        redirect success -> /
+                                        submit: "Deploy Node Cluster"
+                                        field name:
+                                            label: "Node Hostname"
+                                            placeholder: "e.g., node-us-east-01"
+                                        field load:
+                                            label: "Initial Load Level"
+                                            placeholder: "e.g., 10%"
+                                        field status:
+                                            label: "Initial Status"
+                                            placeholder: "HEALTHY, WARNING, or CRITICAL"
+
+                            # --------------------------------------------
+                            # DASHBOARD TAB: CONFIG
+                            # --------------------------------------------
+                            div.tab-view(show: dashboard_tab == "Config"):
+                                div.config-wrapper:
+                                    h3.section-title: "Terminal Alert Thresholds"
+                                    div.config-form:
+                                        div.config-row:
+                                            label: "CPU Alert Level"
+                                            select.config-select:
+                                                option: "80% (Recommended)"
+                                                option: "85%"
+                                                option: "90%"
+                                        div.config-row:
+                                            label: "Failover Node Backup"
+                                            select.config-select:
+                                                option: "Enabled"
+                                                option: "Disabled"
+                                        div.config-row:
+                                            label: "Notification Channel"
+                                            input.config-input(type: "email", value: "ops@nexusportal.io"): ""
+                                        button.btn-save: "Save Portal Configuration"
+
+    style:
+        .portal-root:
+            min-height: 100vh
+            background: #06070a
+            color: #ffffff
+            font-family: "Outfit", sans-serif
+    
+        .landing-view:
+            layout: stack
+            gap: xl
+    
+        .landing-header:
+            layout: row
+            justify-content: space-between
+            align-items: center
+            padding: 1.5rem 3rem
+            background: rgba(13, 14, 20, 0.75)
+            backdrop-filter: blur(10px)
+            border-bottom: 1px solid #1f2235
+            position: sticky
+            top: 0
+            z-index: 100
+    
+        .landing-logo:
+            layout: row
+            align-items: center
+            gap: sm
+    
+        .logo-pulse:
+            width: 12px
+            height: 12px
+            background: #00f0ff
+            border-radius: 50%
+            box-shadow: 0 0 10px #00f0ff
+    
+        .logo-text:
+            font-size: 1.5rem
+            font-weight: 900
+            letter-spacing: 0.15em
+    
+        .landing-nav:
+            layout: row
+            gap: xl
+    
+        .landing-nav a:
+            color: #8892b0
+            text-decoration: none
+            font-weight: 500
+            transition: color 0.2s
+    
+        .landing-nav a:hover:
+            color: #00f0ff
+    
+        .btn-launch:
+            layout: row
+            align-items: center
+            gap: sm
+            padding: 0.65rem 1.5rem
+            background: transparent
+            border: 1px solid #00f0ff
+            color: #00f0ff
+            border-radius: 2px
+            font-weight: 700
+            cursor: pointer
+            transition: all 0.2s ease-in-out
+    
+        .btn-launch:hover:
+            background: #00f0ff
+            color: #06070a
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4)
+    
+        .hero-section:
+            position: relative
+            padding: 8rem 2rem
+            text-align: center
+            layout: stack
+            align-items: center
+            gap: lg
+            overflow: hidden
+    
+        .hero-glow-cyan:
+            position: absolute
+            top: -10%
+            left: 30%
+            width: 400px
+            height: 400px
+            background: rgba(0, 240, 255, 0.08)
+            filter: blur(120px)
+            border-radius: 50%
+            pointer-events: none
+    
+        .hero-glow-violet:
+            position: absolute
+            bottom: -10%
+            right: 30%
+            width: 450px
+            height: 450px
+            background: rgba(112, 0, 255, 0.06)
+            filter: blur(120px)
+            border-radius: 50%
+            pointer-events: none
+    
+        .hero-title:
+            font-size: 3.5rem
+            font-weight: 900
+            letter-spacing: -0.02em
+            line-height: 1.1
+            background: linear-gradient(135deg, #ffffff 40%, #00f0ff 100%)
+            -webkit-background-clip: text
+            -webkit-text-fill-color: transparent
+    
+        .hero-subtitle:
+            font-size: 1.25rem
+            color: #8892b0
+            max-width: 650px
+            line-height: 1.6
+            margin: 0 auto
+    
+        .hero-actions:
+            layout: row
+            gap: md
+            justify-content: center
+            margin-top: 1rem
+    
+        .hero-btn-primary:
+            layout: row
+            align-items: center
+            gap: sm
+            padding: 0.85rem 2rem
+            background: #00f0ff
+            border: none
+            color: #06070a
+            border-radius: 2px
+            font-weight: 700
+            cursor: pointer
+            transition: all 0.2s
+    
+        .hero-btn-primary:hover:
+            background: #ffffff
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5)
+    
+        .hero-btn-secondary:
+            layout: row
+            align-items: center
+            padding: 0.85rem 2rem
+            background: rgba(255, 255, 255, 0.03)
+            border: 1px solid #1f2235
+            color: #ffffff
+            text-decoration: none
+            border-radius: 2px
+            font-weight: 600
+            transition: all 0.2s
+    
+        .hero-btn-secondary:hover:
+            background: rgba(255, 255, 255, 0.08)
+            border-color: #8892b0
+    
+        .features-section:
+            padding: 6rem 3rem
+            layout: stack
+            gap: lg
+            max-width: 1200px
+            margin: 0 auto
+    
+        .features-grid:
+            layout: grid
+            grid-template-columns: repeat(3, 1fr)
+            gap: lg
+    
+        .feature-card:
+            background: #0d0e14
+            border: 1px solid #1f2235
+            border-radius: 2px
+            padding: 2.5rem 2rem
+            layout: stack
+            gap: sm
+            transition: all 0.3s
+    
+        .feature-card:hover:
+            border-color: #00f0ff
+            box-shadow: 0 5px 25px rgba(0, 240, 255, 0.08)
+            transform: translateY(-4px)
+    
+        .feature-card iconify-icon:
+            font-size: 2.25rem
+            color: #00f0ff
+    
+        .feature-card h3:
+            font-size: 1.25rem
+            font-weight: 700
+            color: #ffffff
+    
+        .feature-card p:
+            color: #8892b0
+            line-height: 1.5
+            font-size: 0.95rem
+    
+        .landing-footer:
+            padding: 3rem
+            border-top: 1px solid #1f2235
+            text-align: center
+            color: #8892b0
+            font-size: 0.9rem
+    
+        .dashboard-view:
+            min-height: 100vh
+            background: #06070a
+    
+        .dashboard-container:
+            layout: grid
+            grid-template-columns: 260px 1fr
+            min-height: 100vh
+    
+        .sidebar:
+            background: #0d0e14
+            border-right: 1px solid #1f2235
+            padding: 2rem 0
+            layout: stack
+            gap: lg
+    
+        .sidebar-logo:
+            layout: row
+            align-items: center
+            gap: sm
+            padding: 0 1.5rem
+            margin-bottom: 1rem
+    
+        .sidebar-links:
+            layout: stack
+            gap: xs
+    
+        .sidebar-back-btn:
+            layout: row
+            align-items: center
+            gap: md
+            padding: 0.75rem 1.5rem
+            background: transparent
+            border: none
+            color: #8892b0
+            font-weight: 600
+            cursor: pointer
+            text-align: left
+            width: 100%
+            transition: color 0.2s
+    
+        .sidebar-back-btn:hover:
+            color: #ff4d4f
+    
+        .divider:
+            height: 1px
+            background: #1f2235
+            margin: 0.5rem 1.5rem
+    
+        .sidebar-link:
+            layout: row
+            align-items: center
+            gap: md
+            padding: 0.75rem 1.5rem
+            background: transparent
+            border: none
+            color: #8892b0
+            font-weight: 500
+            cursor: pointer
+            text-align: left
+            width: 100%
+            transition: all 0.2s
+    
+        .sidebar-link:hover:
+            color: #ffffff
+            background: rgba(255, 255, 255, 0.02)
+    
+        .sidebar-link.active:
+            color: #00f0ff
+            background: rgba(0, 240, 255, 0.05)
+            border-left: 3px solid #00f0ff
+    
+        .main-area:
+            layout: stack
+            background: #06070a
+    
+        .top-header:
+            layout: row
+            justify-content: space-between
+            align-items: center
+            height: 70px
+            padding: 0 2.5rem
+            border-bottom: 1px solid #1f2235
+            background: #0d0e14
+    
+        .active-tab-title:
+            font-size: 1.15rem
+            font-weight: 700
+            letter-spacing: 0.05em
+            color: #ffffff
+    
+        .header-right:
+            layout: row
+            align-items: center
+            gap: lg
+    
+        .alert-toggle:
+            background: transparent
+            border: none
+            color: #8892b0
+            font-size: 1.35rem
+            cursor: pointer
+            position: relative
+            transition: color 0.2s
+    
+        .alert-toggle:hover:
+            color: #00f0ff
+    
+        .alert-indicator:
+            position: absolute
+            top: 2px
+            right: 2px
+            width: 8px
+            height: 8px
+            background: #ff4d4f
+            border-radius: 50%
+            box-shadow: 0 0 6px #ff4d4f
+    
+        .user-profile:
+            layout: row
+            align-items: center
+            gap: sm
+            font-size: 0.9rem
+            font-weight: 600
+    
+        .user-profile img:
+            width: 32px
+            height: 32px
+            border-radius: 50%
+            border: 1px solid #00f0ff
+    
+        .content-body:
+            padding: 2rem 2.5rem
+            layout: stack
+            gap: lg
+    
+        .alert-banner:
+            layout: row
+            align-items: center
+            gap: md
+            background: rgba(255, 77, 79, 0.1)
+            border: 1px solid #ff4d4f
+            padding: 1rem 1.5rem
+            color: #ff4d4f
+            font-size: 0.95rem
+            font-weight: 600
+    
+        .alert-close:
+            background: transparent
+            border: none
+            color: #ff4d4f
+            cursor: pointer
+            margin-left: auto
+            font-size: 1.1rem
+    
+        .kpi-row:
+            layout: grid
+            grid-template-columns: repeat(4, 1fr)
+            gap: md
+    
+        .kpi-card:
+            background: #0d0e14
+            border: 1px solid #1f2235
+            padding: 1.25rem
+            layout: stack
+            gap: sm
+    
+        .kpi-title-row:
+            layout: row
+            justify-content: space-between
+            align-items: center
+            color: #8892b0
+            font-size: 0.85rem
+            font-weight: 600
+    
+        .kpi-title-row iconify-icon:
+            font-size: 1.15rem
+            color: #00f0ff
+    
+        .kpi-card h2:
+            font-size: 1.85rem
+            font-weight: 800
+            color: #ffffff
+    
+        .chart-box:
+            height: 50px
+            position: relative
+    
+        .logs-section:
+            background: #0d0e14
+            border: 1px solid #1f2235
+            padding: 1.5rem
+    
+        .logs-table:
+            width: 100%
+            border-collapse: collapse
+            text-align: left
+    
+        .logs-table th:
+            color: #8892b0
+            font-size: 0.85rem
+            font-weight: 600
+            padding: 0.75rem 1rem
+            border-bottom: 1px solid #1f2235
+    
+        .logs-table td:
+            padding: 1rem
+            font-size: 0.9rem
+            border-bottom: 1px solid #1f2235
+    
+        .badge:
+            display: inline-block
+            padding: 0.25rem 0.65rem
+            font-size: 0.75rem
+            font-weight: 700
+            border-radius: 2px
+    
+        .badge-healthy:
+            background: rgba(0, 255, 102, 0.1)
+            color: #00ff66
+            border: 1px solid #00ff66
+    
+        .badge-warning:
+            background: rgba(255, 170, 0, 0.1)
+            color: #ffaa00
+            border: 1px solid #ffaa00
+    
+        .badge-critical:
+            background: rgba(255, 77, 79, 0.1)
+            color: #ff4d4f
+            border: 1px solid #ff4d4f
+    
+        .analytics-wrapper:
+            background: #0d0e14
+            border: 1px solid #1f2235
+            padding: 1.5rem
+            layout: stack
+            gap: md
+    
+        .main-chart-box:
+            height: 320px
+            position: relative
+    
+        .control-wrapper:
+            background: #0d0e14
+            border: 1px solid #1f2235
+            padding: 2.5rem
+            max-width: 600px
+            layout: stack
+            gap: lg
+    
+        .amana-form:
+            layout: stack
+            gap: lg
+
+        .amana-field:
+            layout: stack
+            gap: xs
+            font-size: 0.85rem
+            font-weight: 600
+            color: #8892b0
+
+        .amana-form-control:
+            background: #06070a
+            border: 1px solid #1f2235
+            color: #ffffff
+            padding: 0.75rem
+            border-radius: 2px
+            outline: none
+            font-family: "Outfit", sans-serif
+
+        .amana-form-control:focus:
+            border-color: #00f0ff
+
+        .amana-btn:
+            background: #00f0ff
+            border: none
+            color: #06070a
+            padding: 0.85rem 1.5rem
+            font-weight: 700
+            cursor: pointer
+            transition: all 0.2s
+            text-align: center
+
+        .amana-btn:hover:
+            background: #ffffff
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4)
+    
+        .config-wrapper:
+            background: #0d0e14
+            border: 1px solid #1f2235
+            padding: 2.5rem
+            max-width: 600px
+            layout: stack
+            gap: lg
+    
+        .config-form:
+            layout: stack
+            gap: md
+    
+        .config-row:
+            layout: stack
+            gap: xs
+    
+        .config-row label:
+            font-size: 0.85rem
+            font-weight: 600
+            color: #8892b0
+    
+        .config-select:
+            background: #06070a
+            border: 1px solid #1f2235
+            color: #ffffff
+            padding: 0.75rem
+            border-radius: 2px
+            outline: none
+    
+        .config-select:focus:
+            border-color: #00f0ff
+    
+        .config-input:
+            background: #06070a
+            border: 1px solid #1f2235
+            color: #ffffff
+            padding: 0.75rem
+            border-radius: 2px
+            outline: none
+    
+        .config-input:focus:
+            border-color: #00f0ff
+    
+        .btn-save:
+            background: transparent
+            border: 1px solid #00f0ff
+            color: #00f0ff
+            padding: 0.85rem 1.5rem
+            font-weight: 700
+            cursor: pointer
+            transition: all 0.2s
+    
+        .btn-save:hover:
+            background: #00f0ff
+            color: #06070a
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3)

@@ -4,8 +4,8 @@ use crate::lexer::{Token, TokenKind};
 
 /// Parser structure responsible for converting a sequence of Lexer tokens into Amana AST nodes.
 pub struct Parser {
-    tokens: Vec<Token>,
-    position: usize,
+    pub tokens: Vec<Token>,
+    pub position: usize,
 }
 
 fn normalize_css_value(value: &str) -> String {
@@ -456,7 +456,58 @@ fn compile_css_decl(prop: &str, raw_value: &str) -> Result<String, String> {
 
 impl Parser {
     /// Constructs a new Parser instance utilizing the provided token stream.
-    pub fn new(tokens: Vec<Token>) -> Self {
+    pub fn new(mut tokens: Vec<Token>) -> Self {
+        // Preprocess tokens to convert keywords to identifiers if adjacent to Minus
+        let n = tokens.len();
+        for i in 0..n {
+            let adjacent_to_minus = (i > 0 && tokens[i - 1].kind == TokenKind::Minus)
+                || (i + 1 < n && tokens[i + 1].kind == TokenKind::Minus);
+            if adjacent_to_minus {
+                let current_kind = &tokens[i].kind;
+                let new_kind = match current_kind {
+                    TokenKind::App => Some(TokenKind::Identifier("app".to_string())),
+                    TokenKind::Model => Some(TokenKind::Identifier("model".to_string())),
+                    TokenKind::Route => Some(TokenKind::Identifier("route".to_string())),
+                    TokenKind::View => Some(TokenKind::Identifier("view".to_string())),
+                    TokenKind::Component => Some(TokenKind::Identifier("component".to_string())),
+                    TokenKind::Protected => Some(TokenKind::Identifier("protected".to_string())),
+                    TokenKind::Server => Some(TokenKind::Identifier("server".to_string())),
+                    TokenKind::Client => Some(TokenKind::Identifier("client".to_string())),
+                    TokenKind::Render => Some(TokenKind::Identifier("render".to_string())),
+                    TokenKind::State => Some(TokenKind::Identifier("state".to_string())),
+                    TokenKind::Form => Some(TokenKind::Identifier("form".to_string())),
+                    TokenKind::If => Some(TokenKind::Identifier("if".to_string())),
+                    TokenKind::Else => Some(TokenKind::Identifier("else".to_string())),
+                    TokenKind::For => Some(TokenKind::Identifier("for".to_string())),
+                    TokenKind::In => Some(TokenKind::Identifier("in".to_string())),
+                    TokenKind::Permit => Some(TokenKind::Identifier("permit".to_string())),
+                    TokenKind::Fetch => Some(TokenKind::Identifier("fetch".to_string())),
+                    TokenKind::Style => Some(TokenKind::Identifier("style".to_string())),
+                    TokenKind::Variant => Some(TokenKind::Identifier("variant".to_string())),
+                    TokenKind::Slot => Some(TokenKind::Identifier("slot".to_string())),
+                    TokenKind::Optional => Some(TokenKind::Identifier("optional".to_string())),
+                    TokenKind::Tokens => Some(TokenKind::Identifier("tokens".to_string())),
+                    TokenKind::Str => Some(TokenKind::Identifier("str".to_string())),
+                    TokenKind::Int => Some(TokenKind::Identifier("int".to_string())),
+                    TokenKind::Float => Some(TokenKind::Identifier("float".to_string())),
+                    TokenKind::Bool => Some(TokenKind::Identifier("bool".to_string())),
+                    TokenKind::Email => Some(TokenKind::Identifier("email".to_string())),
+                    TokenKind::Password => Some(TokenKind::Identifier("password".to_string())),
+                    TokenKind::DateTime => Some(TokenKind::Identifier("datetime".to_string())),
+                    TokenKind::Money => Some(TokenKind::Identifier("money".to_string())),
+                    TokenKind::Boolean(true) => Some(TokenKind::Identifier("true".to_string())),
+                    TokenKind::Boolean(false) => Some(TokenKind::Identifier("false".to_string())),
+                    TokenKind::Null => Some(TokenKind::Identifier("null".to_string())),
+                    TokenKind::And => Some(TokenKind::Identifier("and".to_string())),
+                    TokenKind::Or => Some(TokenKind::Identifier("or".to_string())),
+                    TokenKind::Not => Some(TokenKind::Identifier("not".to_string())),
+                    _ => None,
+                };
+                if let Some(kind) = new_kind {
+                    tokens[i].kind = kind;
+                }
+            }
+        }
         Self {
             tokens,
             position: 0,

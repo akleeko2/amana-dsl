@@ -60,7 +60,7 @@ route / -> view Home
 
 view Home:
     canvas:
-        layout: dashboard-shell
+        layout: column
         surface: custom
         density: comfortable
 
@@ -139,7 +139,7 @@ view Home:
                     div.header-left:
                         button.menu-toggle:
                             iconify-icon(icon: "material-symbols:menu-rounded"): ""
-                div.header-right:
+                    div.header-right:
                         iconify-icon.header-icon(icon: "material-symbols:search-rounded"): ""
                         iconify-icon.header-icon(icon: "material-symbols:help-outline-rounded"): ""
                         div.notification-wrapper:
@@ -354,10 +354,12 @@ view Home:
                                     div.rankings-list:
                                         for shop in rankings:
                                             div.ranking-item:
-                                                div.rank-badge.rank-top(show: shop.rank <= 3):
-                                                    span: f"{shop.rank}"
-                                                div.rank-badge.rank-normal(show: shop.rank > 3):
-                                                    span: f"{shop.rank}"
+                                                if shop.rank <= 3:
+                                                    div.rank-badge.rank-top:
+                                                        span: f"{shop.rank}"
+                                                else:
+                                                    div.rank-badge.rank-normal:
+                                                        span: f"{shop.rank}"
                                                 span.shop-name: shop.name
                                                 span.shop-sales: shop.sales
 

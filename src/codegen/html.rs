@@ -828,20 +828,35 @@ fn generate_ejs_scoped(
                         }
                     }
                 } else if event_keys.contains(&key.as_str()) {
+                    let js = compile_expression_to_js_scoped(expr, aliases);
+                    let escaped = js.replace('&', "&amp;")
+                                    .replace('"', "&quot;")
+                                    .replace('<', "&lt;")
+                                    .replace('>', "&gt;");
                     attrs.push_str(&format!(
                         " x-on:{}=\"{}\"",
                         key,
-                        compile_expression_to_js_scoped(expr, aliases)
+                        escaped
                     ));
                 } else if *key == "show" {
+                    let js = compile_expression_to_js_scoped(expr, aliases);
+                    let escaped = js.replace('&', "&amp;")
+                                    .replace('"', "&quot;")
+                                    .replace('<', "&lt;")
+                                    .replace('>', "&gt;");
                     attrs.push_str(&format!(
                         " x-show=\"{}\"",
-                        compile_expression_to_js_scoped(expr, aliases)
+                        escaped
                     ));
                 } else if *key == "text" {
+                    let js = compile_expression_to_js_scoped(expr, aliases);
+                    let escaped = js.replace('&', "&amp;")
+                                    .replace('"', "&quot;")
+                                    .replace('<', "&lt;")
+                                    .replace('>', "&gt;");
                     attrs.push_str(&format!(
                         " x-text=\"{}\"",
-                        compile_expression_to_js_scoped(expr, aliases)
+                        escaped
                     ));
                 } else if *key == "init" {
                     let code = match expr {
@@ -857,10 +872,15 @@ fn generate_ejs_scoped(
                     key.as_str(),
                     "disabled" | "checked" | "selected" | "readonly"
                 ) {
+                    let js = compile_expression_to_js_scoped(expr, aliases);
+                    let escaped = js.replace('&', "&amp;")
+                                    .replace('"', "&quot;")
+                                    .replace('<', "&lt;")
+                                    .replace('>', "&gt;");
                     attrs.push_str(&format!(
                         " :{}=\"{}\"",
                         key,
-                        compile_expression_to_js_scoped(expr, aliases)
+                        escaped
                     ));
                 } else {
                     attrs.push_str(&format!(
