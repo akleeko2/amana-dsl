@@ -2929,8 +2929,7 @@ class AmanaEngine {
       .dg-reveal-blur,
       .dg-reveal-clip { animation: none !important; transition: none !important; }
     }
-    <%- typeof styles !== 'undefined' ? styles : '' %>
-    :where(.amana-runtime-shell, .amana-page, .page) { width: 100%; max-width: 100%; overflow-x: hidden; }
+     :where(.amana-runtime-shell, .amana-page, .page) { width: 100%; max-width: 100%; overflow-x: hidden; }
     :where(.amana-runtime-shell, .amana-page, .page) :where(section, header, main, footer, div, article, aside, form) { min-width: 0; }
     :where(.amana-runtime-shell, .amana-page, .page) :where(h1, h2, h3, p, a, button, span, strong, label, input, textarea, pre) { max-width: 100%; overflow-wrap: anywhere; }
     :where(.dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, .dg-layout-magazine, .dg-layout-bento, .dg-layout-command-center, .dg-layout-showcase-rail) > .amana-container { grid-column: 1 / -1; }
@@ -2947,6 +2946,7 @@ class AmanaEngine {
       :where(.amana-btn, .plan-button, button) { white-space: normal; text-align: center; }
     }
   </style>
+  <%- typeof styles !== 'undefined' && styles ? '<style>' + styles + '</style>' : '' %>
 </head>
 <body${bodyAttrs}>
   <main class="amana-runtime-shell">
@@ -3781,7 +3781,6 @@ fn compile_view_ejs(
   <style>
     {}
     {}
-    <%- typeof styles !== 'undefined' ? styles : '' %>
     {}
     :where(.amana-runtime-shell, .amana-page, .page) {{ width: 100%; max-width: 100%; overflow-x: hidden; }}
     :where(.amana-runtime-shell, .amana-page, .page) :where(section, header, main, footer, div, article, aside, form) {{ min-width: 0; }}
@@ -3800,6 +3799,7 @@ fn compile_view_ejs(
       :where(.amana-btn, .plan-button, button) {{ white-space: normal; text-align: center; }}
     }}
   </style>
+  <%- typeof styles !== 'undefined' && styles ? '<style>' + styles + '</style>' : '' %>
 </head>
 <body{}>
   <main class="amana-runtime-shell">
