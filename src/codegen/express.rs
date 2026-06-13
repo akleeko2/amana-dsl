@@ -1121,6 +1121,12 @@ function designClassList(blocks) {
       if (!kind || !key || !value) continue;
       classes.push(`dg-${kind}-${key}-${value}`);
       if (kind === 'canvas' && key.startsWith('responsive-')) classes.push(`dg-rsp-${key.replace(/^responsive-/, '')}-${value}`);
+      if (kind === 'canvas' && key === 'layout') classes.push(`dg-layout-${value}`);
+      if (kind === 'canvas' && key === 'surface') classes.push(`dg-surface-${value}`);
+      if (kind === 'canvas' && key === 'density') classes.push(`dg-density-${value}`);
+      if (kind === 'canvas' && key === 'rhythm') classes.push(`dg-rhythm-${value}`);
+      if (kind === 'canvas' && key === 'mode') classes.push(`dg-mode-${value}`);
+      if (kind === 'canvas' && key === 'palette') classes.push(`dg-palette-${value}`);
       if (kind === 'compose' && key === 'layout') classes.push(`dg-layout-${value}`);
       if (kind === 'compose' && key === 'rhythm') classes.push(`dg-rhythm-${value}`);
       if (kind === 'compose' && key === 'density') classes.push(`dg-density-${value}`);
@@ -2626,7 +2632,7 @@ class AmanaEngine {
     *, *::before, *::after { box-sizing: border-box; }
     html { width: 100%; max-width: 100%; overflow-x: hidden; scroll-behavior: smooth; }
     body { width: 100%; max-width: 100%; min-width: 0; margin: 0; overflow-x: hidden; background-color: var(--bg-secondary); color: var(--text-primary); font: var(--font-body); text-rendering: geometricPrecision; }
-    body.amana-page { display: block !important; padding: 0 !important; gap: normal !important; }
+    body.amana-page { display: block; padding: 0 !important; gap: normal !important; }
     :where(main, section, article, aside, header, footer, nav, div, form) { min-width: 0; }
     :where(h1, h2, h3, h4, h5, h6, p, span, strong, a, button, label, input, textarea, pre) { max-width: 100%; overflow-wrap: anywhere; word-break: normal; letter-spacing: 0; }
     :where(h1, h2, h3) { text-wrap: balance; }
@@ -2735,7 +2741,8 @@ class AmanaEngine {
     :where(.dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, .dg-layout-magazine, .dg-layout-bento, .dg-layout-command-center, .dg-layout-showcase-rail) > .amana-container { grid-column: 1 / -1; width: min(100% - 2rem, var(--content-width)); }
     .dg-layout-centered { text-align: center; justify-items: center; }
     .dg-layout-editorial { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 0.55fr) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, clamp(2rem, 6vw, 5rem))); align-items: start; }
-    .dg-layout-dashboard-shell { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 18rem) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); align-items: start; }
+    .dg-layout-dashboard-shell,
+    :where(.dg-layout-dashboard-shell) .amana-runtime-shell > :not(script):not(style) { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 18rem) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); align-items: start; }
     .dg-layout-magazine { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, repeat(12, minmax(0, 1fr)))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); }
     .dg-layout-magazine > * { grid-column: span 6; }
     .dg-rhythm-compact { gap: var(--space-sm); padding-block: var(--space-md); }
@@ -2905,6 +2912,7 @@ class AmanaEngine {
       .dg-layout-asymmetric,
       .dg-layout-editorial,
       .dg-layout-dashboard-shell,
+      :where(.dg-layout-dashboard-shell) .amana-runtime-shell > :not(script):not(style),
       .dg-layout-magazine,
       .dg-layout-bento,
       .dg-layout-command-center,
@@ -3783,7 +3791,7 @@ fn compile_view_ejs(
       :where(.hero-title, .section-title, .auth-card h1, .cta-box h2, .amana-hero h1, h1) {{ font-size: clamp(2.15rem, 8vw, 4.4rem) !important; line-height: 1.08 !important; max-width: 100% !important; }}
       :where(.hero-lead, .section-lead, .amana-hero-copy, p) {{ font-size: clamp(1rem, 2.4vw, 1.2rem); }}
       :where(.hero-shell, .section-space, .workflow, .pricing-section, .testimonials, .cta-section, .auth-shell) {{ padding-inline: clamp(1rem, 4vw, 2rem) !important; }}
-      :where(.hero-grid, .split, .workflow-grid, .pricing-grid, .testimonial-grid, .cta-box, .amana-split, .dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, .dg-layout-command-center, .dg-layout-showcase-rail):not([style*="--bp-laptop-columns"]):not([style*="--bp-tablet-columns"]):not([style*="--bp-mobile-columns"]) {{ grid-template-columns: minmax(0, 1fr) !important; }}
+      :where(.hero-grid, .split, .workflow-grid, .pricing-grid, .testimonial-grid, .cta-box, .amana-split, .dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, :where(.dg-layout-dashboard-shell) .amana-runtime-shell > :not(script):not(style), .dg-layout-command-center, .dg-layout-showcase-rail):not([style*="--bp-laptop-columns"]):not([style*="--bp-tablet-columns"]):not([style*="--bp-mobile-columns"]) {{ grid-template-columns: minmax(0, 1fr) !important; }}
     }}
     @media (max-width: 720px) {{
       :where(.hero-title, .section-title, .auth-card h1, .cta-box h2, .amana-hero h1, h1) {{ font-size: clamp(2rem, 11vw, 3.4rem) !important; }}
@@ -3897,6 +3905,12 @@ pub(crate) fn design_class_list(canvas: &DesignBlock) -> Vec<String> {
                 value
             ));
         }
+        if kind == "canvas" && key == "layout" { classes.push(format!("dg-layout-{}", value)); }
+        if kind == "canvas" && key == "surface" { classes.push(format!("dg-surface-{}", value)); }
+        if kind == "canvas" && key == "density" { classes.push(format!("dg-density-{}", value)); }
+        if kind == "canvas" && key == "rhythm" { classes.push(format!("dg-rhythm-{}", value)); }
+        if kind == "canvas" && key == "mode" { classes.push(format!("dg-mode-{}", value)); }
+        if kind == "canvas" && key == "palette" { classes.push(format!("dg-palette-{}", value)); }
         if kind == "compose" && key == "layout" { classes.push(format!("dg-layout-{}", value)); }
         if kind == "compose" && key == "rhythm" { classes.push(format!("dg-rhythm-{}", value)); }
         if kind == "compose" && key == "density" { classes.push(format!("dg-density-{}", value)); }
@@ -4252,7 +4266,7 @@ const BASE_CSS_CLASSES: &str = r#"
     *, *::before, *::after { box-sizing: border-box; }
     html { width: 100%; max-width: 100%; overflow-x: hidden; scroll-behavior: smooth; }
     body { width: 100%; max-width: 100%; min-width: 0; margin: 0; overflow-x: hidden; background-color: var(--bg-secondary); color: var(--text-primary); font: var(--font-body); text-rendering: geometricPrecision; }
-    body.amana-page { display: block !important; padding: 0 !important; gap: normal !important; }
+    body.amana-page { display: block; padding: 0 !important; gap: normal !important; }
     :where(main, section, article, aside, header, footer, nav, div, form) { min-width: 0; }
     :where(h1, h2, h3, h4, h5, h6, p, span, strong, a, button, label, input, textarea, pre) { max-width: 100%; overflow-wrap: anywhere; word-break: normal; letter-spacing: 0; }
     :where(h1, h2, h3) { text-wrap: balance; }
@@ -4361,7 +4375,8 @@ const BASE_CSS_CLASSES: &str = r#"
     :where(.dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, .dg-layout-magazine, .dg-layout-bento, .dg-layout-command-center, .dg-layout-showcase-rail) > .amana-container { grid-column: 1 / -1; width: min(100% - 2rem, var(--content-width)); }
     .dg-layout-centered { text-align: center; justify-items: center; }
     .dg-layout-editorial { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 0.55fr) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, clamp(2rem, 6vw, 5rem))); align-items: start; }
-    .dg-layout-dashboard-shell { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 18rem) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); align-items: start; }
+    .dg-layout-dashboard-shell,
+    :where(.dg-layout-dashboard-shell) .amana-runtime-shell > :not(script):not(style) { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 18rem) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); align-items: start; }
     .dg-layout-magazine { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, repeat(12, minmax(0, 1fr)))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); }
     .dg-layout-magazine > * { grid-column: span 6; }
     .dg-rhythm-compact { gap: var(--space-sm); padding-block: var(--space-md); }
@@ -4531,6 +4546,7 @@ const BASE_CSS_CLASSES: &str = r#"
       .dg-layout-asymmetric,
       .dg-layout-editorial,
       .dg-layout-dashboard-shell,
+      :where(.dg-layout-dashboard-shell) .amana-runtime-shell > :not(script):not(style),
       .dg-layout-magazine,
       .dg-layout-bento,
       .dg-layout-command-center,
