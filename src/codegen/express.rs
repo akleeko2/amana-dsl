@@ -2389,11 +2389,11 @@ class AmanaEngine {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "code.iconify.design"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "cdn.jsdelivr.net", "code.iconify.design"],
           styleSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "fonts.googleapis.com"],
           fontSrc: ["'self'", "fonts.gstatic.com"],
           connectSrc: ["'self'", "cdn.jsdelivr.net", "api.iconify.design"],
-          imgSrc: ["'self'", "data:", "cdn.jsdelivr.net", "images.unsplash.com"]
+          imgSrc: ["'self'", "data:", "cdn.jsdelivr.net", "images.unsplash.com", "logoipsum.com"]
         }
       }
     }));
