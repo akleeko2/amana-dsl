@@ -806,9 +806,19 @@ fn parse_nodes_for_file(_path: &Path, source_code: &str) -> Result<Vec<AmanaNode
         .tokenize()
         .map_err(|message| CompileFailure::new("lexer", message))?;
     let mut parser = Parser::new(tokens);
-    parser
-        .parse()
-        .map_err(|message| CompileFailure::new("parser", message))
+    match parser.parse() {
+        Ok(nodes) => Ok(nodes),
+        Err(err) => {
+            let pos = parser.position;
+            if pos < parser.tokens.len() {
+                let tok = &parser.tokens[pos];
+                println!("[Parser Debug] Failed at token index {}, token: {:?} (line {}, col {})", pos, tok.kind, tok.line, tok.column);
+            } else {
+                println!("[Parser Debug] Failed at end of token stream (position {})", pos);
+            }
+            Err(CompileFailure::new("parser", err))
+        }
+    }
 }
 
 #[cfg(test)]
