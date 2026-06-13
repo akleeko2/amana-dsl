@@ -71,6 +71,7 @@ pub enum TokenKind {
     Indent,
     Dedent,
     NewLine,
+    HashColor(String),
 }
 
 /// A token structure containing the kind and its exact source position (line and column).
@@ -219,12 +220,38 @@ impl Lexer {
                 continue;
             }
 
-            // التعليقات الملحقة في نهاية السطر
+            // التعليقات الملحقة في نهاية السطر أو الألوان بنظام hex
             if curr == '#' {
-                while self.position < self.source.len() && self.source[self.position] != '\n' {
-                    self.advance();
+                let is_color_or_ident = if self.position + 1 < self.source.len() {
+                    let next_c = self.source[self.position + 1];
+                    next_c.is_ascii_alphanumeric()
+                } else {
+                    false
+                };
+
+                if is_color_or_ident {
+                    let start_line = self.line;
+                    let start_col = self.column;
+                    self.advance(); // skip '#'
+                    let mut color_str = String::new();
+                    while self.position < self.source.len()
+                        && (self.source[self.position].is_ascii_alphanumeric() || self.source[self.position] == '_')
+                    {
+                        color_str.push(self.source[self.position]);
+                        self.advance();
+                    }
+                    tokens.push(Token {
+                        kind: TokenKind::HashColor(color_str),
+                        line: start_line,
+                        column: start_col,
+                    });
+                    continue;
+                } else {
+                    while self.position < self.source.len() && self.source[self.position] != '\n' {
+                        self.advance();
+                    }
+                    continue;
                 }
-                continue;
             }
 
             // التحقق من النص المنسق f"..."

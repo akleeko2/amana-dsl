@@ -2256,6 +2256,7 @@ impl Parser {
 
             // 1. Parse Selector. Collect until terminal Colon.
             let mut selector = String::new();
+            let mut prev_was_ident = false;
             while self.peek_kind().is_some() {
                 let tk = self.peek_kind().unwrap();
                 if tk == TokenKind::Colon {
@@ -2272,7 +2273,11 @@ impl Parser {
                 }
 
                 if Self::is_identifier_like_token(&tk) {
+                    if prev_was_ident {
+                        selector.push(' ');
+                    }
                     selector.push_str(&self.expect_identifier()?);
+                    prev_was_ident = true;
                     continue;
                 }
 
@@ -2280,23 +2285,40 @@ impl Parser {
                 match tk {
                     TokenKind::Dot => {
                         selector.push('.');
+                        prev_was_ident = false;
                     }
                     TokenKind::Star => {
+                        if prev_was_ident {
+                            selector.push(' ');
+                        }
                         selector.push('*');
+                        prev_was_ident = true;
                     }
                     TokenKind::Minus => {
                         selector.push('-');
+                        prev_was_ident = false;
                     }
                     TokenKind::Colon => {
                         selector.push(':');
+                        prev_was_ident = false;
                     }
                     TokenKind::Comma => {
                         selector.push_str(", ");
                         if self.check(TokenKind::NewLine) {
                             self.advance();
                         }
+                        prev_was_ident = false;
                     }
-                    _ => {}
+                    TokenKind::HashColor(ref color) => {
+                        if prev_was_ident {
+                            selector.push(' ');
+                        }
+                        selector.push_str(&format!("#{}", color));
+                        prev_was_ident = true;
+                    }
+                    _ => {
+                        prev_was_ident = false;
+                    }
                 }
             }
             self.expect(TokenKind::Colon)?;
@@ -2342,6 +2364,10 @@ impl Parser {
                 {
                     let tk = self.peek_kind().unwrap();
                     let (token_str, is_word) = match tk {
+                        TokenKind::HashColor(ref color) => {
+                            self.advance();
+                            (format!("#{}", color), true)
+                        }
                         _ if Self::is_identifier_like_token(&tk) => {
                             (self.expect_identifier()?, true)
                         }
