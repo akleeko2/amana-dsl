@@ -412,7 +412,9 @@ view Home:
             layout: row
             justify-content: space-between
             align-items: center
-            padding: 1.5rem 3rem
+            flex-wrap: wrap
+            gap: md
+            padding: 1rem 1.5rem
             background: rgba(13, 14, 20, 0.75)
             backdrop-filter: blur(10px)
             border-bottom: 1px solid #1f2235
@@ -439,7 +441,9 @@ view Home:
     
         .landing-nav:
             layout: row
-            gap: xl
+            flex-wrap: wrap
+            gap: md
+            justify-content: center
     
         .landing-nav a:
             color: #8892b0
@@ -500,7 +504,7 @@ view Home:
             pointer-events: none
     
         .hero-title:
-            font-size: 3.5rem
+            font-size: clamp(2rem, 5vw, 3.5rem)
             font-weight: 900
             letter-spacing: -0.02em
             line-height: 1.1
@@ -509,7 +513,7 @@ view Home:
             -webkit-text-fill-color: transparent
     
         .hero-subtitle:
-            font-size: 1.25rem
+            font-size: clamp(1rem, 2vw, 1.25rem)
             color: #8892b0
             max-width: 650px
             line-height: 1.6
@@ -517,7 +521,8 @@ view Home:
     
         .hero-actions:
             layout: row
-            gap: md
+            flex-wrap: wrap
+            gap: sm
             justify-content: center
             margin-top: 1rem
     
@@ -563,7 +568,7 @@ view Home:
     
         .features-grid:
             layout: grid
-            grid-template-columns: repeat(3, 1fr)
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr))
             gap: lg
     
         .feature-card:
@@ -607,7 +612,7 @@ view Home:
     
         .dashboard-container:
             layout: grid
-            grid-template-columns: 260px 1fr
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr))
             min-height: 100vh
     
         .sidebar:
@@ -681,8 +686,11 @@ view Home:
             layout: row
             justify-content: space-between
             align-items: center
-            height: 70px
-            padding: 0 2.5rem
+            flex-wrap: wrap
+            gap: md
+            min-height: 70px
+            height: auto
+            padding: 1rem 1.5rem
             border-bottom: 1px solid #1f2235
             background: #0d0e14
     
@@ -695,7 +703,8 @@ view Home:
         .header-right:
             layout: row
             align-items: center
-            gap: lg
+            flex-wrap: wrap
+            gap: md
     
         .alert-toggle:
             background: transparent
@@ -758,7 +767,7 @@ view Home:
     
         .kpi-row:
             layout: grid
-            grid-template-columns: repeat(4, 1fr)
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr))
             gap: md
     
         .kpi-card:

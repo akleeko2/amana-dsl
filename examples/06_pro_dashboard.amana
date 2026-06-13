@@ -402,7 +402,7 @@ view Home:
     style:
         .dashboard-container:
             layout: grid
-            grid-template-columns: 240px 1fr
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr))
             min-height: 100vh
             background: #f0f2f5
 
@@ -463,8 +463,11 @@ view Home:
             layout: row
             justify-content: space-between
             align-items: center
-            padding: 0 2rem
-            height: 64px
+            flex-wrap: wrap
+            gap: md
+            padding: 1rem 1.5rem
+            min-height: 64px
+            height: auto
             background: #ffffff
             border-bottom: 1px solid #e8e8e8
 
@@ -482,7 +485,8 @@ view Home:
         .header-right:
             layout: row
             align-items: center
-            gap: lg
+            flex-wrap: wrap
+            gap: md
 
         .header-icon:
             font-size: 1.25rem
@@ -524,11 +528,11 @@ view Home:
             color: rgba(0, 0, 0, 0.85)
 
         .content-body:
-            padding: 1.5rem 2rem
+            padding: 1rem 1.5rem
 
         .kpi-row:
             layout: grid
-            grid-template-columns: repeat(4, 1fr)
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr))
             gap: md
             margin-bottom: 1.5rem
 
@@ -600,12 +604,15 @@ view Home:
             layout: row
             justify-content: space-between
             align-items: center
+            flex-wrap: wrap
+            gap: md
             border-bottom: 1px solid #f0f0f0
             padding-bottom: 1rem
             margin-bottom: 1.5rem
 
         .chart-tabs:
             layout: row
+            flex-wrap: wrap
             gap: md
 
         .chart-tab-btn:
@@ -627,6 +634,7 @@ view Home:
         .chart-filters:
             layout: row
             align-items: center
+            flex-wrap: wrap
             gap: md
 
         .filter-link:
@@ -655,7 +663,7 @@ view Home:
 
         .chart-grid:
             layout: grid
-            grid-template-columns: 2fr 1fr
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr))
             gap: xl
 
         .grid-left:

@@ -370,7 +370,9 @@ view Home:
             layout: row
             justify-content: space-between
             align-items: center
-            padding: 1.5rem 3rem
+            flex-wrap: wrap
+            gap: md
+            padding: 1rem 1.5rem
             background: rgba(19, 23, 28, 0.85)
             backdrop-filter: blur(12px)
             border-bottom: 1px solid #2a2115
@@ -399,7 +401,9 @@ view Home:
     
         .nav-menu:
             layout: row
-            gap: xl
+            flex-wrap: wrap
+            gap: md
+            justify-content: center
     
         .nav-menu a:
             color: #a49e93
@@ -429,7 +433,7 @@ view Home:
     
         .hero-banner:
             position: relative
-            padding: 6rem 3rem
+            padding: 4rem 1.5rem
             overflow: hidden
     
         .hero-background-glow:
@@ -445,7 +449,7 @@ view Home:
     
         .hero-grid:
             layout: grid
-            grid-template-columns: 1.2fr 0.8fr
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr))
             gap: xl
             max-width: 1200px
             margin: 0 auto
@@ -464,7 +468,7 @@ view Home:
     
         .hero-title:
             font-family: "Outfit", sans-serif
-            font-size: 3.5rem
+            font-size: clamp(2rem, 5vw, 3.5rem)
             font-weight: 900
             line-height: 1.1
             letter-spacing: -0.01em
@@ -473,13 +477,14 @@ view Home:
             -webkit-text-fill-color: transparent
     
         .hero-description:
-            font-size: 1.15rem
+            font-size: clamp(1rem, 2vw, 1.15rem)
             color: #a49e93
             line-height: 1.6
             max-width: 580px
     
         .hero-actions:
             layout: row
+            flex-wrap: wrap
             gap: md
             margin-top: 1rem
     
@@ -492,6 +497,7 @@ view Home:
             text-decoration: none
             cursor: pointer
             transition: all 0.2s
+            text-align: center
     
         .btn-gold:hover:
             background: #ffffff
@@ -506,6 +512,7 @@ view Home:
             text-decoration: none
             cursor: pointer
             transition: all 0.2s
+            text-align: center
     
         .btn-outline:hover:
             background: rgba(243, 236, 224, 0.05)
@@ -514,6 +521,7 @@ view Home:
         .hero-media-area:
             layout: stack
             align-items: center
+            width: 100%
     
         .hero-frame:
             background: #13171c
@@ -522,10 +530,13 @@ view Home:
             layout: stack
             gap: sm
             box-shadow: 0 15px 35px rgba(0,0,0,0.4)
+            width: 100%
+            max-width: 460px
     
         .hero-frame img:
             width: 100%
-            height: 380px
+            height: auto
+            aspect-ratio: 4/3
             object-fit: cover
     
         .frame-caption:
@@ -535,7 +546,7 @@ view Home:
             font-style: italic
     
         .collections-section:
-            padding: 6rem 3rem
+            padding: 4rem 1.5rem
             background: #13171c
             border-top: 1px solid #2a2115
             border-bottom: 1px solid #2a2115
@@ -556,7 +567,7 @@ view Home:
     
         .section-header h2:
             font-family: "Outfit", sans-serif
-            font-size: 2.25rem
+            font-size: clamp(1.5rem, 4vw, 2.25rem)
             font-weight: 900
             color: #f3ece0
     
@@ -565,9 +576,10 @@ view Home:
     
         .showcase-selector:
             layout: row
+            flex-wrap: wrap
             justify-content: center
-            gap: lg
-            margin-bottom: 4rem
+            gap: sm
+            margin-bottom: 2rem
     
         .selector-btn:
             background: transparent
@@ -593,13 +605,17 @@ view Home:
     
         .showcase-grid:
             layout: grid
-            grid-template-columns: 0.9fr 1.1fr
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr))
             gap: xl
             align-items: center
     
+        .showcase-image:
+            width: 100%
+    
         .showcase-image img:
             width: 100%
-            height: 400px
+            height: auto
+            aspect-ratio: 4/3
             object-fit: cover
             box-shadow: 0 10px 25px rgba(0,0,0,0.5)
     
@@ -609,7 +625,7 @@ view Home:
     
         .showcase-info h3:
             font-family: "Outfit", sans-serif
-            font-size: 2rem
+            font-size: 1.75rem
             font-weight: 900
             color: #d4af37
     
@@ -647,26 +663,30 @@ view Home:
             font-weight: 700
             text-decoration: none
             transition: all 0.2s
+            text-align: center
     
         .btn-gold-sm:hover:
             background: #ffffff
     
         .craft-section:
-            padding: 6rem 3rem
+            padding: 4rem 1.5rem
             background: #0d0f12
     
         .timeline-navigation:
-            layout: grid
-            grid-template-columns: repeat(4, 1fr)
+            layout: row
+            flex-wrap: wrap
+            justify-content: center
+            gap: md
             max-width: 1000px
-            margin: 0 auto 4rem
+            margin: 0 auto 3rem
             border-bottom: 1px solid #2a2115
+            padding-bottom: 0.5rem
     
         .timeline-step:
             background: transparent
             border: none
             border-bottom: 3px solid transparent
-            padding: 1.5rem 1rem
+            padding: 0.75rem 1rem
             cursor: pointer
             layout: stack
             align-items: center
@@ -704,7 +724,7 @@ view Home:
     
         .timeline-grid:
             layout: grid
-            grid-template-columns: 1fr 1fr
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr))
             gap: xl
             align-items: center
     
@@ -725,18 +745,19 @@ view Home:
     
         .timeline-media img:
             width: 100%
-            height: 300px
+            height: auto
+            aspect-ratio: 16/10
             object-fit: cover
     
         .customizer-section:
-            padding: 6rem 3rem
+            padding: 4rem 1.5rem
             background: #13171c
             border-top: 1px solid #2a2115
             border-bottom: 1px solid #2a2115
     
         .customizer-grid:
             layout: grid
-            grid-template-columns: 1.1fr 0.9fr
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr))
             gap: xl
             max-width: 1000px
             margin: 0 auto
@@ -786,6 +807,7 @@ view Home:
             layout: stack
             gap: lg
             box-shadow: 0 10px 30px rgba(0,0,0,0.3)
+            width: 100%
     
         .customizer-preview-card h3:
             font-family: "Outfit", sans-serif
@@ -803,6 +825,7 @@ view Home:
             layout: row
             justify-content: space-between
             font-size: 1rem
+            gap: md
     
         .detail-row .lbl:
             color: #a49e93
@@ -811,6 +834,7 @@ view Home:
         .detail-row .val:
             color: #f3ece0
             font-weight: 700
+            text-align: right
     
         .detail-row .gold:
             color: #d4af37
@@ -818,7 +842,7 @@ view Home:
             font-weight: 800
     
         .booking-section:
-            padding: 6rem 3rem
+            padding: 4rem 1.5rem
             background: #0d0f12
     
         .booking-banner:
@@ -843,7 +867,7 @@ view Home:
     
         .booking-grid:
             layout: grid
-            grid-template-columns: 1fr 1fr
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr))
             gap: xl
             max-width: 1000px
             margin: 0 auto
@@ -855,7 +879,7 @@ view Home:
     
         .booking-info-box h2:
             font-family: "Outfit", sans-serif
-            font-size: 2.25rem
+            font-size: clamp(1.5rem, 4vw, 2.25rem)
             font-weight: 900
             color: #f3ece0
             line-height: 1.1
@@ -890,6 +914,7 @@ view Home:
             border: 1px solid #2a2115
             padding: 2.5rem
             box-shadow: 0 15px 35px rgba(0,0,0,0.3)
+            width: 100%
     
         .amana-form:
             layout: stack
@@ -909,6 +934,7 @@ view Home:
             padding: 0.75rem
             outline: none
             font-family: "Plus Jakarta Sans", sans-serif
+            width: 100%
     
         .amana-form-control:focus:
             border-color: #d4af37
@@ -924,13 +950,14 @@ view Home:
             text-align: center
             text-transform: uppercase
             letter-spacing: 0.05em
+            width: 100%
     
         .amana-btn:hover:
             background: #ffffff
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.4)
     
         .footer-section:
-            padding: 4rem 3rem
+            padding: 4rem 1.5rem
             background: #090a0c
             border-top: 1px solid #2a2115
             layout: stack
@@ -950,7 +977,10 @@ view Home:
         .footer-bottom:
             layout: row
             justify-content: space-between
+            flex-wrap: wrap
+            gap: sm
             border-top: 1px solid #13171c
             padding-top: 2rem
             color: #a49e93
             font-size: 0.85rem
+
