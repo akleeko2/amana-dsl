@@ -213,9 +213,9 @@ view Facebook:
                                         iconify-icon(icon: "material-symbols:close-rounded"): ""
 
                             div.post-content:
-                                p.post-text: post.content
+                                p.post-text(dir: "auto"): post.content
                                 if post.hashtags != "":
-                                    p.post-tags: post.hashtags
+                                    p.post-tags(dir: "auto"): post.hashtags
 
                             if post.post_image != "":
                                 div.post-image-container:
@@ -234,9 +234,15 @@ view Facebook:
                             div.separator: ""
 
                             div.post-actions-buttons:
-                                Button(label: "Like", variant: "ghost")
-                                Button(label: "Comment", variant: "ghost")
-                                Button(label: "Share", variant: "ghost")
+                                button.action-btn:
+                                    iconify-icon(icon: "material-symbols:thumb-up-outline-rounded"): ""
+                                    span: "Like"
+                                button.action-btn:
+                                    iconify-icon(icon: "material-symbols:chat-bubble-outline-rounded"): ""
+                                    span: "Comment"
+                                button.action-btn:
+                                    iconify-icon(icon: "material-symbols:share-outline-rounded"): ""
+                                    span: "Share"
 
                 # Right Sidebar
                 aside.right-sidebar:
@@ -625,6 +631,7 @@ view Facebook:
         .mind-bottom:
             display: flex
             justify-content: space-around
+            align-items: center
             padding-top: 8px
 
         .mind-action:
@@ -770,14 +777,39 @@ view Facebook:
             font-weight: 600
             display: flex
             align-items: center
+            justify-content: center
             gap: 8px
-            padding: 8px 20px
+            padding: 8px
             border-radius: 4px
             cursor: pointer
             transition: background 0.2s
+            flex-grow: 1
+            font-family: inherit
 
         .action-btn:hover:
             background: rgba(255, 255, 255, 0.05)
+            color: #e4e6eb
+
+        .action-btn iconify-icon:
+            font-size: 20px
+
+        .feed-area .amana-card:
+            background: #242526 !important
+            border: 1px solid #3e4042 !important
+            border-radius: 8px !important
+            padding: 12px 16px !important
+            min-height: auto !important
+            box-shadow: none !important
+            transform: none !important
+            gap: 12px !important
+
+        .feed-area .amana-card::before:
+            display: none !important
+
+        .feed-area .amana-card:hover:
+            transform: none !important
+            box-shadow: none !important
+            border-color: #3e4042 !important
 
         .sponsored-ad:
             display: flex
