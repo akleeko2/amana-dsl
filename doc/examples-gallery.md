@@ -135,5 +135,5 @@ cargo run -- build examples/09_multi_file_portal/main.amana examples/09_multi_fi
 * **Key Features:**
   * **Multi-File Architecture**: Demonstrates module importing and code isolation across components (`section1.amana` through `section6.amana`), model declaration (`models.amana`), and routing entrypoint (`main.amana`).
   * **Interactive Tab Showcase**: Select between "The Heritage", "The Celestial", and "The Sovereign" specifications with Dynamic AlpineJS state switching.
-  * **Facebook Clone (/facebook)**: Pixel-perfect Facebook dark-mode replica including left sidebar shortcut directories, middle story sliders (Create Story + 5 users), Roya News Donald Trump feed post fetched from SQLite models, sponsored ads, and birthdays notification.
+  * **Facebook Feed (/facebook)**: Facebook-inspired dark-mode social feed including left sidebar shortcut directories, middle story sliders (Create Story + 5 users), Roya News Donald Trump feed post fetched from SQLite models, sponsored ads, and birthdays notification.
   * Database models: `FacebookPost` (feed records) and `LeadBrief` (consultation form requests).

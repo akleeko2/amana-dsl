@@ -16,7 +16,7 @@ view Facebook:
                 border: "rgba(255, 255, 255, 0.05)"
                 gradient: custom
             creative:
-                uniqueness: facebook-clone
+                uniqueness: facebook-inspired
                 freedom: custom
             brand:
                 voice: authentic
@@ -509,6 +509,11 @@ view Facebook:
             margin-bottom: 24px
             overflow-x: auto
             padding-bottom: 8px
+            -ms-overflow-style: none
+            scrollbar-width: none
+
+        .stories-container::-webkit-scrollbar:
+            display: none
 
         .story-card:
             width: 112px
