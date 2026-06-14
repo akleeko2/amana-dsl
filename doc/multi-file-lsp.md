@@ -1,30 +1,62 @@
-# Multi-file Imports and LSP
+# Multi-File Compilation Architecture & LSP (DSL v2.1)
 
-## Multi-file imports
+Amana supports modular code distribution, allowing projects to scale from single-file scripts to nested multi-file source graphs.
 
-Amana supports source graphs through:
+---
+
+## 🏛️ Multi-File Imports Syntax
+
+Use the `import` statement at the top of an Amana source file to link other modules:
 
 ```amana
-import "./models/user.amana"
-import "./views/home.amana"
+import "./models/schema.amana"
+import "./views/dashboard.amana"
 ```
 
-Imports are resolved relative to the importing file.
+### Resolution Rules:
+- **Relative Resolution**: Paths must be relative to the importing file's directory.
+- **Top-Level Priority**: Imports must appear before any application block declaration (`app`, `theme`, `model`, `route`, `view`, etc.).
+- **Deduplication**: If multiple files import the same `.amana` file, the compiler parses and links it only once, resolving circular dependency trees cleanly.
+- **Global Scope Resolution**: Models, custom components, and views declared inside imported files are registered in the application's global scope. If two files declare identical model or view names, the compiler raises a duplicate symbol validation error.
 
-## Source graph behavior
+---
 
-- `amana check` resolves the full graph
-- `amana build` compiles the full graph
-- `amana fmt --all` can format the graph from one entry file
-- `amana dev` watches the graph for rebuilds
+## ⚙️ Compilation Graph Actions
 
-## LSP
+When executing CLI subcommands, the compiler constructs a dependency graph starting from the entrypoint:
 
-The current LSP provides a basic stdio server with diagnostics, completion, and formatting hooks. It is intentionally small and tied to the same compiler pipeline.
+### 1. `amana check entry.amana`
+Parses and semantically validates all files in the import graph.
+- Diagnostic logs automatically report the absolute `file_path` for each error.
 
-## What still matters
+### 2. `amana build entry.amana [dist]`
+Compiles and generates the runtime target.
+- Merges all imported SQLite schemas into a single migration script.
+- Populates seed records across all modules.
+- Groups all view templates into the output Express application.
 
-- diagnostics should include `file_path`
-- completion should stay aligned with the source graph
-- formatter and checker should remain deterministic across files
+### 3. `amana fmt entry.amana --all`
+Recursively traverses all imports starting from the entrypoint and formats all files in place.
 
+### 4. `amana dev entry.amana`
+Watches the entire dependency graph. Saving any modified file triggers an automatic rebuild of the target Express application.
+
+---
+
+## 🔌 Language Server Protocol (LSP)
+
+Amana includes a built-in Language Server Protocol (LSP) server configured to integrate directly with IDE extensions (like VS Code or Neovim).
+
+### Active Capabilities:
+
+- **JSON Diagnostics**:
+  - The LSP spawns the semantic checker in memory.
+  - Validation checks report problems in real time as the developer types.
+  - Errors map line/column positions and link the precise `file_path` to focus the editor viewport.
+- **Completions**:
+  - Autocompletes built-in standard library components.
+  - Suggests allowed keywords inside design blocks (e.g. suggests valid layouts, shadows, gradients, and density strings).
+  - Autocompletes database fields based on active model declarations within the import graph.
+- **Document Formatting**:
+  - Automatically formats on saves (`editor.formatOnSave` integration).
+  - Leverages the same AST printer from the `fmt` engine to guarantee deterministic layout indentation and syntax corrections across files.

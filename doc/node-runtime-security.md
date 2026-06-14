@@ -1,48 +1,50 @@
-# Node Runtime and Security
+# Node Runtime Architecture & Production Hardening
 
-Amana is designed to output a hardened, production-ready full-stack Node.js application. Security is enforced both at compiler time (static checks) and at execution runtime.
-
-## Runtime Stack Architecture
-
-The emitted application target:
-- **Engine**: Node.js & Express
-- **Templates**: EJS views (escaped dynamically)
-- **Database**: SQLite (SQL query sanitization, parameter bind)
-- **Reactivity**: Alpine.js (client-side DOM updates)
-- **Security Middleware**: Helmet, CORS, Rate Limiters, Session management
+Amana builds a production-hardened Node.js/Express target with integrated security layers. Security is enforced through static analysis checks at compile time and runtime middlewares at execution time.
 
 ---
 
-## Static Security Assertions
+## 🏛️ Runtime Architecture Stack
 
-Before code generation begins, the Amana compiler runs semantic checks that block common security vulnerabilities:
+The generated application contains the following core technology layers:
+- **Web Engine**: Node.js & Express with compression and parsing middlewares.
+- **Pre-compiled Templating**: EJS views with auto-escaping.
+- **Reactive DOM**: Alpine.js client-side interactivity variables.
+- **Database Engine**: SQLite with parameter binding queries.
+- **Security Middlewares**: Helmet, CORS, Rate Limiters, Session management.
 
-### 1. HTML Markup Allowed Allowlist
-To prevent XSS (Cross-Site Scripting) and script/style injections, Amana forbids calling specific raw HTML nodes within the `render:` blocks. The following tags are flagged as compiler errors:
-- `script`: Prevents execution of arbitrary client-side scripts.
-- `iframe`: Prevents unauthorized clickjacking and embedding of untrusted external sources.
-- `style`: Prevents CSS injection attacks that could alter page presentation or leak details.
-- `link`, `meta`, `base`: Prevents header modifications, stylesheet hijacking, or origin tampering.
-- `object`, `embed`, `applet`: Blocks legacy plugin vulnerabilities.
-- `noscript`: Restricted to maintain clean component layout controls.
+---
+
+## 🛡️ Static Security Compiler Assertions
+
+The Amana compiler runs semantic validations before code generation to mitigate common vulnerabilities:
+
+### 1. HTML Markup Blocklist (XSS Mitigation)
+Calling raw lowercase HTML nodes that present script injection or clickjacking risks will fail semantic compilation:
+- `script`: Prevents arbitrary script injection.
+- `iframe`: Prevents unauthorized clickjacking.
+- `style`: Prevents CSS injection that could leak page content or hijack selectors.
+- `link`, `meta`, `base`: Prevents header tampering and origin hijacking.
+- `object`, `embed`, `applet`: Blocks obsolete plugin vulnerabilities.
+- `noscript`: Restricted to maintain clean layout flows.
 
 ### 2. URL Schema Protection
-Interactive properties like `href` on `Button` or `action_href` are checked for prefix patterns:
+Interactive properties like `href` on `Button` are checked for prefix patterns:
 - Values containing `javascript:` are strictly rejected to prevent URI-based script execution.
-- CSS styling values are checked for injection tokens (e.g. `@import`, `expression(`, `behavior:`).
+- CSS values are scanned for injection patterns (`expression(`, `behavior:`).
 
-### 3. 4-Layer CSS Scoped Sanitizer (Amana v2)
-To allow safe customization of components and styling variants without compromising user safety, custom styling blocks are subjected to a strict 4-layer compiler validator:
-- **Selector Safety Validator**: Prevents modification of global selectors (like `body`, `html`, `*`, `script`, etc.) and attribute selector attacks (like `[onclick]`).
-- **Property Safety Allowlist**: Rejects insecure or legacy CSS features. Only modern layout and paint properties are allowed.
-- **Value Sanitizer**: Detects and strips potential exploit strings (like `javascript:`, `expression(`, `url(...)`, etc.).
-- **CSS Layers Isolation**: Groups rules under `@layer components, variants, overrides` and rewrites selectors to guarantee strict local scope isolation.
+### 3. 4-Layer CSS Scoped Sanitizer
+Protects variants and scoped views from styling pollution and injection attacks:
+- **Selector Safety Validator**: Prevents modifying global selectors (`body`, `html`, `*`, `script`) and attribute selectors (`[onclick]`).
+- **Property Allowlist**: Restricts properties to modern layout and styling properties.
+- **Value Sanitizer**: Strips unsafe values (`javascript:`, `@import`).
+- **CSS Layers Scoping**: Groups styles under `@layer components, variants, overrides` and scopes selectors with view IDs.
 
 ---
 
-## Runtime Hardening Defaults
+## 🔒 Runtime Hardening Defaults
 
-Generated applications come pre-configured with secure-by-default options:
+Emitted applications come pre-configured with secure production defaults:
 
 ### 1. CSRF (Cross-Site Request Forgery) Protection
 All forms generated by the compiler connect through a secure POST middleware. The runtime:
@@ -74,31 +76,30 @@ When running in production:
 
 ---
 
-## Production Security Checklist
+## 📋 Production Readiness Checklist
 
-Ensure the following environment configurations are set before deployment:
+Configure the following environment variables before deploying to production:
 
-| Variable / Check | Expected Setting | Purpose |
-| --- | --- | --- |
-| `NODE_ENV` | `production` | Enables compilation optimizations and enforces production-only security guards. |
+| Variable | Expected Value | Purpose |
+| :--- | :--- | :--- |
+| `NODE_ENV` | `production` | Enables compiler optimization flags and activates production security checks. |
 | `SESSION_SECRET` | A secure, random string | Cryptographically signs session cookies. |
-| `AMANA_RUN_SEEDS` | `false` (default) | Prevent overwrite or insertion of development seed records on production database. |
-| `AMANA_ALLOW_PUBLIC_REST` | `false` | Controls access controls on standard REST endpoints. |
-| Port check | Use SSL Certificates / HTTPS | Secures client-server communication channels. |
+| `PORT` | E.g. `3001` or `8080` | Port on which the Express server listens. |
+| `AMANA_RUN_SEEDS` | `false` | Prevents dev mock seed records from overwriting production database data. |
+| `AMANA_ALLOW_PUBLIC_REST` | `false` | Enforces authorization checks on generated REST endpoints. |
 
-### Verification Command Chain:
-Run these commands before pushing to production to ensure your build is clean and authenticated:
-
+### Verification Chain
+Run this verification chain before deploying:
 ```bash
-# 1. Run static checks on full project graph
+# 1. Validate complete syntax graph
 cargo run -- check app.amana --json
 
-# 2. Assert correct formatting
-cargo run -- fmt app.amana --check
+# 2. Check layout diversity and design tokens
+cargo run -- inspect-design app.amana --json
 
-# 3. Build optimized application files
+# 3. Generate production web app target
 cargo run -- build app.amana dist --json
 
-# 4. Check syntax correctness of the generated JS engine
+# 4. Check syntax of emitted javascript files
 node --check dist/runtime/engine.js
 ```

@@ -1,118 +1,152 @@
-# HTML Render v2, Components, and Forms
+# HTML Rendering, UI Components, and Forms v2
 
-Amana compiles view declarations into highly optimized server-side templates (EJS) combined with Alpine.js client-side reactivity.
+Amana view rendering combines static HTML structure, custom and built-in CSS layout components, and a robust client-side state machine driven by **Alpine.js**.
 
-## Component Call Rules
+---
 
-Component calls must adhere to strict parser rules regarding children nodes:
+## 📐 Component Call Rules
 
-### 1. Components Without Children
-If a component does not contain nested elements, it **must** be written *without* a colon (`:`):
+The Amana parser enforces two strict structural rules when invoking standard or custom UI components:
 
+### 1. Components Without Nested Children
+If a component does not wrap any child element, it **must** be written without a trailing colon (`:`):
 ```amana
-Navbar(brand: "Amana", sticky: true)
+Navbar(brand: "Aetheris Control", sticky: true)
 Footer()
 ```
 
-### 2. Components With Children
-If a component acts as a wrapper and contains children, it **must** use a colon (`:`):
-
+### 2. Components Wrapping Child Elements
+If a component acts as a layout container containing child nodes, it **must** end with a colon (`:`) and indent all child elements underneath:
 ```amana
-Card(title: "Hello Dashboard"):
-    p: "This is a card body child element."
+Card(title: "containment_status", subtitle: "Reactor core alpha"):
+    p: "Containment field strength is stable at 98.7 T."
 ```
 
-*Note: The Amana compiler check stage detects violations and provides helpful correction diagnostics, while `amana fmt` automatically corrects formatting.*
+*Note: Violations are caught at compilation check time, and `amana fmt` automatically converts and cleans formatting.*
 
 ---
 
-## Standard Component Library
+## 📚 Standard Components Directory
 
-Amana provides a premium, responsive set of built-in components:
+Amana includes 27 built-in components mapped directly to premium, RTL-supported, and responsive templates:
 
-`Button`, `Card`, `Container`, `Section`, `Grid`, `Stack`, `Navbar`, `Hero`, `FeatureCard`, `PricingCard`, `FormField`, `Alert`, `Footer`, `Modal`, `Tabs`, `Badge`, `Kpi`, `Stat`, `LogoCloud`, `TestimonialCard`, `Timeline`, `TimelineItem`, `EmptyState`, `Split`, `Cluster`, `Sidebar`, `Icon`
+### 1. Layout & Shell Containers
+- `Container(width: "wide" | "readable" | "standard")`: Restricts content to standard screen width grids.
+- `Section(id: str)`: Wraps a major vertical page section with consistent padding.
+- `Grid(min: str, gap: str)`: CSS Grid wrapper for bento boxes and responsive column collections.
+- `Stack(gap: str)`: Aligns nested elements vertically.
+- `Split(ratio: str = "1:1")`: Proportional two-column split layout.
+- `Cluster(gap: str)`: Horizontally wraps inline elements (ideal for buttons and badges).
+- `Sidebar(position: "left" | "right")`: Master-detail column split shell.
+
+### 2. Presentation Cards & Elements
+- `Card(title: str, subtitle: str, variant: "glass" | "elevated" | "luxury")`: Elegant container with border, hover shadows, and text headings.
+- `FeatureCard(title: str, icon: str)`: Centered icon-text card for listing system capabilities.
+- `PricingCard(plan: str, price: str, features: str)`: Subscription options card with action triggers.
+- `TestimonialCard(author: str, role: str, avatar: str)`: Showcases reviews inside a blockquote element.
+- `EmptyState(title: str, description: str, icon: str)`: Placeholder message when data views are empty.
+- `LogoCloud(title: str)`: Flex-wrapped gray-scaled logo matrix container.
+
+### 3. Timeline Components
+- `Timeline(alternate: bool = false)`: Vertical line thread linking milestone points.
+- `TimelineItem(title: str, timestamp: str, status: "success" | "warning" | "danger")`: Single node on the timeline thread containing telemetry details.
+
+### 4. Elements & Interactive Controls
+- `Button(label: str, href: str, variant: "solid" | "outline" | "ghost" | "link")`: Standard link/button controller.
+- `Badge(label: str, variant: "primary" | "accent" | "success" | "warning" | "danger")`: Mini tag indicator for metadata.
+- `Icon(name: str)`: Injects svg icons (supports Material Symbols and FontAwesome aliases).
+
+### 5. Navigation & Framework Shells
+- `Navbar(brand: str, sticky: bool, links: str)`: Header menu. `links` syntax: `"Home /, Features /#features, Contact /contact"`.
+- `Footer(brand: str)`: Centered copyright footer layout.
+- `Tabs(items: str, active: str)`: Navigation tab selector.
+- `Modal(title: str, show: str)`: Floating layer popup toggled via client state variables.
+
+### 6. Analytics & Telemetry Indicators
+- `Kpi(title: str, value: str, trend: str, up: bool)`: Bento block displaying data metrics.
+- `Stat(label: str, value: str)`: Clean metric description block.
+- `FormField(name: str, label: str, placeholder: str, type: str, required: bool, help: str)`: Modular form input wrapper.
+- `Alert(title: str, variant: "info" | "success" | "warning" | "error")`: Highlight box for system updates.
 
 ---
 
-## Navbar Component
+## ⚡ Client-Side Interactivity (Alpine.js Bindings)
 
-The standard navigation bar supports branding, sticky layouts, and a clean, declarative routing list:
+Amana does not require custom JavaScript compilation. Interactivity is declared inline using binding keywords mapped directly to Alpine.js syntax at compiler codegen:
 
+### 1. Event Listeners (`click:`)
+Binds expression execution to user clicks:
 ```amana
-Navbar(brand: "Brand Name", sticky: true, links: "Home /, Features /#features, Contact /contact")
+button(click: "active_tab = 'monitor'"): "Reactor Core"
+button(click: "show_modal = true"): "Launch Console"
 ```
 
-### Attributes:
-- `brand` (string): Text brand name displayed on the left/right depending on locale direction.
-- `sticky` (boolean): If `true`, the navigation bar is fixed to the top of the viewport with a frosted glass background (`backdrop-filter: blur(12px)`) and a subtle bottom border.
-- `links` (string): A comma-separated list of links. Each link is formatted as `Label href` (separated by a space).
-  - If no space is present and it starts with a `/`, the label and path are identical.
-  - If no space is present and it doesn't start with a `/`, it defaults to `href="#"`.
-  - Examples: `links: "الرئيسية /, عن_الشركة /about, اتصل_بنا /contact"`
+### 2. Visibility Controls (`show:`)
+Conditionally renders elements based on client-state evaluation:
+```amana
+div.alert(show: "coolant_valve < 25"):
+    span: "CRITICAL: Increase Coolant flow!"
+```
+
+### 3. Text Interpolation (`text:`)
+Injects reactive variables directly into elements:
+```amana
+span(text: coolant_valve): ""
+span: "%"
+```
+
+### 4. Input State Binding (`model:`)
+Maps slider or form input elements to client-state variables:
+```amana
+input.slider(type: "range", min: "0", max: "100", model: coolant_valve)
+```
+
+### 5. Reactive Classes (`class:`)
+Toggles CSS classes dynamically:
+```amana
+a.sidebar-link(class: "{ 'active': current_tab == 'Dashboard' }", click: "current_tab = 'Dashboard'"):
+    span: "Dashboard"
+```
 
 ---
 
-## Forms and Actions (Forms v2)
+## 📝 Form v2 & Database Actions
 
-Forms bind input inputs to database model controllers securely:
+Forms bind client-side input elements directly to server-side SQLite model actions securely.
 
+### 1. Form Declaration Structure
 ```amana
-form [name, email, password]:
-    connect User.register
+form [email, msg]:
+    connect Feedback.create
     ui: card
-    submit: "Create account"
-    redirect success -> /
-
-    field name:
-        label: "Your Full Name"
-        required: true
-        placeholder: "Jane Doe"
-
-    field email:
-        label: "Email Address"
-        type: email
-        placeholder: "you@example.com"
-        required: true
-
-    field password:
-        label: "Password"
-        type: password
-        help: "Must be at least 8 characters long."
-        required: true
+    submit: "Archive Anomaly Record"
+    redirect success -> /dashboard
 ```
-
-### Form Control Directives:
-- `connect Model.action`: Maps server-side handlers (e.g. `.create`, `.update`, `.delete`, `.register`, `.login`).
-- `ui`: Layout style (defaults to standard `card`).
+- `form [fields]`: List of field names bound to the form session.
+- `connect Model.action`: Maps server handler hooks. Supported actions:
+  - `Model.create`: Inserts a new row with submitted data.
+  - `Model.update`: Modifies existing rows matching criteria.
+  - `Model.delete`: Deletes rows matching identifiers.
+  - `Model.register` / `Model.login`: Handles auth session generation.
+- `ui`: Visual structure wrapper (e.g. `card`, `flat`, `outline`).
 - `submit`: Submission button text.
-- `redirect success -> /`: Client redirect route path upon successful server validation.
+- `redirect success -> /path`: Target redirect route on successful validation.
 
-### FormField Attributes:
-- `name` (identifier): Corresponds to the model field name.
-- `label` (string): Field label. Defaults to the field name if not specified.
-- `placeholder` (string): Input helper placeholder text.
-- `type` (type): HTML5 input type (e.g., `text`, `email`, `password`, `number`, `tel`).
-- `required` (boolean/yes/1): When set to true, binds the `required` HTML5 attribute, appends an asterisk (`*`) inside an `.amana-required` marker, and sets `aria-required="true"` for screen-reader accessibility.
-- `help` (string): Optional helper text rendered below the input inside a `<small class="amana-help">` node.
+### 2. Validation Decorators
+Inputs inside forms are automatically decorated by the schema:
+- Fields marked `required` render with an asterisk (`*`) inside a `<span class="amana-required">` tag and bind `aria-required="true"`.
+- If model constraint checks fail on the server, the field validation errors are flushed back to the client and highlighted next to input elements automatically.
 
 ---
 
-## Security: HTML Tag Restrictions
+## 🔒 Security: HTML Tag Restrictions
 
-To prevent arbitrary script injection, layout breaking, or cross-site scripting (XSS) vulnerabilities, Amana enforces a strict allowlist at the semantic analysis stage.
+To maintain cross-site scripting (XSS) immunity and prevent template tampering, Amana restricts raw HTML tag declarations.
 
-Direct usage of raw lowercase HTML nodes that present potential security risks is blocked:
+If any of the following tags are declared inside views, the compiler semantic check will fail:
 
-```amana
-# The following raw HTML nodes will FAIL semantic validation:
-script: "console.log('inject')"
-iframe(src: "https://untrusted-site.com")
-style: "* { display: none !important; }"
-```
-
-### Forbidden Tags List:
 `script`, `iframe`, `object`, `embed`, `applet`, `link`, `meta`, `base`, `style`, `noscript`
 
-### Remediation:
-- Use **Amana components** (like `Icon`, `Button`, or layout grids) instead of custom markup.
-- Declare visual configurations inside **design-grammar blocks** or custom `style:` sections of the view rather than raw style nodes.
+### How to resolve:
+- **Scripts**: Implement state logic within the `client:` block and trigger transitions via standard `click:` attributes.
+- **Styling**: Declare custom styles under the view's scoped `style:` block, or use utility classes instead of embedding raw `<style>` elements.

@@ -1,243 +1,274 @@
-# Amana Language Reference
+# Amana Language Reference (DSL v2.1)
 
-This document describes the current language surface supported by the compiler.
+Amana is a single-source domain-specific language (DSL) for building hardened full-stack web applications. An Amana source graph is compiled directly into a Node.js/Express backend with pre-compiled EJS templates, an automated SQLite migration/seed engine, and Alpine.js client-side interactivity.
 
-## File Shape
+---
+
+## 🏛️ Program Structure & File Shape
+
+An Amana application consists of top-level blocks. These blocks can be organized in a single file or modularized across multiple files using relative imports:
 
 ```amana
+# 1. Imports (Optional, must be at the top)
 import "./models/user.amana"
+import "./views/dashboard.amana"
 
-app MyApp:
-    title: "My App"
-    db_path: "my_app.db"
+# 2. Application Definition
+app CyberConsole:
+    title: "Vortex Command Center"
+    db_path: "cyber_console.db"
     auth_model: User
     capabilities:
         - auth
         - api.rest
 
+# 3. Global Styling Theme
 theme:
     mode: dark
-    direction: rtl
-    language: ar
+    direction: ltr
+    language: en
     font_provider: google
-    font_family: "Noto Sans Arabic"
-    heading_font_family: "Space Grotesk"
-    primary: indigo
-    accent: cyan
+    font_family: "Space Mono"
+    heading_font_family: "Orbitron"
+    primary: "#10b981"      # Emerald
+    accent: "#ff007f"       # Neon Pink
+    canvas: "#020813"
     radius: soft
     surface: glass
     density: comfortable
 
-model User:
-    name: str required min 2 max 80
-    email: email unique required
-    password: password required min 8
+# 4. Data Models & Seeding
+model Ticket:
+    title: str required min 3 max 100
+    user_id: int required foreign_key User(id) on_delete CASCADE
+    severity: str default "low"
 
+seed Ticket:
+    row:
+        title: "Database flux loops"
+        user_id: 1
+        severity: "critical"
+
+# 5. Route Mapping
 route / -> view Home
-route /projects/[id] -> view ProjectPage
-```
+route /tickets/[id] -> view TicketDetails
 
-## app
-
-`app` defines application metadata:
-
-- `title`
-- `db_path`
-- `auth_model`
-- `capabilities`
-
-## imports
-
-Use `import "./file.amana"` for multi-file projects. Imports resolve relative to the importing file.
-
-## theme
-
-The theme block feeds the CSS generator and runtime variables.
-
-Supported keys include:
-
-- `mode`: `light`, `dark`, `day`, `night`
-- `direction`: `ltr`, `rtl`
-- `language`: locale like `en` or `ar`
-- `font_provider`: `system` or `google`
-- `font_family`
-- `heading_font_family`
-- `arabic_font_family`
-- `primary`
-- `accent`
-- `canvas`
-- `text`
-- `radius`
-- `surface`
-- `density`
-
-`font_provider: google` enables Google Fonts import generation. The family names are still configurable.
-
-## models
-
-```amana
-model Project:
-    owner_id: int required
-    name: str required min 2 max 100
-    status: str default "active"
-    created_at: datetime default "CURRENT_TIMESTAMP"
-```
-
-Supported types:
-
-- `str`
-- `int`
-- `float`
-- `bool`
-- `email`
-- `password`
-- `datetime`
-- `money`
-
-Supported field flags:
-
-- `required`
-- `unique`
-- `min <number>`
-- `max <number>`
-- `default "value"`
-- `foreign_key Model(field)`
-- `on_delete CASCADE`
-
-## routes
-
-```amana
-route / -> view Home
-route /projects/[id] -> view ProjectPage
-```
-
-Bracket segments become Express params. For example:
-
-- `/projects/[id]` becomes `req.params.id`
-- `Project.find(params.id)` is valid in `server:` blocks
-
-## views
-
-```amana
-view ProjectsPage:
+# 6. View Declaration
+view Home:
+    canvas:
+        layout: column
+        surface: glass
+        density: comfortable
+    client:
+        state active_tab = "overview"
     server:
-        fetch projects = Project.all(limit: 20, page: 1)
-        fetch project = Project.find(params.id)
-
+        fetch active_tickets = Ticket.filter(severity: "critical")
     render:
-        div.page:
-            Navbar(brand: "ProjectHub", sticky: true)
-            Container():
-                Grid(min: "18rem"):
-                    for project in projects:
-                        Card(title: project.name, subtitle: project.status)
-
-    style:
-        .page:
-            background: canvas
-            color: text
-            min-height: screen
+        div.app-shell:
+            Navbar(brand: "Vortex")
+            # Component layout and nodes...
 ```
 
-### server fetch
+---
 
-Supported methods:
+## 📦 Modular Architecture & Imports
 
-- `all`
-- `find`
-- `filter`
-- `count`
+Multi-file systems are managed using the `import` statement.
 
-Pagination keys:
+### Relative Graph Resolution
+- Syntax: `import "./path/to/file.amana"`
+- All imports are resolved relative to the file containing the import statement.
+- The compiler constructs a dependency graph before checking or building.
+- Duplicate imports of the same file are resolved once (preventing cycle conflicts).
 
-- `limit`
-- `offset`
-- `page`
+### Compilation Behavior
+- **Checking**: Running `amana check main.amana` parses and semantically validates the entire imported graph.
+- **Formatting**: Running `amana fmt main.amana --all` formats the entry file and recursively traverses and formats all imported files in place.
+- **Building**: Compiling the entrypoint merges all model schemas, seeds, routes, and views into a single unified Express application target.
 
-`all` and `filter` default to a safe limit if none is provided.
+---
 
-## component calls
+## ⚙️ App Configuration
 
-If a component has no children, write it without `:`
+The `app` block defines the system metadata and active features of the generated app:
+
+- `title`: The `<title>` tag of all rendered HTML headers, as well as the default branding string.
+- `db_path`: The filename of the auto-generated SQLite database (e.g. `"app.db"`).
+- `auth_model`: Points to the model class used to handle user sessions and authentication logic.
+- `capabilities`: Active feature layers. Supported values:
+  - `auth`: Automatically generates secure registration, login, logout, and session middleware.
+  - `api.rest`: Generates automatic CRUD REST API endpoints (`/api/v1/ModelName/`) secured by default.
+
+---
+
+## 🎨 Theme System & Visual Configuration
+
+The `theme` block controls the compiler's generated design variables. These settings are compiled into root CSS custom properties (`var(--token-name)`) and passed to EJS layouts:
+
+- `mode`: Color scheme layout (`light`, `dark`, `day`, `night`).
+- `direction`: Text layout direction (`ltr` or `rtl`).
+- `language`: Locale string (e.g., `en`, `ar`). Enforces correct document lang properties.
+- `font_provider`: Font fetching backend (`system` or `google`).
+- `font_family`: Body font family.
+- `heading_font_family`: Header (`h1`, `h2`, etc.) font family.
+- `arabic_font_family`: Arabic-fallback text rendering font family (injected dynamically when `direction: rtl` or `language: ar`).
+- `primary` & `accent`: Base hex codes or CSS color strings.
+- `canvas`, `base`, `elevated`, `text`, `muted`, `border`: System colors mapping directly to UI components.
+- `radius`: Standard element curves (`sm`, `md`, `lg`, `xl`, `2xl`, or aliases like `soft` / `round` / `sharp`).
+- `surface`: Default backdrop visual layer style (`base`, `elevated`, `glass`, `layered`, `glass-layered`, etc.).
+- `density`: Layout margins and padding scale (`compact`, `comfortable`, `spacious`).
+- `gradient_hero`: Custom CSS background linear/radial gradient definition for main views.
+
+---
+
+## 🗄️ Database Models & Schema Definition
+
+Amana models map directly to SQLite tables using a secure compiler schema validator.
+
+### Primitive Types
+- `str`: Text column.
+- `int`: 64-bit integer column.
+- `float`: Double-precision float column.
+- `bool`: Boolean column.
+- `email`: Text column validated against email formats.
+- `password`: Secure text column automatically hashed using **Argon2** inside form/auth middleware.
+- `datetime`: SQLite timestamp representation.
+- `money`: Formatted financial numeric decimal column.
+
+### Field Constraints
+- `required`: Field is non-nullable.
+- `unique`: Generates unique index constraints.
+- `min <number>`: Minimum string length or minimum numeric value.
+- `max <number>`: Maximum string length or maximum numeric value.
+- `default <expression>`: Default fallback value (e.g. `default "active"` or `default 0`).
+- `foreign_key Model(field)`: Configures database relational links.
+- `on_delete CASCADE`: Cascade deletion behavior for relational foreign key links.
+
+---
+
+## 🌱 Database Seeding
+
+The `seed` block populates the SQLite database with starting entries during development compilation:
 
 ```amana
-Navbar(brand: "Amana")
-Footer()
+seed ModelName:
+    row:
+        field_1: "Value 1"
+        field_2: 12.5
+    row:
+        field_1: "Value 2"
+        field_2: 45.0
 ```
 
-If it has children, use `:`:
+### Static Evaluation Rule
+Seed expressions must be statically evaluatable at compile time.
+- **Forbidden**: Seeds cannot call dynamic runtime variables, request parameters, or context states (e.g. `<Model>.current` or `params.id`).
+- **Production Guard**: Seeds apply automatically in development. In production (`NODE_ENV=production`), seeds are disabled by default and require launching the server with `AMANA_RUN_SEEDS=true`.
+
+---
+
+## 🛣️ Routing
+
+Routes map URL endpoints directly to view render pipelines:
 
 ```amana
-Card(title: "Hello"):
-    p: "Content"
+route / -> view Home
+route /profile -> view Profile
+route /projects/[id] -> view ProjectPage
 ```
 
-## standard components
+- **Static Routes**: Match exact URL segments.
+- **Dynamic Segment Parsing**: Brackets (`/[id]`, `/posts/[slug]`) translate to Express request path parameters (`req.params.id`).
+- Inside `server:` blocks, these parameters are accessible via the `params` namespace (e.g. `Project.find(params.id)`).
 
-Current standard library components include:
+---
 
-`Button`, `Card`, `Container`, `Section`, `Grid`, `Stack`, `Navbar`, `Hero`, `FeatureCard`, `PricingCard`, `FormField`, `Alert`, `Footer`, `Modal`, `Tabs`, `Badge`, `Kpi`, `Stat`, `LogoCloud`, `TestimonialCard`, `Timeline`, `TimelineItem`, `EmptyState`, `Split`, `Cluster`, `Sidebar`, `Icon`
+## 📺 View Declarations
 
-Key updates:
-- **Navbar** accepts `links: "Label /path, Label2 /path2"` for clean navigation links layout.
-- **FormField** accepts `required: true` (adds asterisk and aria-required) and `help: "Helper description text"`.
+Views define a route's visual structure, dynamic client state, server-side data fetching, and local styles:
 
-## security tag restrictions
+### 1. `canvas` block
+Sets default view settings:
+```amana
+canvas:
+    layout: column
+    surface: glass
+    density: comfortable
+```
 
-Raw HTML tags that present security risks (like `<script>`, `<iframe>`, `<style>`, `<link>`, `<meta>`, `<base>`, `<object>`, `<embed>`, `<applet>`, `<noscript>`) are disallowed inside Amana views. The compiler will reject these elements with a `Security` error to prevent injection vulnerabilities.
+### 2. `client` block
+Declares client-side reactive state variables backed by **Alpine.js**:
+```amana
+client:
+    state active_tab = "overview"
+    state counter = 0
+    state show_modal = false
+```
 
-## custom components (Amana v2)
+### 3. `server` block
+Fetches database records before rendering the view:
+```amana
+server:
+    fetch items = Item.all(limit: 10, page: 1)
+    fetch item = Item.find(params.id)
+    fetch critical_issues = Issue.filter(status: "critical")
+```
+- Supported query types: `all()`, `find()`, `filter()`, `count()`.
+- Supports pagination parameters: `limit`, `offset`, `page`. If omitted, default query limits are applied for database performance.
 
-Define custom, reusable UI components with local styling and parameters:
+### 4. `render` block
+Contains the HTML node structure and component call tree.
+
+### 5. `style` block
+Declares local scoped CSS styling. The CSS is compiled into scoped `@layer components, overrides` rules.
+
+---
+
+## 🛠️ Custom Components
+
+Amana allows declaring custom, reusable visual components with parameter attributes and named slots:
 
 ```amana
-component FeatureCard(title: str, icon: str = "star", label: str = ""):
+component PortfolioCard(title: str, category: str = "Design", price: money = 0.0):
     style:
         .card:
-            layout: stack
-            gap: md
-            surface: elevated
-            radius: xl
-            padding: lg
+            surface: glass
+            radius: lg
+            padding: xl
     render:
         div.card:
-            Badge(label: label)
+            span.category: category
             h3: title
             slot content
-            slot actions optional
+            slot footer optional
 ```
 
-## slots resolution
+### Slot Distribution Rules
+- `slot`: Default unnamed slot. Collects all children called on the component that do not match named slots.
+- `slot name`: Required named slot. The compiler throws a validation error if this slot is missing when the component is called.
+- `slot name optional`: Optional named slot. Will render empty if omitted.
+- **Usage**:
+  ```amana
+  PortfolioCard(title: "Horology Chrono", category: "Luxury"):
+      content:
+          p: "Fine mechanical movements crafted from gold."
+      footer:
+          Button(): "Purchase"
+  ```
 
-Distribute content dynamically inside custom components using named and optional slots.
+---
 
-When declaring slots in a component body:
-- `slot name`: Declares a required slot.
-- `slot name optional`: Declares an optional slot.
-- `slot:` or `slot`: Declares a legacy default unnamed slot.
+## 🎭 Style Variants
 
-When calling the component, supply slot fillers by matching child tag names:
-
-```amana
-FeatureCard(title: "أحدث الطلبات", icon: "shopping-bag"):
-    content:
-        p: "عرض وتدقيق كافة المعاملات الأخيرة الواردة للمتجر."
-    actions:
-        Button(href: "/orders"): "التفاصيل"
-```
-
-## variants styling registry
-
-Customize standard or custom component styles under different aesthetic conditions:
+Style variants allow extending built-in or custom components with custom visual parameters:
 
 ```amana
 variant Card.glass:
     base:
         background: glass
-        radius: large
-        border: smooth
+        border: "1px solid rgba(255,255,255,0.1)"
     hover:
-        shadow: smooth
+        shadow: floating
     responsive:
         mobile:
             padding: md
@@ -245,30 +276,79 @@ variant Card.glass:
             padding: xl
 ```
 
-## layout-specific grammars
+---
 
-Layout blocks check configuration properties strictly. Supported layout engines and their allowed settings:
+## 📐 Design Grammar Blocks
 
-- **bento**: `layout`, `columns`, `rows`, `gap`, `auto_place`, `responsive`, `rhythm`, `focus_path`, `density`
-- **masonry**: `layout`, `columns`, `image_ratio`, `gap`
-- **split**: `layout`, `ratio`, `align`, `visual_position`
-- **asymmetric**: `layout`, `rhythm`, `dominant`, `overlap`
-- **magazine**: `layout`, `columns`, `headline_span`, `aside_span`, `pull_quote`
-- **sidebar**: `layout`, `sidebar_width`, `sidebar_position`, `sticky_sidebar`
-- **timeline**: `layout`, `axis`, `marker`, `alternate`
-- **dashboard-shell**: `layout`, `sidebar`, `topbar`, `content_width`, `density`
+Design blocks check visual attributes inside views, custom components, and sections. The compiler strictly validates settings against allowed properties.
 
-## custom css & 4-layer sanitizer
+### 1. `compose`
+Layout distribution properties:
+- `layout`: `row`, `column`, `stack`, `grid`, `center`, `inline`, `cluster`, `split`, `bento`, `split-diagonal`, `asymmetric`, `editorial`, `dashboard-shell`, `magazine`, `command-center`, `showcase-rail`, `masonry`, `sidebar`.
+- `ratio`: Proportional columns (e.g. `"1:1"`, `"2:1"`).
+- `gap`: Space scale spacing size (`xs` to `4xl`).
 
-Custom component, view, and variant CSS blocks are normalized and rewritten by the compiler to prevent style pollution and secure applications:
+### 2. `visual`
+Background and boundary properties:
+- `surface`: `base`, `muted`, `elevated`, `glass`, `custom`, `outline`, `flat`, `layered`, `glass-layered`.
+- `border`: CSS border property string.
+- `gradient`: `primary`, `accent`, `hero`, `mesh`, `aurora`, `spotlight`, `custom`, `brand`, `sunset`, `ocean`, `mesh-cyan-indigo`, `mesh-aurora`.
 
-1. **Selector Safety Validator**: Globally blocked tags (`body`, `html`, `*`, `script`, etc.) and attribute selectors (`[onclick]`) are rejected.
-2. **Property Safety Allowlist**: Restricted to modern, safe layout, sizing, typography, and painting properties.
-3. **Value Sanitizer**: Strips dangerous patterns (`javascript:`, `expression(`, `url(...)`, etc.).
-4. **CSS Layers Isolation**: Output is scoped and isolated into `@layer components, variants, overrides` to ensure predictable rendering order.
+### 3. `creative`
+Brand art style choices:
+- `uniqueness`: `signature`, `standard`, `custom`.
+- `freedom`: `high`, `medium`, `low`.
 
-### Parser & Syntax Enhancements (Amana v2.0.3)
+### 4. `brand`
+Editorial style voice:
+- `voice`: `technical`, `luxury`, `friendly`, `artistic`, `professional`, `authentic`.
+- `colorway`: Theme color scheme (e.g. `"forest"`, `"dark-blue"`, `"cyan-neon-pink"`).
 
-- **Hyphenated Element Tags**: You can use elements and custom elements containing hyphens (e.g. `iconify-icon`) directly inside views. The parser automatically scans and reconstructs hyphenated element tags.
-- **Multi-line Grouped Selectors**: Grouped CSS selectors separated by commas can span across multiple lines to improve readability (e.g. `.class1, \n .class2:`). The parser consumes the trailing newline automatically.
-- **Keyframe and Media Query Nesting Constraint**: Nested blocks (like `@keyframes` percentages or `@media` queries) are **not supported** in the flat `.amana` stylesheet block due to the single-level selector-declaration mapping. Keyframes or media-specific behaviors should be implemented using global overrides, pre-built utility classes, or custom plugins if required.
+### 5. `art`
+Visual assets motif:
+- `direction`: `cyberpunk`, `classical`, `organic`, `expressive`, `modern`, `pixel-perfect`.
+- `motif`: Design texture motif (`reactor-interface`, `clean`, `social-feed`, etc.).
+- `lighting`: Theme lighting properties (`dark-neon`, `light-airy`).
+- `texture`: Surface texture layout (`translucent`, `opaque`).
+
+### 6. `responsive`
+Adaptive sizing:
+- `desktop_columns` / `mobile_columns`: CSS column rules.
+- `desktop` / `mobile`: Sub-blocks declaring local responsive property overrides (e.g., `padding`, `gap`, `columns`).
+
+### 7. `type`
+Typography alignment:
+- `scale`: Typographic height scale (`spacious`, `balanced`, `compact`).
+- `align`: Text orientation (`left`, `center`, `right`).
+
+### 8. `motion`
+Transitions and hover animations:
+- `entrance`: `fade`, `slide-up`, `slide-down`, `zoom`, `blur`, `clip`, `stagger-up`, `none`.
+- `hover`: `lift`, `glow`, `scale`, `lift-glow`, `none`.
+
+### 9. `interaction`
+Pointer interface:
+- `feedback`: Interactive click feedback (`tactile`, `ripple`, `hover-highlight`).
+- `cursor`: Pointer styling (`default`, `pointer`).
+
+### 10. `a11y`
+Accessibility and colors:
+- `contrast`: Color contrast standards (`high`, `aaa`, `dark-accessible`).
+- `screenreader`: Accessibility reader bindings (`ready`, `structured`).
+
+---
+
+## 🚫 Layout Constraints
+
+The `compose` design block enforces layout configuration constraints. Only validated keys are allowed depending on the configured layout engine:
+
+| Layout (`layout:`) | Allowed Keys |
+| :--- | :--- |
+| `bento` | `layout`, `columns`, `rows`, `gap`, `auto_place`, `responsive`, `rhythm`, `focus_path`, `density` |
+| `masonry` | `layout`, `columns`, `image_ratio`, `gap` |
+| `split` | `layout`, `ratio`, `align`, `visual_position` |
+| `asymmetric` | `layout`, `rhythm`, `dominant`, `overlap` |
+| `magazine` | `layout`, `columns`, `headline_span`, `aside_span`, `pull_quote` |
+| `sidebar` | `layout`, `sidebar_width`, `sidebar_position`, `sticky_sidebar` |
+| `timeline` | `layout`, `axis`, `marker`, `alternate` |
+| `dashboard-shell` | `layout`, `sidebar`, `topbar`, `content_width`, `density`, `rhythm` |

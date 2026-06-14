@@ -1,86 +1,88 @@
-# CSS DSL v2 and Theme System
+# CSS Styling Engine & Theme System (DSL v2.1)
 
-Amana CSS is a design DSL, not handwritten CSS-first code. It compiles styling declarations into highly optimized, responsive, and RTL-compliant CSS rules.
+Amana compiles styling declarations into high-performance, scoped, and RTL-compliant CSS rules. The styling system enforces architectural safety while providing deep support for custom animations, gradients, and typography scales.
 
-## Theme Keys
+---
 
-Configure the global theme in the `theme` block of your `.amana` file:
+## 🎨 Global Theme Configuration
+
+Global visual variables are configured under the top-level `theme:` block in the entry `.amana` file:
 
 ```amana
 theme:
     mode: dark
-    direction: rtl
-    language: ar
+    direction: ltr
+    language: en
     font_provider: google
-    font_family: "Noto Sans Arabic"
-    heading_font_family: "Space Grotesk"
-    arabic_font_family: "Tajawal"
-    primary: emerald
-    accent: "#f97316"
-    canvas: "#f8fafc"
-    base: "#ffffff"
-    elevated: "#ffffff"
-    text: "#0f172a"
-    muted: "#475569"
-    border: "rgba(15,23,42,0.10)"
+    font_family: "Space Mono"
+    heading_font_family: "Orbitron"
+    arabic_font_family: "Noto Sans Arabic"
+    primary: "#10b981"
+    accent: "#ff007f"
+    canvas: "#020813"
+    base: "#0b0e17"
+    elevated: "#121724"
+    text: "#ffffff"
+    muted: "#8b949e"
+    border: "#202538"
     radius: soft
-    surface: elevated
+    surface: glass
     density: comfortable
-    gradient_hero: "linear-gradient(135deg, #ecfdf5 0%, #f8fafc 48%, #fff7ed 100%)"
+    gradient_hero: "linear-gradient(135deg, #05070f 0%, #121724 100%)"
 ```
 
-### Supported Properties:
-- `mode`: The color mode fallback (`light`, `dark`, `day`, `night`).
-- `direction`: Text and layout direction (`ltr` or `rtl`). First-class support for RTL guarantees correct logical property mappings (e.g. padding-inline-start/end, margin-inline-start/end, flex alignments).
-- `language`: Locale string (e.g., `en`, `ar`).
-- `font_provider`: `system` or `google` (generates Google Fonts import dynamically).
-- `font_family`, `heading_font_family`, `arabic_font_family`: Configure custom fonts.
-- `primary`, `accent`: Colors used for interactive states, key buttons, and gradients.
-- `canvas`, `base`, `elevated`, `text`, `muted`, `border`: Define the main interface palette.
-- `radius`: Set standard border-radius curve (e.g. `soft`, `round`, `sharp`).
-- `surface`: Base background style (`elevated`, `canvas`, `glass`, etc.).
-- `density`: Spacing density (`compact`, `comfortable`, `spacious`).
+### Supported Keys:
+- `mode`: Fallback rendering mode (`light`, `dark`, `day`, `night`).
+- `direction`: Script layout orientation (`ltr` or `rtl`).
+- `language`: Target locale code (e.g. `ar` or `en`).
+- `font_provider`: Provider endpoint (`google` or `system`).
+- `font_family`, `heading_font_family`, `arabic_font_family`: Font name declarations. The engine loads Google Fonts automatically if `font_provider: google` is active.
+- `primary`, `accent`: Primary visual identity coloring.
+- `canvas`, `base`, `elevated`, `text`, `muted`, `border`: UI system colors.
+- `radius`: Standard element curve scale alias (`sm` through `2xl`).
+- `surface`: Backdrop layers styling layout (`glass`, `elevated`, `flat`, etc.).
+- `density`: Global layout density margins (`compact`, `comfortable`, `spacious`).
+- `gradient_hero`: Hero section layout linear/radial background gradient definitions.
 
 ---
 
-## 5-Level Radius Scale
+## 🔁 Logical Properties & RTL/LTR Mirroring
 
-Amana implements a standard 5-level border-radius scale. These are compiled to CSS variables and mapped dynamically based on theme requirements:
+Amana guarantees pixel-perfect layout mirroring when switching text directions:
 
-| Token | CSS Variable | Default Value | Description |
-| --- | --- | --- | --- |
-| `sm` | `--radius-sm` | `10px` | Small elements (badges, indicators, tags) |
-| `md` | `--radius-md` | `16px` | Medium elements (form fields, small buttons, inner cards) |
-| `lg` | `--radius-lg` | `22px` | Large elements (standard cards, alerts, tab containers) |
-| `xl` | `--radius-xl` | `28px` | Extra large elements (main cards, sidebars, dashboard panels) |
-| `2xl` | `--radius-2xl` | `36px` | Hero sections, modals, and container shells |
+### 1. Logical Properties Mappings
+Instead of compiling physical properties (like `margin-left` or `padding-right`), the Amana compiler automatically rewrites rules to **CSS Logical Properties**:
+- `margin-left` compiles to `margin-inline-start`.
+- `margin-right` compiles to `margin-inline-end`.
+- `padding-left` compiles to `padding-inline-start`.
+- `padding-right` compiles to `padding-inline-end`.
+- `left: 0` compiles to `inset-inline-start: 0`.
+- `right: 0` compiles to `inset-inline-end: 0`.
 
-### Alias Mappings:
-To maintain compatibility and ease of design, the compiler automatically registers aliases that map to these tokens:
-- `--radius-small` maps to `--radius-sm`
-- `--radius-medium` maps to `--radius-md`
-- `--radius-large` maps to `--radius-lg`
-- `--radius-soft` maps to `--radius-md`
+### 2. Direction-Aware Alignments
+Flexbox and Grid layout properties are dynamically mirrored based on theme configuration:
+- Horizontal alignments like `flex-start` and `flex-end` align relative to the reading origin (`inline-start` / `inline-end`).
+- Flex columns change flow axes without breaking child node distribution.
+- **RTL Arabic Fonts**: If `direction: rtl` or `language: ar` is configured, the compiler prioritizes `arabic_font_family` in the CSS font stack for clean glyph rendering.
 
 ---
 
-## Supported Design Tokens
+## 📏 Design Token Scale Systems
 
-Amana generates a comprehensive design token system exposed as custom CSS properties (`var(--token-name)`). Below are the tokens guaranteed to be available across all generated stylesheets:
+Amana populates root custom variables (`var(--token-name)`) to guarantee visual consistency:
 
-### 1. Spacing Scale
-Used to maintain layout rhythm and consistent padding/gap heights:
+### 1. Spacing Scale (`--space-*`)
+Controls grid margins, section paddings, and card gaps:
 - `--space-xs`: `0.25rem` (4px)
 - `--space-sm`: `0.5rem` (8px)
-- `--space-md`: `1rem` (16px) or dynamically adjusted based on `density`
-- `--space-lg`: `1.5rem` (24px) or dynamically adjusted based on `density`
-- `--space-xl`: `2rem` (32px) or dynamically adjusted based on `density`
+- `--space-md`: `1rem` (16px) - *adjusts dynamically based on density*
+- `--space-lg`: `1.5rem` (24px) - *adjusts dynamically based on density*
+- `--space-xl`: `2rem` (32px) - *adjusts dynamically based on density*
 - `--space-2xl`: `3rem` (48px)
 - `--space-3xl`: `4.5rem` (72px)
 - `--space-4xl`: `6rem` (96px)
 
-### 2. Typography Sizing
-Font size tokens based on a curated typographic scale:
+### 2. Typographic Size Scale (`--text-*`)
 - `--text-xs`: `0.75rem` (12px)
 - `--text-sm`: `0.875rem` (14px)
 - `--text-md`: `1rem` (16px)
@@ -89,90 +91,81 @@ Font size tokens based on a curated typographic scale:
 - `--text-2xl`: `1.75rem` (28px)
 - `--text-3xl`: `2.4rem` (38.4px)
 
-### 3. Shadows Scale
-Control elevation depth:
-- `--shadow-sm`: `0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04)`
-- `--shadow-md`: `0 4px 6px -1px rgba(15,23,42,0.10), 0 2px 4px -1px rgba(15,23,42,0.06)`
-- `--shadow-lg`: `0 10px 24px -8px rgba(15,23,42,0.18)`
-- `--shadow-xl`: `0 20px 40px -12px rgba(15,23,42,0.28)`
-- `--shadow-smooth`: `0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)` (overridden dynamically in dark mode for soft shadows)
-- `--shadow-floating`: High-depth shadow for floating modals/cards.
-- `--shadow-strong`: Maximum depth shadow for overlays.
+### 3. Border Radius Scale (`--radius-*`)
+- `--radius-sm`: `10px` (badges, tags, mini inputs)
+- `--radius-md` / `--radius-soft`: `16px` (form fields, standard buttons)
+- `--radius-lg` / `--radius-large`: `22px` (standard cards, timeline content blocks)
+- `--radius-xl`: `28px` (large container grids, sidebars, dashboard shells)
+- `--radius-2xl`: `36px` (hero sections, modals, overlay boards)
 
-### 4. Interactive Transitions
-Smooth hover and state transitions:
-- `--transition-fast`: `all 0.12s ease-in-out`
-- `--transition-smooth`: `all 0.2s ease-in-out`
-
-### 5. Semantic Colors
-- `--color-success`: Success state color (default green).
-- `--color-warning`: Warning state color (default amber/yellow).
-- `--color-danger`: Error/danger state color (default red).
-- `--border-color`: Maps directly to the configured border color.
-
-### 6. Page Widths
-- `--content-width`: Max width of standard page grids (`1120px`).
-- `--wide-width`: Max width of wide section containers (`1360px`).
-- `--readable-width`: Max width of text blocks for reading comfort (`72ch`).
+### 4. Elevation Depth Shadows (`--shadow-*`)
+- `--shadow-sm`: Subtle inset border-glow.
+- `--shadow-md` / `--shadow-soft`: Default cards shadow outline.
+- `--shadow-lg`: Deep card float shadow.
+- `--shadow-xl`: Main landing hero card shadows.
+- `--shadow-smooth`: Ambient low-contrast blur shadow.
+- `--shadow-floating`: High-depth shadow for modals and popups.
+- `--shadow-strong`: Maximum overlay drop shadow.
 
 ---
 
-## Mesh Gradients & Dynamic Themes
+## 🎨 Mesh Gradients
 
-The `gradient: mesh` property applies a premium, organic background gradient. Instead of compiling to a static color combination, it dynamically inherits the primary and accent colors from the current theme configuration:
+The `gradient: mesh` visual rule compiles into a premium, dynamic background gradient:
 
 ```css
---gradient-mesh: radial-gradient(circle at 10% 20%, var(--color-primary-soft), transparent 34%), 
-                 radial-gradient(circle at 80% 0%, var(--color-accent-soft), transparent 38%), 
-                 var(--surface-base);
+background: radial-gradient(circle at 12% 8%, var(--color-primary-soft), transparent 30%), 
+            radial-gradient(circle at 80% 90%, var(--color-accent-soft), transparent 35%), 
+            var(--canvas-bg);
 ```
 
-This allows templates to switch between light and dark modes or change their brand accent without breaking gradient harmony.
+- Instead of hardcoded colors, it binds variables mapping back to the configured theme `primary` and `accent` options.
+- Safely shifts colors automatically during light/dark theme toggle operations.
 
 ---
 
-## Design Grammar Blocks and Layout Helpers
+## 🛡️ 4-Layer CSS Scoped Sanitizer
 
-Styles can be written using design-grammar blocks within component definitions:
+To secure user interfaces and prevent style pollution, the compiler subjects all custom CSS style blocks to a 4-layer sanitizer validation:
 
-```amana
-.card:
-    surface: elevated
-    radius: xl
-    shadow: floating
-    hover: lift
-    transition: smooth
-
-.hero-box:
-    gradient: mesh
-    glow: primary
-    columns: responsive 24rem
+```mermaid
+graph TD
+    Input["Custom CSS Block"] --> Layer1["1. Selector Validator"]
+    Layer1 -->|Allowed Selectors| Layer2["2. Property Allowlist"]
+    Layer2 -->|Safe Properties| Layer3["3. Value Sanitizer"]
+    Layer3 -->|Sanitized Values| Layer4["4. CSS Layers Scoping"]
+    Layer4 --> Output["Scoped Stylesheet Output"]
 ```
 
-### standard layout structures:
-- `Container()`: Centers content within `--content-width` (or `--wide-width` / `--readable-width`).
-- `Grid(min: "...")`: Responsive CSS Grid template.
-- `Split()`: Two-column proportional layout.
-- `Stack()`: Vertical stack of elements.
-- `Cluster()`: Horizontal wrap of inline elements.
-- `Sidebar()`: Master-detail side column layout.
+### 1. Selector Safety Validator
+Blocks attempts to style global document variables.
+- **Rejected Selectors**: `body`, `html`, `*`, `script`, `iframe`, element tag selectors without scope.
+- **Rejected Attributes**: Attribute selectors (like `[onclick]`) that present script execution vulnerabilities.
+
+### 2. Property Safety Allowlist
+Only allows safe layout, typography, borders, and painting declarations. Insecure layout hacks or hardware-tampering properties are rejected.
+
+### 3. Value Sanitizer
+Inspects property values for code injection sequences.
+- **Rejected Values**: Strings containing `javascript:`, `expression(`, `url(...)`, `@import`.
+
+### 4. CSS Layers Scoping
+- Custom styles are grouped inside `@layer components, variants, overrides` to resolve style conflicts cleanly.
+- Selectors are automatically prepended with view or custom component scoping IDs to prevent styles from leaking to other views.
 
 ---
 
-## Parser Syntax Capabilities & Restrictions (Amana v2.0.3)
+## ⚙️ Syntax Syntax Capabilities & Constraints
 
 ### 1. Multi-Line Grouped Selectors
-Grouped class selectors separated by commas can span across multiple lines to keep code readable:
+CSS selector grouping separated by commas can span across multiple lines. The parser consumes trailing newlines automatically:
 ```amana
-        .metrics-grid,
-        .showcase-panel,
-        .feedback-panel:
-            margin-bottom: var(--space-xl)
+.telemetry-card,
+.metrics-card,
+.diagnostic-alert:
+    margin-bottom: var(--space-xl)
 ```
-The parser automatically consumes trailing newlines immediately following a comma.
 
-### 2. Nesting Constraints (Keyframes & Media Queries)
-Amana's design block stylesheet parser uses a flat `selector: property-value` mapping. **Nested blocks (such as percentage blocks within `@keyframes` or media blocks inside `@media`) are not natively supported.**
-* **Do not** write `@keyframes` or `@media` structures directly inside `.amana` files.
-* Animations and responsive styles should rely on pre-built transitions, standard design tokens, or utility overlays generated by the runtime.
-
+### 2. Nesting Constraints
+Because Amana uses a flat `selector: property-value` AST structure, **percentage blocks inside `@keyframes` or media blocks inside `@media` cannot be nested within `.amana` files**.
+- Standard animations and responsive layouts must be declared using the design grammar configuration blocks (`motion:`, `responsive:`) which generate standard token styles natively.
