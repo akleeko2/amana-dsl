@@ -81,7 +81,7 @@ view Facebook:
             # Main Layout
             div.fb-main-container:
                 # Left Sidebar
-                aside.left-sidebar:
+                aside.left-sidebar(style: "height: calc(100vh - 56px);"):
                     div.sidebar-row:
                         img.sidebar-avatar(src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100")
                         span.sidebar-text: "Abdalluh Harahshuh"
@@ -245,7 +245,7 @@ view Facebook:
                                     span: "Share"
 
                 # Right Sidebar
-                aside.right-sidebar:
+                aside.right-sidebar(style: "height: calc(100vh - 56px);"):
                     h3.sidebar-section-title: "Sponsored"
 
                     div.sponsored-ad:
@@ -290,6 +290,7 @@ view Facebook:
             div.floating-chat-bubble:
                 iconify-icon(icon: "material-symbols:edit-document-outline-rounded"): ""
 
+
     style:
         .fb-wrapper:
             background: #18191a
@@ -332,12 +333,12 @@ view Facebook:
         .fb-search-container:
             background: #3a3b3c
             border-radius: 20px
-            padding: 0 12px
+            padding: 0 clamp(0px, (100vw - 768px) * 99999, 12px)
             display: flex
             align-items: center
             gap: 8px
             height: 40px
-            width: 240px
+            width: clamp(40px, (100vw - 768px) * 99999, 240px)
 
         .search-icon:
             color: #b0b3b8
@@ -349,14 +350,17 @@ view Facebook:
             color: #e4e6eb
             outline: none
             font-size: 14px
-            width: 100%
+            width: clamp(0px, (100vw - 768px) * 99999, 100%)
+            overflow: hidden
 
         .header-center:
             display: flex
             justify-content: center
             flex-grow: 1
             max-width: 600px
-            hide: mobile
+            width: clamp(0px, (100vw - 768px) * 99999, 600px)
+            max-width: clamp(0px, (100vw - 768px) * 99999, 600px)
+            overflow: hidden
 
         .nav-tabs:
             display: flex
@@ -426,15 +430,23 @@ view Facebook:
             flex-grow: 1
             overflow: hidden
 
-        .left-sidebar, .right-sidebar:
-            width: 360px
+        .left-sidebar:
+            width: clamp(0px, (100vw - 1100px) * 99999, 360px)
             flex-shrink: 0
-            padding: 16px 8px
+            padding: 16px clamp(0px, (100vw - 1100px) * 99999, 8px)
             overflow-y: auto
-            height: calc(100vh - 56px)
             position: sticky
             top: 56px
-            hide: mobile
+            overflow-x: hidden
+
+        .right-sidebar:
+            width: clamp(0px, (100vw - 1300px) * 99999, 360px)
+            flex-shrink: 0
+            padding: 16px clamp(0px, (100vw - 1300px) * 99999, 8px)
+            overflow-y: auto
+            position: sticky
+            top: 56px
+            overflow-x: hidden
 
         .sidebar-row:
             display: flex
@@ -502,7 +514,7 @@ view Facebook:
             object-fit: cover
 
         .feed-area:
-            padding: 16px 32px
+            padding: clamp(8px, (100vw - 768px) * 99999, 16px) clamp(0px, (100vw - 768px) * 99999, 32px)
             overflow-y: auto
             max-width: 680px
             margin: 0 auto
@@ -725,16 +737,14 @@ view Facebook:
             font-size: 15px
             line-height: 1.4
             margin: 0 0 8px 0
-            direction: rtl
 
         .post-tags:
             font-size: 15px
             color: #1877f2
             margin: 0
-            direction: rtl
 
         .post-image-container:
-            margin: 0 -16px 12px -16px
+            margin: 0 clamp(-16px, (768px - 100vw) * 99999, -8px) 12px clamp(-16px, (768px - 100vw) * 99999, -8px) !important
 
         .post-image:
             width: 100%
@@ -779,11 +789,11 @@ view Facebook:
             align-items: center
             justify-content: center
             gap: 8px
-            padding: 8px
+            padding: clamp(6px, (100vw - 768px) * 99999, 8px) clamp(4px, (100vw - 768px) * 99999, 8px) !important
             border-radius: 4px
             cursor: pointer
             transition: background 0.2s
-            flex-grow: 1
+            flex: 1 1 0
             font-family: inherit
 
         .action-btn:hover:
@@ -796,8 +806,10 @@ view Facebook:
         .feed-area .amana-card:
             background: #242526 !important
             border: 1px solid #3e4042 !important
-            border-radius: 8px !important
-            padding: 12px 16px !important
+            border-left-width: clamp(0px, (100vw - 768px) * 99999, 1px) !important
+            border-right-width: clamp(0px, (100vw - 768px) * 99999, 1px) !important
+            border-radius: clamp(0px, (100vw - 768px) * 99999, 8px) !important
+            padding: 12px clamp(8px, (100vw - 768px) * 99999, 16px) !important
             min-height: auto !important
             box-shadow: none !important
             transform: none !important
