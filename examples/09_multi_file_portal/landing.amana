@@ -11,6 +11,9 @@ view Home:
         surface: glass-layered
         density: comfortable
 
+    client:
+        state selected_collection = "sovereign"
+
     render:
         div.landing-page:
             compose:
@@ -49,19 +52,19 @@ view Home:
                 screenreader: ready
 
             Navbar(brand: "Amana Multi-Portal")
-            
+
             SectionHero(title: "Crafting High-Performance Multi-File Portals", subtitle: "Build full-stack, modular web systems natively in Amana DSL with Zero Boilerplate.")
-            
+
             SectionFeatures()
-            
+
             SectionShowcase()
-            
+
             SectionStats()
-            
+
             SectionPricing()
-            
+
             SectionContact()
-            
+
             Footer()
 
     style:

@@ -18,7 +18,7 @@ This document tracks the public roadmap for Amana. It is updated as features are
 | `amana fmt` — source code formatter | ✅ Done |
 | `amana inspect-design` — layout diversity analysis | ✅ Done |
 | Language Server Protocol (LSP) skeleton | ✅ Done |
-| 5 premium example applications | ✅ Done |
+| 9 premium example applications | ✅ Done |
 | AGPLv3 open-source license | ✅ Done |
 
 ---

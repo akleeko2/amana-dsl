@@ -1,6 +1,6 @@
 # Amana Examples Gallery
 
-The `examples/` directory contains five premium-designed showcases demonstrating the capabilities of the **Amana DSL v2 Design Engine**. These examples showcase advanced layout primitives, custom visual themes, typography scales, micro-animations, secure database mappings, and real-time form handlers.
+The `examples/` directory contains premium-designed showcases demonstrating the capabilities of the **Amana DSL v2 Design Engine**. These examples showcase advanced layout primitives, custom visual themes, typography scales, micro-animations, secure database mappings, and real-time form handlers.
 
 ---
 
@@ -23,6 +23,18 @@ cargo run -- build examples/04_nova_creative.amana examples/04_nova_creative_dis
 
 # 5. Cura Wellness (Teal Health & Wellness Directory)
 cargo run -- build examples/05_cura_wellness.amana examples/05_cura_wellness_dist
+
+# 6. Pro Dashboard (Enterprise Analytics Command Panel)
+cargo run -- build examples/06_pro_dashboard.amana examples/06_pro_dashboard_dist
+
+# 7. Nexus Portal (Asymmetric Workspace Feed Hub)
+cargo run -- build examples/07_nexus_portal.amana examples/07_nexus_portal_dist
+
+# 8. Atelier Aurelia (Timeless Luxury Horology Atelier)
+cargo run -- build examples/08_atelier_aurelia.amana examples/08_atelier_aurelia_dist
+
+# 9. Multi-File Portal (Modular landing page & Dark-mode Facebook clone)
+cargo run -- build examples/09_multi_file_portal/main.amana examples/09_multi_file_portal_dist
 ```
 
 ---
@@ -65,7 +77,7 @@ cargo run -- build examples/05_cura_wellness.amana examples/05_cura_wellness_dis
   * Custom code success badges (`.code.success`) with glowing shadows.
   * Database models: `DeployLog` (stage log lines) and `AccessRequest` (developer telemetry logs).
 
-### 5. Nova Creative (`04_nova_creative.amana`)
+### 4. Nova Creative (`04_nova_creative.amana`)
 * **Theme & Voice:** Deep Orchid Neon Purple (`canvas: "#090514"`, `primary: "#d946ef"`, `accent: "#8b5cf6"` violet, `surface: glass`). Creative and bold voice.
 * **Layout Blocks:**
   * `split` (hero asymmetric showcase showcasing design philosophies).
@@ -76,7 +88,7 @@ cargo run -- build examples/05_cura_wellness.amana examples/05_cura_wellness_dis
   * Lift-on-hover card transformations with smooth scale.
   * Database models: `ProjectBrief` (design client requests).
 
-### 6. Cura Wellness (`05_cura_wellness.amana`)
+### 5. Cura Wellness (`05_cura_wellness.amana`)
 * **Theme & Voice:** Modern Healing Teal Clean Mode (`canvas: "#f0fdf4"`, `primary: "#0f766e"`, `accent: "#14b8a6"`, `surface: elevated`). Soft, clean, and reliable voice.
 * **Layout Blocks:**
   * `split` (clean hero section with appointment scheduler).
@@ -86,3 +98,42 @@ cargo run -- build examples/05_cura_wellness.amana examples/05_cura_wellness_dis
   * High-density clean layout optimized for medical search.
   * Seamless reservation form connecting clients directly to caregivers.
   * Database models: `Appointment` (medical visit slots).
+
+### 6. Pro Dashboard (`06_pro_dashboard.amana`)
+* **Theme & Voice:** Professional Enterprise Blue/Teal Light Mode (`canvas: "#f0f2f5"`, `primary: "#1890ff"`, `accent: "#13c2c2"`, `surface: custom`). Corporate and analytical voice.
+* **Layout Blocks:**
+  * `column` (dashboard frame setup).
+  * `grid` (analytics cards grid and KPI indicators).
+* **Key Features:**
+  * Interactive sidebar navigation supporting 7 tabs (Dashboard, Form, List, Profile, Result, Exception, Account).
+  * Live Chart.js graphs (line chart for visits, bar chart for payments, doughnut chart for operation effects).
+  * Database models: `ShopRanking` (sales leaderboards).
+
+### 7. Nexus Portal (`07_nexus_portal.amana`)
+* **Theme & Voice:** Deep Violet Slate Dark Mode (`canvas: "#0a0a0f"`, `primary: "#7c3aed"`, `accent: "#2563eb"`, `surface: elevated`). Modern digital workplace community feed.
+* **Layout Blocks:**
+  * `sidebar` (navigation menu layout).
+  * `grid` (feed cards and trending boxes).
+* **Key Features:**
+  * Complex layout with profile cards, left sidebar shortcuts, main feed (supporting new posts creation), and active community members directory.
+  * Interactive comments toggle for posts.
+  * Database models: `NexusPost` (community announcements) and `Feedback` (user workspace metrics).
+
+### 8. Atelier Aurelia (`08_atelier_aurelia.amana`)
+* **Theme & Voice:** Luxury Timeless Horology Dark Mode (`canvas: "#0d0f12"`, `primary: "#d4af37"` gold, `accent: "#0b2e24"`, `surface: custom`). Sophisticated, high-end, premium craftsmanship tone.
+* **Layout Blocks:**
+  * `column` (main timeline).
+  * `grid` (luxury specs details and bespoke configurator).
+* **Key Features:**
+  * Luxury watch bespoke configurator letting users toggle dial faces, straps, and casings to view real-time valuations.
+  * Craftsmanship timeline showing mechanical blueprints, forging, assembly, and testing milestones in real-time.
+  * Elegant dark-gold typography hierarchy with background glow effects.
+  * Database models: `AtelierBooking` (private viewing reservations).
+
+### 9. Multi-File Portal (`examples/09_multi_file_portal`)
+* **Theme & Voice:** Modular Emerald-Gold Slate Dark Mode (`canvas: "#020617"`, `primary: "#10b981"`, `accent: "#1877f2"`, `surface: "glass-layered"`). Extremely professional development portal.
+* **Key Features:**
+  * **Multi-File Architecture**: Demonstrates module importing and code isolation across components (`section1.amana` through `section6.amana`), model declaration (`models.amana`), and routing entrypoint (`main.amana`).
+  * **Interactive Tab Showcase**: Select between "The Heritage", "The Celestial", and "The Sovereign" specifications with Dynamic AlpineJS state switching.
+  * **Facebook Clone (/facebook)**: Pixel-perfect Facebook dark-mode replica including left sidebar shortcut directories, middle story sliders (Create Story + 5 users), Roya News Donald Trump feed post fetched from SQLite models, sponsored ads, and birthdays notification.
+  * Database models: `FacebookPost` (feed records) and `LeadBrief` (consultation form requests).

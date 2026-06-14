@@ -1,9 +1,9 @@
 component SectionPricing():
     style:
         .pricing-box:
-            background: #0f172a
+            background: #030712
             border-bottom: 1px solid #1e293b
-            padding: 4rem 1.5rem
+            padding: 5rem 1.5rem
             width: 100%
 
         .pricing-container:
@@ -11,38 +11,140 @@ component SectionPricing():
             margin: 0 auto
             display: flex
             flex-direction: column
-            gap: 3rem
+            gap: 4rem
 
         .sec-header:
             text-align: center
             display: flex
             flex-direction: column
             gap: 0.5rem
+            max-width: 600px
+            margin: 0 auto
+
+        .sec-eyebrow:
+            font-size: 0.8rem
+            font-weight: 800
+            color: #d4af37
+            letter-spacing: 0.15em
+            text-transform: uppercase
 
         .sec-title:
-            font-size: 2rem
-            font-weight: 800
-            color: #ffffff
+            font-size: 2.25rem
+            font-weight: 900
+            color: #f3ece0
+            font-family: "Outfit", sans-serif
 
         .sec-desc:
-            font-size: 1rem
+            font-size: 1.05rem
             color: #94a3b8
+            line-height: 1.6
 
         .pricing-grid:
             display: grid
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))
             gap: 2rem
 
+        .price-card-custom:
+            background: #13171c
+            border: 1px solid #2a2115
+            padding: 3rem 2rem
+            border-radius: 6px
+            display: flex
+            flex-direction: column
+            gap: 1.5rem
+            position: relative
+            transition: all 0.25s
+
+        .price-card-custom:hover:
+            border-color: #d4af37
+            transform: translateY(-5px)
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.08)
+
+        .price-card-custom.featured:
+            border-color: #10b981
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.05)
+
+        .price-header:
+            display: flex
+            flex-direction: column
+            gap: 0.25rem
+
+        .price-tier:
+            font-size: 0.85rem
+            font-weight: 800
+            color: #d4af37
+            letter-spacing: 0.15em
+            text-transform: uppercase
+
+        .price-value:
+            font-size: 2.5rem
+            font-weight: 900
+            color: #f3ece0
+            font-family: "Outfit", sans-serif
+
+        .price-desc:
+            font-size: 0.95rem
+            color: #94a3b8
+            line-height: 1.6
+
+        .features-list:
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+            padding: 0
+            list-style: none
+
+        .features-list li:
+            font-size: 0.9rem
+            color: #f3ece0
+            padding-left: 1.5rem
+            position: relative
+
+        .features-list li::before:
+            content: "✓"
+            color: #10b981
+            position: absolute
+            left: 0
+            font-weight: 700
+
     render:
         div.pricing-box(id: "pricing"):
             div.pricing-container:
                 div.sec-header:
-                    h2.sec-title: "Scale Your Architecture"
-                    p.sec-desc: "Select the perfect tier to build, test, and run your Amana portals."
+                    span.sec-eyebrow: "TAILORED PLANS"
+                    h2.sec-title: "PORTAL SUBSCRIPTIONS"
+                    p.sec-desc: "Select the perfect tier to compile, build, and deploy your custom Amana apps."
+
                 div.pricing-grid:
-                    Card(title: "Developer", subtitle: "Free Forever", variant: "glass"):
-                        p: "For local prototype generation, simple EJS layout testing, and lightweight SQLite schemas."
-                    Card(title: "Production", subtitle: "$49 / month", variant: "glass"):
-                        p: "Multi-file imports, automatic database migrations, CSRF protection, and high-performance routing."
-                    Card(title: "Enterprise", subtitle: "$199 / month", variant: "luxury"):
-                        p: "PostgreSQL integration, versioned schema management, customized security, and dedicated scaling support."
+                    Card(title: "Developer Tier", subtitle: "Free", variant: "glass"):
+                        div.price-header:
+                            span.price-tier: "DEVELOPER"
+                            h3.price-value: "Free"
+                        p.price-desc: "For local prototype generation, EJS syntax validation, and single-file testing configurations."
+                        ul.features-list:
+                            li: "Single-file compilation"
+                            li: "SQLite database connections"
+                            li: "EJS view template render"
+                            li: "Design inspector reports"
+
+                    Card(title: "Production Tier", subtitle: "$49 / month", variant: "glass"):
+                        div.price-header:
+                            span.price-tier: "PRODUCTION"
+                            h3.price-value: "$49"
+                        p.price-desc: "For full-scale production portals, automated database migrations, and multi-file architectures."
+                        ul.features-list:
+                            li: "Multi-file import graph"
+                            li: "Automatic SQLite migrations"
+                            li: "CSRF token validation"
+                            li: "Helmet security middleware"
+
+                    Card(title: "Enterprise Tier", subtitle: "$199 / month", variant: "luxury"):
+                        div.price-header:
+                            span.price-tier: "ENTERPRISE"
+                            h3.price-value: "$199"
+                        p.price-desc: "For premium enterprise solutions. Includes postgres, customized safety headers, and 24/7 SLA support."
+                        ul.features-list:
+                            li: "PostgreSQL dialect support"
+                            li: "Versioned DB migrations"
+                            li: "Custom CSS property sanitizers"
+                            li: "Dedicated horology experts support"

@@ -52,7 +52,7 @@ view Facebook:
                     div.fb-search-container:
                         iconify-icon.search-icon(icon: "material-symbols:search-rounded"): ""
                         input.fb-search-input(type: "text", placeholder: "Search Facebook")
-                
+
                 div.header-center:
                     div.nav-tabs:
                         a.nav-tab.active(href: "#"):
@@ -65,7 +65,7 @@ view Facebook:
                             iconify-icon(icon: "material-symbols:groups-2-outline-rounded"): ""
                         a.nav-tab(href: "#"):
                             iconify-icon(icon: "material-symbols:sports-esports-outline-rounded"): ""
-                
+
                 div.header-right:
                     div.header-action-btn:
                         iconify-icon(icon: "material-symbols:grid-view-rounded"): ""
@@ -85,11 +85,11 @@ view Facebook:
                     div.sidebar-row:
                         img.sidebar-avatar(src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100")
                         span.sidebar-text: "Abdalluh Harahshuh"
-                    
+
                     div.sidebar-row:
                         div.icon-circle.meta-ai-icon: ""
                         span.sidebar-text: "Meta AI"
-                    
+
                     div.sidebar-row:
                         div.icon-circle.manus-ai-icon: ""
                         span.sidebar-text: "Manus AI"
@@ -109,27 +109,27 @@ view Facebook:
                     div.sidebar-row:
                         iconify-icon.sidebar-icon.grey-icon(icon: "material-symbols:keyboard-arrow-down-rounded"): ""
                         span.sidebar-text: "See more"
-                    
+
                     div.separator: ""
-                    
+
                     h3.sidebar-section-title: "Your shortcuts"
-                    
+
                     div.sidebar-row:
                         img.shortcut-icon(src: "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=50")
                         span.sidebar-text: "نقابة المبرمجين الأردنيين"
-                    
+
                     div.sidebar-row:
                         img.shortcut-icon(src: "https://images.unsplash.com/photo-1587831990711-23ca6441447b?w=50")
                         span.sidebar-text: "PC Builders Jordan JO"
-                    
+
                     div.sidebar-row:
                         img.shortcut-icon(src: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=50")
                         span.sidebar-text: "العربية - المجموعة الرسمية للمشجعين والمزايا"
-                    
+
                     div.sidebar-row:
                         img.shortcut-icon(src: "https://images.unsplash.com/photo-1614680376593-902f74fa0d41?w=50")
                         span.sidebar-text: "8 Ball Pool"
-                    
+
                     div.sidebar-row:
                         img.shortcut-icon(src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50")
                         span.sidebar-text: "abdalluharahshuh"
@@ -146,13 +146,13 @@ view Facebook:
                                 div.plus-btn-wrapper:
                                     div.plus-btn: "+"
                                 span: "Create story"
-                        
+
                         # Stories Cards
                         div.story-card:
                             img.story-bg(src: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300")
                             img.story-avatar(src: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100")
                             span.story-name: "Laith Albazayah"
-                        
+
                         div.story-card:
                             img.story-bg(src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300")
                             img.story-avatar(src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100")
@@ -178,9 +178,9 @@ view Facebook:
                         div.mind-top:
                             img.mind-avatar(src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100")
                             div.mind-input-placeholder: "What's on your mind, Abdalluh?"
-                        
+
                         div.separator: ""
-                        
+
                         div.mind-bottom:
                             div.mind-action:
                                 iconify-icon.red-icon(icon: "material-symbols:video-call-rounded"): ""
@@ -211,7 +211,7 @@ view Facebook:
                                         iconify-icon(icon: "material-symbols:more-horiz-rounded"): ""
                                     button.post-option-btn:
                                         iconify-icon(icon: "material-symbols:close-rounded"): ""
-                            
+
                             div.post-content:
                                 p.post-text: post.content
                                 if post.hashtags != "":
@@ -220,7 +220,7 @@ view Facebook:
                             if post.post_image != "":
                                 div.post-image-container:
                                     img.post-image(src: post.post_image)
-                            
+
                             div.post-likes-bar:
                                 div.likes-left:
                                     div.like-icon-bg:
@@ -230,7 +230,7 @@ view Facebook:
                                     span: "2 comments"
                                     span: " · "
                                     span: "5 shares"
-                            
+
                             div.separator: ""
 
                             div.post-actions-buttons:
@@ -241,21 +241,21 @@ view Facebook:
                 # Right Sidebar
                 aside.right-sidebar:
                     h3.sidebar-section-title: "Sponsored"
-                    
+
                     div.sponsored-ad:
                         img.ad-image(src: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=200")
                         div.ad-info:
                             span.ad-title: "See what's new in Photoshop"
                             span.ad-link: "www.adobe.com"
-                    
+
                     div.sponsored-ad:
                         img.ad-image(src: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200")
                         div.ad-info:
                             span.ad-title: "HeyGen: AI Video Generator"
                             span.ad-link: "heygen.com"
-                    
+
                     div.separator: ""
-                    
+
                     h3.sidebar-section-title: "Birthdays"
                     div.birthday-row:
                         div.gift-icon:
@@ -263,19 +263,19 @@ view Facebook:
                         p.birthday-text:
                             span.bold-text: "رامي الحمود الشرعه"
                             span: "'s birthday is today."
-                    
+
                     div.separator: ""
-                    
+
                     h3.sidebar-section-title: "Contacts"
-                    
+
                     div.sidebar-row:
                         img.sidebar-avatar(src: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100")
                         span.sidebar-text: "Laith Albazayah"
-                    
+
                     div.sidebar-row:
                         img.sidebar-avatar(src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100")
                         span.sidebar-text: "Wadee Eskander"
-                    
+
                     div.sidebar-row:
                         img.sidebar-avatar(src: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100")
                         span.sidebar-text: "Ngọc Trà My"

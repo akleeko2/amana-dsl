@@ -1,93 +1,145 @@
 component SectionHero(title: str, subtitle: str):
     style:
         .hero-box:
-            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.08), transparent 70%), #0b0f19
+            background: radial-gradient(circle at 75% 30%, rgba(16, 185, 129, 0.08), transparent 70%), #030712
             border-bottom: 1px solid #1e293b
-            padding: 5rem 1.5rem
+            padding: 6rem 1.5rem
             width: 100%
-            display: flex
-            flex-direction: column
-            align-items: center
-            justify-content: center
-            min-height: 70vh
             position: relative
+            overflow: hidden
 
-        .hero-content:
-            max-width: 800px
-            text-align: center
+        .hero-glow:
+            position: absolute
+            top: -10%
+            right: 15%
+            width: 450px
+            height: 450px
+            background: rgba(16, 185, 129, 0.05)
+            filter: blur(120px)
+            border-radius: 50%
+            pointer-events: none
+
+        .hero-grid:
+            max-width: 1200px
+            margin: 0 auto
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr))
+            gap: 3rem
+            align-items: center
+            position: relative
+            z-index: 1
+
+        .hero-text-area:
             display: flex
             flex-direction: column
             gap: 1.5rem
-            align-items: center
+            align-items: flex-start
 
-        .hero-badge:
-            font-size: 0.8rem
-            color: #10b981
-            background: rgba(16, 185, 129, 0.1)
-            padding: 0.25rem 0.75rem
-            border-radius: 99px
-            font-weight: 700
-            letter-spacing: 0.1em
+        .hero-eyebrow:
+            font-size: 0.85rem
+            font-weight: 800
+            color: #d4af37
+            letter-spacing: 0.2em
+            text-transform: uppercase
 
         .hero-title:
-            font-size: clamp(2rem, 6vw, 3.8rem)
+            font-size: clamp(2.2rem, 5vw, 3.8rem)
             font-weight: 900
-            line-height: 1.15
-            color: #ffffff
+            line-height: 1.1
             letter-spacing: -0.02em
-            margin: 0
+            background: linear-gradient(135deg, #f3ece0 40%, #10b981 100%)
+            -webkit-background-clip: text
+            -webkit-text-fill-color: transparent
 
-        .hero-sub:
-            font-size: clamp(1rem, 2vw, 1.25rem)
+        .hero-description:
+            font-size: clamp(1rem, 2vw, 1.2rem)
             color: #94a3b8
-            line-height: 1.6
-            margin: 0
+            line-height: 1.7
+            max-width: 540px
 
-        .hero-btns:
+        .hero-actions:
             display: flex
-            flex-direction: row
+            flex-wrap: wrap
             gap: 1rem
             margin-top: 1rem
-            flex-wrap: wrap
+
+        .btn-gold:
+            background: #d4af37
+            color: #030712
+            border: none
+            padding: 0.9rem 2rem
+            font-weight: 700
+            text-decoration: none
+            cursor: pointer
+            transition: all 0.25s
+            border-radius: 4px
+            display: inline-block
+            text-align: center
+
+        .btn-gold:hover:
+            background: #ffffff
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4)
+
+        .btn-outline:
+            background: transparent
+            color: #f3ece0
+            border: 1px solid #334155
+            padding: 0.9rem 2rem
+            font-weight: 700
+            text-decoration: none
+            cursor: pointer
+            transition: all 0.25s
+            border-radius: 4px
+            display: inline-block
+            text-align: center
+
+        .btn-outline:hover:
+            background: rgba(243, 236, 224, 0.05)
+            border-color: #94a3b8
+
+        .hero-media-area:
+            display: flex
             justify-content: center
+            width: 100%
 
-        .btn-main:
-            background: #10b981
-            color: #020617
-            border: none
-            padding: 0.85rem 2rem
-            font-weight: 800
-            cursor: pointer
-            transition: all 0.25s
-            font-family: inherit
+        .hero-frame:
+            background: #0b0f19
+            border: 1px solid #1e293b
+            padding: 1rem
+            display: flex
+            flex-direction: column
+            gap: 0.75rem
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5)
+            width: 100%
+            max-width: 480px
+            border-radius: 8px
+
+        .hero-frame img:
+            width: 100%
+            height: auto
+            aspect-ratio: 16/10
+            object-fit: cover
             border-radius: 4px
 
-        .btn-main:hover:
-            background: #ffffff
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4)
-
-        .btn-fb:
-            background: #1877f2
-            color: #ffffff
-            border: none
-            padding: 0.85rem 2rem
-            font-weight: 800
-            cursor: pointer
-            transition: all 0.25s
-            font-family: inherit
-            border-radius: 4px
-
-        .btn-fb:hover:
-            background: #ffffff
-            color: #1877f2
-            box-shadow: 0 0 20px rgba(24, 119, 242, 0.4)
+        .frame-caption:
+            font-size: 0.8rem
+            color: #94a3b8
+            text-align: center
+            font-style: italic
 
     render:
         div.hero-box:
-            div.hero-content:
-                span.hero-badge: "AMANA MULTI-FILE ARCHITECTURE"
-                h1.hero-title: title
-                p.hero-sub: subtitle
-                div.hero-btns:
-                    button.btn-main(click: "window.location.href = '#features'"): "Explore Services"
-                    button.btn-fb(click: "window.location.href = '/facebook'"): "Navigate to Facebook"
+            div.hero-glow: ""
+            div.hero-grid:
+                div.hero-text-area:
+                    span.hero-eyebrow: "ATELIER OF MODULAR DSL"
+                    h1.hero-title: title
+                    p.hero-description: subtitle
+                    div.hero-actions:
+                        button.btn-gold(click: "window.location.href = '#showcase'"): "Explore Anthology"
+                        button.btn-outline(click: "window.location.href = '/facebook'"): "Inspect Facebook Clone"
+
+                div.hero-media-area:
+                    div.hero-frame:
+                        img(src: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600")
+                        div.frame-caption: "The Amana Compiler Console v2 — Full-Stack AST Resolving"

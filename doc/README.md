@@ -49,7 +49,7 @@ The compiler emits:
 
 ## Examples
 
-The `examples/` folder currently contains 5 premium verified examples showcasing the layout engine.
+The `examples/` folder currently contains 9 premium verified examples showcasing the layout engine.
 
 ## Verification
 
