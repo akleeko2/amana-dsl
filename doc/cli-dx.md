@@ -80,9 +80,12 @@ All CLI operations support the `--json` flag. When active, errors are printed in
 
 ## 🔤 Levenshtein Spelling Suggestion Engine
 
-To prevent typos in styling configurations, the compiler's semantic stage spellchecks all values declared inside design blocks.
+To prevent typos in design configuration, the compiler's semantic stage spellchecks all values declared for **closed token properties** (`layout`, `surface`, `hover`, `entrance`/`reveal`, `gradient`, `density`, and `shadow`) inside design blocks.
 
-If a value is not recognized, the compiler computes the **Levenshtein distance** (minimum number of single-character edits required to change one word into another) between the input string and all valid options. If a match is found with a distance of **`<= 2`**, the compiler automatically suggests the corrected property in the diagnostic report.
+If a value for these specific properties is not recognized, the compiler computes the **Levenshtein distance** (minimum number of single-character edits required to change one word into another) between the input string and all valid options. If a match is found with a distance of **`<= 2`**, the compiler automatically suggests the corrected property in the diagnostic report.
+
+> [!NOTE]
+> All other visual metadata properties (such as `uniqueness`, `freedom`, `voice`, `colorway`, `direction` in `art:`, `motif`, `lighting`, `texture`, `contrast`, `screenreader`, `feedback`, `cursor`) are **open-ended metadata fields**. They are not validated against closed lists, allowing developers to supply free-form design descriptions (e.g., `uniqueness: facebook-clone` or `motif: social-feed`).
 
 ### Allowed Keyword Sets:
 

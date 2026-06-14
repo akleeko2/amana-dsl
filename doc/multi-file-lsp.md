@@ -6,7 +6,7 @@ Amana supports modular code distribution, allowing projects to scale from single
 
 ## 🏛️ Multi-File Imports Syntax
 
-Use the `import` statement at the top of an Amana source file to link other modules:
+Use the `import` statement to link other modules:
 
 ```amana
 import "./models/schema.amana"
@@ -15,7 +15,7 @@ import "./views/dashboard.amana"
 
 ### Resolution Rules:
 - **Relative Resolution**: Paths must be relative to the importing file's directory.
-- **Top-Level Priority**: Imports must appear before any application block declaration (`app`, `theme`, `model`, `route`, `view`, etc.).
+- **Flexible Placement**: The compiler preprocessor scans and extracts `import` lines from *anywhere* in the source file before parsing. While declaring imports at the top is standard convention, they can safely appear anywhere in the file (e.g., after the `app` or `theme` blocks).
 - **Deduplication**: If multiple files import the same `.amana` file, the compiler parses and links it only once, resolving circular dependency trees cleanly.
 - **Global Scope Resolution**: Models, custom components, and views declared inside imported files are registered in the application's global scope. If two files declare identical model or view names, the compiler raises a duplicate symbol validation error.
 

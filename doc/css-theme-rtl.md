@@ -147,7 +147,10 @@ Only allows safe layout, typography, borders, and painting declarations. Insecur
 
 ### 3. Value Sanitizer
 Inspects property values for code injection sequences.
-- **Rejected Values**: Strings containing `javascript:`, `expression(`, `url(...)`, `@import`.
+- **Rejected Values**: Strings containing `javascript:`, `expression(`, `behavior:`, `<script`, `</style`, `-moz-binding`, `binding:`.
+- **URL Sanitization Rules**: 
+  - Unquoted URL schema targets (`url(data:`, `url(http:`, `url(https:`) are strictly blocked by default to prevent malicious payload bindings or unapproved script/asset imports.
+  - Quoted URLs (e.g., `url("https://...")` or `url('https://...')`) are **permitted** inside approved properties (like `background-image` or `background`) to allow safe loading of external image/media assets.
 
 ### 4. CSS Layers Scoping
 - Custom styles are grouped inside `@layer components, variants, overrides` to resolve style conflicts cleanly.

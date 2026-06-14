@@ -37,7 +37,7 @@ Interactive properties like `href` on `Button` are checked for prefix patterns:
 Protects variants and scoped views from styling pollution and injection attacks:
 - **Selector Safety Validator**: Prevents modifying global selectors (`body`, `html`, `*`, `script`) and attribute selectors (`[onclick]`).
 - **Property Allowlist**: Restricts properties to modern layout and styling properties.
-- **Value Sanitizer**: Strips unsafe values (`javascript:`, `@import`).
+- **Value Sanitizer**: Strips unsafe script/style triggers. Unquoted url targets (`url(data:`, `url(http:`, `url(https:`) are strictly blocked, while quoted HTTPS URLs are permitted inside approved property values (like `background-image`).
 - **CSS Layers Scoping**: Groups styles under `@layer components, variants, overrides` and scopes selectors with view IDs.
 
 ---

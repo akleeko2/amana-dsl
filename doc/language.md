@@ -9,7 +9,7 @@ Amana is a single-source domain-specific language (DSL) for building hardened fu
 An Amana application consists of top-level blocks. These blocks can be organized in a single file or modularized across multiple files using relative imports:
 
 ```amana
-# 1. Imports (Optional, must be at the top)
+# 1. Imports (Optional, can be declared anywhere in the file)
 import "./models/user.amana"
 import "./views/dashboard.amana"
 
@@ -75,11 +75,11 @@ view Home:
 
 Multi-file systems are managed using the `import` statement.
 
-### Relative Graph Resolution
-- Syntax: `import "./path/to/file.amana"`
-- All imports are resolved relative to the file containing the import statement.
-- The compiler constructs a dependency graph before checking or building.
-- Duplicate imports of the same file are resolved once (preventing cycle conflicts).
+### Flexible Import Placement
+- **Location Independence**: The compiler preprocessor scans and extracts `import` directives from *anywhere* in the source file before parsing. Although placing imports at the top is a standard styling convention, they can safely appear after `app` or `theme` definitions (as seen in modular portal entrypoints).
+- **Syntax**: `import "./path/to/file.amana"`
+- **Relative Resolution**: All imports are resolved relative to the directory of the file containing the import statement.
+- **Cycle Prevention**: Duplicate imports of the same file are deduplicated automatically when the dependency graph is constructed.
 
 ### Compilation Behavior
 - **Checking**: Running `amana check main.amana` parses and semantically validates the entire imported graph.
@@ -280,61 +280,66 @@ variant Card.glass:
 
 ## 📐 Design Grammar Blocks
 
-Design blocks check visual attributes inside views, custom components, and sections. The compiler strictly validates settings against allowed properties.
+Design blocks check visual attributes inside views, custom components, and sections. 
+
+> [!IMPORTANT]
+> **Open vs. Closed Settings Validation**:
+> Only properties **`layout:`**, **`surface:`**, **`hover:`**, **`entrance:`** (or `reveal:`), **`gradient:`**, **`density:`**, and **`shadow:`** are strictly validated against closed token enums.
+> All other metadata properties (such as `uniqueness:`, `freedom:`, `voice:`, `colorway:`, `direction:`, `motif:`, `lighting:`, `texture:`, `scale:`, `align:`, `feedback:`, `cursor:`, `contrast:`, `screenreader:`) are **open-ended metadata fields**. They are not checked against a closed list and accept any free-form identifier or string (under 240 characters) sanitized for safety tags (e.g., `uniqueness: facebook-clone` or `direction: pixel-perfect` are completely valid).
 
 ### 1. `compose`
 Layout distribution properties:
-- `layout`: `row`, `column`, `stack`, `grid`, `center`, `inline`, `cluster`, `split`, `bento`, `split-diagonal`, `asymmetric`, `editorial`, `dashboard-shell`, `magazine`, `command-center`, `showcase-rail`, `masonry`, `sidebar`.
-- `ratio`: Proportional columns (e.g. `"1:1"`, `"2:1"`).
-- `gap`: Space scale spacing size (`xs` to `4xl`).
+- `layout` (Closed): `row`, `column`, `stack`, `grid`, `center`, `inline`, `cluster`, `split`, `bento`, `split-diagonal`, `asymmetric`, `editorial`, `dashboard-shell`, `magazine`, `command-center`, `showcase-rail`, `masonry`, `sidebar`.
+- `ratio` (Open): Proportional columns (e.g. `"1:1"`, `"2:1"`).
+- `gap` (Closed): Space scale spacing size (`xs` to `4xl`).
 
 ### 2. `visual`
 Background and boundary properties:
-- `surface`: `base`, `muted`, `elevated`, `glass`, `custom`, `outline`, `flat`, `layered`, `glass-layered`.
-- `border`: CSS border property string.
-- `gradient`: `primary`, `accent`, `hero`, `mesh`, `aurora`, `spotlight`, `custom`, `brand`, `sunset`, `ocean`, `mesh-cyan-indigo`, `mesh-aurora`.
+- `surface` (Closed): `base`, `muted`, `elevated`, `glass`, `custom`, `outline`, `flat`, `layered`, `glass-layered`.
+- `border` (Open): CSS border property string.
+- `gradient` (Closed): `primary`, `accent`, `hero`, `mesh`, `aurora`, `spotlight`, `custom`, `brand`, `sunset`, `ocean`, `mesh-cyan-indigo`, `mesh-aurora`.
 
 ### 3. `creative`
 Brand art style choices:
-- `uniqueness`: `signature`, `standard`, `custom`.
-- `freedom`: `high`, `medium`, `low`.
+- `uniqueness` (Open): Uniqueness class name (e.g. `signature`, `standard`, `custom`, `facebook-clone`).
+- `freedom` (Open): Layout freedom style (e.g. `high`, `medium`, `low`, `custom`).
 
 ### 4. `brand`
 Editorial style voice:
-- `voice`: `technical`, `luxury`, `friendly`, `artistic`, `professional`, `authentic`.
-- `colorway`: Theme color scheme (e.g. `"forest"`, `"dark-blue"`, `"cyan-neon-pink"`).
+- `voice` (Open): Brand editorial voice (e.g. `technical`, `luxury`, `friendly`, `artistic`, `professional`, `authentic`).
+- `colorway` (Open): Theme color scheme (e.g. `"forest"`, `"dark-blue"`, `"cyan-neon-pink"`).
 
 ### 5. `art`
 Visual assets motif:
-- `direction`: `cyberpunk`, `classical`, `organic`, `expressive`, `modern`, `pixel-perfect`.
-- `motif`: Design texture motif (`reactor-interface`, `clean`, `social-feed`, etc.).
-- `lighting`: Theme lighting properties (`dark-neon`, `light-airy`).
-- `texture`: Surface texture layout (`translucent`, `opaque`).
+- `direction` (Open): Artistic direction (e.g. `cyberpunk`, `classical`, `organic`, `expressive`, `modern`, `pixel-perfect`).
+- `motif` (Open): Design texture motif (e.g. `reactor-interface`, `clean`, `social-feed`).
+- `lighting` (Open): Theme lighting properties (e.g. `dark-neon`, `light-airy`).
+- `texture` (Open): Surface texture layout (e.g. `translucent`, `opaque`).
 
 ### 6. `responsive`
 Adaptive sizing:
-- `desktop_columns` / `mobile_columns`: CSS column rules.
-- `desktop` / `mobile`: Sub-blocks declaring local responsive property overrides (e.g., `padding`, `gap`, `columns`).
+- `desktop_columns` / `mobile_columns` (Open): CSS column rules.
+- `desktop` / `mobile` (Open): Sub-blocks declaring local responsive property overrides (e.g., `padding`, `gap`, `columns`).
 
 ### 7. `type`
 Typography alignment:
-- `scale`: Typographic height scale (`spacious`, `balanced`, `compact`).
-- `align`: Text orientation (`left`, `center`, `right`).
+- `scale` (Open): Typographic height scale (e.g. `spacious`, `balanced`, `compact`).
+- `align` (Open): Text orientation (e.g. `left`, `center`, `right`).
 
 ### 8. `motion`
 Transitions and hover animations:
-- `entrance`: `fade`, `slide-up`, `slide-down`, `zoom`, `blur`, `clip`, `stagger-up`, `none`.
-- `hover`: `lift`, `glow`, `scale`, `lift-glow`, `none`.
+- `entrance` (Closed): `fade`, `slide-up`, `slide-down`, `zoom`, `blur`, `clip`, `stagger-up`, `none`.
+- `hover` (Closed): `lift`, `glow`, `scale`, `lift-glow`, `none`.
 
 ### 9. `interaction`
 Pointer interface:
-- `feedback`: Interactive click feedback (`tactile`, `ripple`, `hover-highlight`).
-- `cursor`: Pointer styling (`default`, `pointer`).
+- `feedback` (Open): Interactive click feedback (e.g. `tactile`, `ripple`, `hover-highlight`).
+- `cursor` (Open): Pointer styling (e.g. `default`, `pointer`).
 
 ### 10. `a11y`
 Accessibility and colors:
-- `contrast`: Color contrast standards (`high`, `aaa`, `dark-accessible`).
-- `screenreader`: Accessibility reader bindings (`ready`, `structured`).
+- `contrast` (Open): Color contrast standards (e.g. `high`, `aaa`, `dark-accessible`).
+- `screenreader` (Open): Accessibility reader bindings (e.g. `ready`, `structured`).
 
 ---
 
