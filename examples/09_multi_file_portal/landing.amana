@@ -1,0 +1,197 @@
+view Home:
+    canvas:
+        layout: column
+        surface: glass
+        density: comfortable
+
+    render:
+        div.landing-page:
+            Navbar(brand: "Nebula Logistics", sticky: true, links: "Console /dashboard, Simulator /dashboard/simulator, Registry /dashboard/registry")
+
+            section.hero-shell:
+                compose:
+                    layout: split
+                    ratio: "1:1"
+                visual:
+                    gradient: spotlight
+                    surface: glass
+                    border: "rgba(16, 185, 129, 0.15)"
+                creative:
+                    uniqueness: signature
+                    signature: "nebula-landing-hero"
+                brand:
+                    voice: technical
+                    personality: high-fidelity
+                    colorway: "emerald-gold"
+                art:
+                    direction: cyberpunk
+                    motif: supply-chain-orbits
+                    lighting: dark-neon-green
+                    texture: translucent
+                responsive:
+                    desktop_columns: "1.1fr 0.9fr"
+                    mobile_columns: "1fr"
+                type:
+                    scale: spacious
+                    align: center
+                motion:
+                    entrance: fade
+                    hover: glow
+                interaction:
+                    feedback: tactile
+                a11y:
+                    contrast: high
+
+                Container(width: "wide"):
+                    div.hero-grid:
+                        div.hero-text-area:
+                            span.eyebrow: "NEXT-GEN TRANSIT LOGISTICS"
+                            h1.hero-title: "INTERSTELLAR FLEET OPERATION PORTAL"
+                            p.hero-description: "Manage autonomous space freighters, track real-time cargo manifests, and orchestrate warp-speed trajectories through our multi-file Amana portal."
+                            div.hero-actions:
+                                button.btn-emerald(click: "window.location.href = '/dashboard'"): "Access Operations Console"
+                        div.hero-media-area:
+                            div.blueprint-frame:
+                                div.blueprint-header:
+                                    span: "FLEET_SCHEMATIC_V9.dwg"
+                                div.blueprint-body:
+                                    p: "[STATUS] Hyperjump Core: Online"
+                                    p: "[SHIPS] Freight Carrier N-01: Vega Transit"
+                                    p: "[SHIPS] Fuel Carrier N-02: Docked"
+
+            section.features-section:
+                compose:
+                    layout: bento
+                    columns: "repeat(3, 1fr)"
+                    gap: "lg"
+                visual:
+                    surface: base
+                creative:
+                    uniqueness: dynamic
+                brand:
+                    voice: technical
+                art:
+                    direction: minimalist
+                responsive:
+                    desktop_columns: "repeat(3, 1fr)"
+                    mobile_columns: "1fr"
+                type:
+                    scale: comfortable
+                motion:
+                    entrance: slide-up
+
+                Container(width: "wide"):
+                    div.features-grid:
+                        Card(title: "Warp Diagnostics", subtitle: "Real-time fleet monitoring", variant: "glass"):
+                            p: "Inspect containment shields and warp core temperatures instantaneously with our secure telemetry engine."
+                        Card(title: "SQL Manifests", subtitle: "Secure database logs", variant: "glass"):
+                            p: "Keep cargo inventories, destinations, and tonnages synchronized with compiled SQLite storage."
+                        Card(title: "Multi-file Structure", subtitle: "Structured DSL architecture", variant: "glass"):
+                            p: "Organize large-scale applications cleanly into separate imports for views, models, and layout layers."
+
+            Footer()
+
+    style:
+        .landing-page:
+            min-height: 100vh
+            background: #020617
+            color: #f8fafc
+            font-family: "Space Mono", monospace
+            display: flex
+            flex-direction: column
+            gap: 2rem
+            width: 100%
+            max-width: 100%
+            overflow-x: hidden
+
+        .hero-shell:
+            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05), transparent 70%), #0f172a
+            border-bottom: 1px solid #334155
+            padding: 4rem 1.5rem
+            width: 100%
+
+        .hero-grid:
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+            gap: 2rem
+            align-items: center
+            max-width: 1200px
+            margin: 0 auto
+
+        .hero-text-area:
+            display: flex
+            flex-direction: column
+            gap: 1rem
+
+        .eyebrow:
+            font-size: 0.85rem
+            font-weight: 800
+            color: #f59e0b
+            letter-spacing: 0.15em
+
+        .hero-title:
+            font-size: clamp(2rem, 5vw, 3.2rem)
+            font-weight: 900
+            line-height: 1.1
+            color: #ffffff
+            letter-spacing: -0.02em
+
+        .hero-description:
+            font-size: 1rem
+            color: #94a3b8
+            line-height: 1.6
+
+        .hero-actions:
+            display: flex
+            flex-direction: row
+            gap: 1rem
+            flex-wrap: wrap
+            margin-top: 1rem
+
+        .btn-emerald:
+            background: #10b981
+            color: #020617
+            border: none
+            padding: 0.75rem 1.5rem
+            font-weight: 800
+            cursor: pointer
+            transition: all 0.25s
+            font-family: inherit
+
+        .btn-emerald:hover:
+            background: #ffffff
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4)
+
+        .blueprint-frame:
+            background: #020617
+            border: 1px solid #334155
+            border-radius: 8px
+            overflow: hidden
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5)
+
+        .blueprint-header:
+            background: #0f172a
+            padding: 0.5rem 1rem
+            border-bottom: 1px solid #334155
+            font-size: 0.75rem
+            color: #94a3b8
+
+        .blueprint-body:
+            padding: 1.5rem
+            font-size: 0.8rem
+            line-height: 1.6
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+            color: #10b981
+
+        .features-section:
+            padding: 3rem 1.5rem
+            width: 100%
+
+        .features-grid:
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+            gap: 1.5rem
+            max-width: 1200px
+            margin: 0 auto

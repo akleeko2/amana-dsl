@@ -1,0 +1,30 @@
+model Shipment:
+    destination: str unique required
+    cargo_type: str required
+    status: str default "in_transit"
+    weight_tons: float default 12.5
+    is_hyperjump: bool default true
+
+model Log:
+    email: email required
+    msg: str required min 5
+
+seed Shipment:
+    row:
+        destination: "Alpha Centauri Prime"
+        cargo_type: "Deuterium Fuel Cells"
+        status: "in_transit"
+        weight_tons: 25.4
+        is_hyperjump: true
+    row:
+        destination: "Kepler-186f Station"
+        cargo_type: "Hydroponic Nutrient Gel"
+        status: "docked"
+        weight_tons: 8.2
+        is_hyperjump: false
+    row:
+        destination: "Vega Sector Outpost"
+        cargo_type: "Nanocarbon Trusses"
+        status: "in_transit"
+        weight_tons: 45.0
+        is_hyperjump: true

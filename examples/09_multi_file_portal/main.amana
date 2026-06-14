@@ -1,0 +1,36 @@
+import "./models.amana"
+import "./landing.amana"
+import "./dashboard_overview.amana"
+import "./dashboard_simulator.amana"
+import "./dashboard_registry.amana"
+
+app NebulaLogistics:
+    title: "Nebula Grid // Interstellar Freight Operations Console"
+    db_path: "nebulalogistics.db"
+    capabilities:
+        - auth
+        - api.rest
+
+theme:
+    mode: dark
+    direction: ltr
+    language: en
+    font_provider: google
+    font_family: "Space Mono"
+    heading_font_family: "Orbitron"
+    primary: "#10b981"
+    accent: "#f59e0b"
+    canvas: "#020617"
+    base: "#0f172a"
+    elevated: "#1e293b"
+    text: "#f8fafc"
+    muted: "#94a3b8"
+    border: "#334155"
+    radius: hard
+    surface: glass
+    density: comfortable
+
+route / -> view Home
+route /dashboard -> view DashboardOverview
+route /dashboard/simulator -> view DashboardSimulator
+route /dashboard/registry -> view DashboardRegistry

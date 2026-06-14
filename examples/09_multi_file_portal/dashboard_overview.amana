@@ -1,0 +1,155 @@
+view DashboardOverview:
+    canvas:
+        layout: column
+        surface: glass
+        density: comfortable
+
+    server:
+        fetch shipments = Shipment.all()
+
+    render:
+        div.dashboard-layout:
+            Navbar(brand: "Nebula Logistics", sticky: true, links: "Landing /, Console /dashboard, Simulator /dashboard/simulator, Registry /dashboard/registry")
+
+            section.console-shell:
+                compose:
+                    layout: split
+                    ratio: "1:1"
+                visual:
+                    gradient: custom
+                    surface: glass
+                    border: "rgba(16, 185, 129, 0.15)"
+                creative:
+                    uniqueness: signature
+                    signature: "nebula-dashboard-overview"
+                brand:
+                    voice: technical
+                    personality: high-fidelity
+                    colorway: "emerald-gold"
+                art:
+                    direction: cyberpunk
+                    motif: telemetry-panel
+                    lighting: dark-neon-green
+                    texture: translucent
+                responsive:
+                    desktop_columns: "1.2fr 0.8fr"
+                    mobile_columns: "1fr"
+                type:
+                    scale: comfortable
+                    align: center
+                motion:
+                    entrance: fade
+                    hover: glow
+                interaction:
+                    feedback: tactile
+                a11y:
+                    contrast: high
+
+                Container(width: "wide"):
+                    div.sub-header:
+                        h2: "FLEET TRANSIT TELEMETRY"
+                        p: "Active interstellar shipments loaded directly from secure SQLite database."
+
+                    div.telemetry-grid:
+                        for ship in shipments:
+                            div.telemetry-card:
+                                div.card-top:
+                                    span.lbl: ship.cargo_type
+                                    span.src: ship.status
+                                div.card-body:
+                                    span.val: ship.destination
+                                    span.trend.trend-up(show: ship.is_hyperjump): "Hyperjump Active"
+                                    span.trend.trend-down(show: !ship.is_hyperjump): "Sublight Cruise"
+
+            Footer()
+
+    style:
+        .dashboard-layout:
+            min-height: 100vh
+            background: #020617
+            color: #f8fafc
+            font-family: "Space Mono", monospace
+            display: flex
+            flex-direction: column
+            gap: 2rem
+            width: 100%
+            max-width: 100%
+            overflow-x: hidden
+
+        .console-shell:
+            padding: 3rem 1.5rem
+            width: 100%
+
+        .sub-header:
+            border-left: 3px solid #10b981
+            padding-left: 1rem
+            margin-bottom: 2rem
+
+        .sub-header h2:
+            font-size: 1.5rem
+            font-weight: 900
+            color: #ffffff
+            margin: 0
+
+        .sub-header p:
+            color: #94a3b8
+            margin: 0.5rem 0 0 0
+            font-size: 0.9rem
+
+        .telemetry-grid:
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+            gap: 1.5rem
+            max-width: 1200px
+            margin: 0 auto
+
+        .telemetry-card:
+            background: #0f172a
+            border: 1px solid #334155
+            padding: 1.5rem
+            display: flex
+            flex-direction: column
+            gap: 1rem
+            transition: all 0.25s
+
+        .telemetry-card:hover:
+            border-color: #10b981
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.1)
+            transform: translateY(-4px)
+
+        .card-top:
+            display: flex
+            flex-direction: row
+            justify-content: space-between
+            align-items: center
+
+        .card-top .lbl:
+            font-size: 0.8rem
+            color: #94a3b8
+            font-weight: 700
+
+        .card-top .src:
+            font-size: 0.7rem
+            color: #f59e0b
+            background: rgba(245, 158, 11, 0.08)
+            padding: 0.1rem 0.4rem
+
+        .card-body:
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+
+        .card-body .val:
+            font-size: 1.25rem
+            font-weight: 800
+            color: #ffffff
+
+        .card-body .trend:
+            font-size: 0.8rem
+            font-weight: 700
+
+        .trend-up:
+            color: #10b981
+
+        .trend-down:
+            color: #94a3b8
