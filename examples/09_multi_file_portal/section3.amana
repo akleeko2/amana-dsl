@@ -1,0 +1,51 @@
+component SectionShowcase():
+    style:
+        .showcase-box:
+            background: #0f172a
+            border-bottom: 1px solid #1e293b
+            padding: 4rem 1.5rem
+            width: 100%
+
+        .showcase-container:
+            max-width: 1200px
+            margin: 0 auto
+            display: flex
+            flex-direction: column
+            gap: 3rem
+
+        .showcase-grid:
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+            gap: 2rem
+
+        .sec-header:
+            text-align: center
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+
+        .sec-title:
+            font-size: 2rem
+            font-weight: 800
+            color: #ffffff
+
+        .sec-desc:
+            font-size: 1rem
+            color: #94a3b8
+
+    render:
+        div.showcase-box(id: "showcase"):
+            div.showcase-container:
+                div.sec-header:
+                    h2.sec-title: "Curated Galleries"
+                    p.sec-desc: "Select a curated line below to inspect its unique architecture."
+                div.showcase-grid:
+                    FeatureCard(title: "The Sovereign", icon: "crown", label: "Executive Line"):
+                        content:
+                            p: "Brushed rose gold casings combined with obsidian dials, offering executive-grade timeless beauty."
+                    FeatureCard(title: "The Celestial", icon: "globe", label: "Tourbillon Series"):
+                        content:
+                            p: "Open-heart designs mimicking celestial orbits, hand-crafted with sapphire crystals."
+                    FeatureCard(title: "The Heritage", icon: "shield", label: "Marine Tribute"):
+                        content:
+                            p: "Classic surgical steel and roman numeral watch faces designed to preserve historical maritime legacy."

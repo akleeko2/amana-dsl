@@ -1,0 +1,48 @@
+component SectionPricing():
+    style:
+        .pricing-box:
+            background: #0f172a
+            border-bottom: 1px solid #1e293b
+            padding: 4rem 1.5rem
+            width: 100%
+
+        .pricing-container:
+            max-width: 1200px
+            margin: 0 auto
+            display: flex
+            flex-direction: column
+            gap: 3rem
+
+        .sec-header:
+            text-align: center
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+
+        .sec-title:
+            font-size: 2rem
+            font-weight: 800
+            color: #ffffff
+
+        .sec-desc:
+            font-size: 1rem
+            color: #94a3b8
+
+        .pricing-grid:
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))
+            gap: 2rem
+
+    render:
+        div.pricing-box(id: "pricing"):
+            div.pricing-container:
+                div.sec-header:
+                    h2.sec-title: "Scale Your Architecture"
+                    p.sec-desc: "Select the perfect tier to build, test, and run your Amana portals."
+                div.pricing-grid:
+                    Card(title: "Developer", subtitle: "Free Forever", variant: "glass"):
+                        p: "For local prototype generation, simple EJS layout testing, and lightweight SQLite schemas."
+                    Card(title: "Production", subtitle: "$49 / month", variant: "glass"):
+                        p: "Multi-file imports, automatic database migrations, CSRF protection, and high-performance routing."
+                    Card(title: "Enterprise", subtitle: "$199 / month", variant: "luxury"):
+                        p: "PostgreSQL integration, versioned schema management, customized security, and dedicated scaling support."

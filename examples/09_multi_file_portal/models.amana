@@ -1,30 +1,22 @@
-model Shipment:
-    destination: str unique required
-    cargo_type: str required
-    status: str default "in_transit"
-    weight_tons: float default 12.5
-    is_hyperjump: bool default true
+model FacebookPost:
+    author: str required
+    author_avatar: str required
+    timestamp: str default "1h"
+    content: str required
+    hashtags: str default ""
+    post_image: str default ""
+    likes: int default 45
 
-model Log:
+model LeadBrief:
     email: email required
     msg: str required min 5
 
-seed Shipment:
+seed FacebookPost:
     row:
-        destination: "Alpha Centauri Prime"
-        cargo_type: "Deuterium Fuel Cells"
-        status: "in_transit"
-        weight_tons: 25.4
-        is_hyperjump: true
-    row:
-        destination: "Kepler-186f Station"
-        cargo_type: "Hydroponic Nutrient Gel"
-        status: "docked"
-        weight_tons: 8.2
-        is_hyperjump: false
-    row:
-        destination: "Vega Sector Outpost"
-        cargo_type: "Nanocarbon Trusses"
-        status: "in_transit"
-        weight_tons: 45.0
-        is_hyperjump: true
+        author: "Roya News - رؤيا الإخباري"
+        author_avatar: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100"
+        timestamp: "1h"
+        content: "صحيفة أمريكية: 36 طبيباً يقدمون تقريراً للكونجرس يطالبون فيه بتفعيل التعديل 25 لعزل ترامب.. التفاصيل في التعليق الأول"
+        hashtags: "#رؤيا_أخبار #أمريكا #ترامب #الكونغرس"
+        post_image: "https://images.unsplash.com/photo-1580129986391-a83348a0711a?w=600"
+        likes: 120

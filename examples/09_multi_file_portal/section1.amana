@@ -1,0 +1,93 @@
+component SectionHero(title: str, subtitle: str):
+    style:
+        .hero-box:
+            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.08), transparent 70%), #0b0f19
+            border-bottom: 1px solid #1e293b
+            padding: 5rem 1.5rem
+            width: 100%
+            display: flex
+            flex-direction: column
+            align-items: center
+            justify-content: center
+            min-height: 70vh
+            position: relative
+
+        .hero-content:
+            max-width: 800px
+            text-align: center
+            display: flex
+            flex-direction: column
+            gap: 1.5rem
+            align-items: center
+
+        .hero-badge:
+            font-size: 0.8rem
+            color: #10b981
+            background: rgba(16, 185, 129, 0.1)
+            padding: 0.25rem 0.75rem
+            border-radius: 99px
+            font-weight: 700
+            letter-spacing: 0.1em
+
+        .hero-title:
+            font-size: clamp(2rem, 6vw, 3.8rem)
+            font-weight: 900
+            line-height: 1.15
+            color: #ffffff
+            letter-spacing: -0.02em
+            margin: 0
+
+        .hero-sub:
+            font-size: clamp(1rem, 2vw, 1.25rem)
+            color: #94a3b8
+            line-height: 1.6
+            margin: 0
+
+        .hero-btns:
+            display: flex
+            flex-direction: row
+            gap: 1rem
+            margin-top: 1rem
+            flex-wrap: wrap
+            justify-content: center
+
+        .btn-main:
+            background: #10b981
+            color: #020617
+            border: none
+            padding: 0.85rem 2rem
+            font-weight: 800
+            cursor: pointer
+            transition: all 0.25s
+            font-family: inherit
+            border-radius: 4px
+
+        .btn-main:hover:
+            background: #ffffff
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4)
+
+        .btn-fb:
+            background: #1877f2
+            color: #ffffff
+            border: none
+            padding: 0.85rem 2rem
+            font-weight: 800
+            cursor: pointer
+            transition: all 0.25s
+            font-family: inherit
+            border-radius: 4px
+
+        .btn-fb:hover:
+            background: #ffffff
+            color: #1877f2
+            box-shadow: 0 0 20px rgba(24, 119, 242, 0.4)
+
+    render:
+        div.hero-box:
+            div.hero-content:
+                span.hero-badge: "AMANA MULTI-FILE ARCHITECTURE"
+                h1.hero-title: title
+                p.hero-sub: subtitle
+                div.hero-btns:
+                    button.btn-main(click: "window.location.href = '#features'"): "Explore Services"
+                    button.btn-fb(click: "window.location.href = '/facebook'"): "Navigate to Facebook"

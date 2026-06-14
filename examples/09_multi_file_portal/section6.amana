@@ -1,0 +1,54 @@
+component SectionContact():
+    style:
+        .contact-box:
+            background: #020617
+            border-bottom: 1px solid #1e293b
+            padding: 4rem 1.5rem
+            width: 100%
+
+        .contact-container:
+            max-width: 600px
+            margin: 0 auto
+            display: flex
+            flex-direction: column
+            gap: 2rem
+
+        .sec-header:
+            text-align: center
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+
+        .sec-title:
+            font-size: 2rem
+            font-weight: 800
+            color: #ffffff
+
+        .sec-desc:
+            font-size: 1rem
+            color: #94a3b8
+
+    render:
+        div.contact-box(id: "contact"):
+            div.contact-container:
+                div.sec-header:
+                    h2.sec-title: "Get in Touch"
+                    p.sec-desc: "Leave your email and message to inquire about our premium portal solutions."
+                
+                form [email, msg]:
+                    connect LeadBrief.create
+                    ui: card
+                    submit: "Send Brief"
+                    redirect success -> /
+
+                    field email:
+                        label: "Email Address"
+                        placeholder: "you@example.com"
+                        type: email
+                        required: true
+
+                    field msg:
+                        label: "Inquiry Message"
+                        placeholder: "Describe your portal ideas..."
+                        type: textarea
+                        required: true

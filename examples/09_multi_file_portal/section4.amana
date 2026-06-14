@@ -1,0 +1,48 @@
+component SectionStats():
+    style:
+        .stats-box:
+            background: #020617
+            border-bottom: 1px solid #1e293b
+            padding: 4rem 1.5rem
+            width: 100%
+
+        .stats-container:
+            max-width: 1200px
+            margin: 0 auto
+            display: flex
+            flex-direction: column
+            gap: 3rem
+
+        .sec-header:
+            text-align: center
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+
+        .sec-title:
+            font-size: 2rem
+            font-weight: 800
+            color: #ffffff
+
+        .sec-desc:
+            font-size: 1rem
+            color: #94a3b8
+
+        .stats-grid:
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+            gap: 2rem
+
+    render:
+        div.stats-box(id: "stats"):
+            div.stats-container:
+                div.sec-header:
+                    h2.sec-title: "Proven Metrics in Action"
+                    p.sec-desc: "Real-world scalability from compiling portals to deploying dark-mode applications."
+                div.stats-grid:
+                    Card(title: "99.99% Uptime", subtitle: "Continuous Service", variant: "glass"):
+                        p: "Fully resilient setups ensure your portals run non-stop with self-healing Docker environments."
+                    Card(title: "100/100 Design Score", subtitle: "Aesthetic Guarantee", variant: "glass"):
+                        p: "Automated analysis satisfies layout, visual, art, brand, and type design criteria instantly."
+                    Card(title: "15ms Resolution", subtitle: "High Performance", variant: "glass"):
+                        p: "Optimized AST and IR compilation ensures zero rendering latency under heavy load."
