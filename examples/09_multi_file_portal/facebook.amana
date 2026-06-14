@@ -744,7 +744,7 @@ view Facebook:
             margin: 0
 
         .post-image-container:
-            margin: 0 clamp(-16px, (768px - 100vw) * 99999, -8px) 12px clamp(-16px, (768px - 100vw) * 99999, -8px) !important
+            margin: 0 clamp(-16px, (768px - 100vw) * 99999, -8px) 12px clamp(-16px, (768px - 100vw) * 99999, -8px)
 
         .post-image:
             width: 100%
@@ -789,7 +789,7 @@ view Facebook:
             align-items: center
             justify-content: center
             gap: 8px
-            padding: clamp(6px, (100vw - 768px) * 99999, 8px) clamp(4px, (100vw - 768px) * 99999, 8px) !important
+            padding: clamp(6px, (100vw - 768px) * 99999, 8px) clamp(4px, (100vw - 768px) * 99999, 8px)
             border-radius: 4px
             cursor: pointer
             transition: background 0.2s
@@ -803,25 +803,25 @@ view Facebook:
         .action-btn iconify-icon:
             font-size: 20px
 
-        .feed-area .amana-card:
-            background: #242526 !important
-            border: 1px solid #3e4042 !important
-            border-left-width: clamp(0px, (100vw - 768px) * 99999, 1px) !important
-            border-right-width: clamp(0px, (100vw - 768px) * 99999, 1px) !important
-            border-radius: clamp(0px, (100vw - 768px) * 99999, 8px) !important
-            padding: 12px clamp(8px, (100vw - 768px) * 99999, 16px) !important
-            min-height: auto !important
-            box-shadow: none !important
-            transform: none !important
-            gap: 12px !important
+        .feed-area article:
+            background: #242526
+            border: 1px solid #3e4042
+            border-left-width: clamp(0px, (100vw - 768px) * 99999, 1px)
+            border-right-width: clamp(0px, (100vw - 768px) * 99999, 1px)
+            border-radius: clamp(0px, (100vw - 768px) * 99999, 8px)
+            padding: 12px clamp(8px, (100vw - 768px) * 99999, 16px)
+            min-height: auto
+            box-shadow: none
+            transform: none
+            gap: 12px
 
-        .feed-area .amana-card::before:
-            display: none !important
+        .feed-area article::before:
+            display: none
 
-        .feed-area .amana-card:hover:
-            transform: none !important
-            box-shadow: none !important
-            border-color: #3e4042 !important
+        .feed-area article:hover:
+            transform: none
+            box-shadow: none
+            border-color: #3e4042
 
         .sponsored-ad:
             display: flex
