@@ -79,9 +79,9 @@ view Facebook:
                         img(src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100")
 
             # Main Layout
-            div.fb-main-container:
+            div.fb-main-container(style: "height: calc(100vh - 56px);"):
                 # Left Sidebar
-                aside.left-sidebar(style: "height: calc(100vh - 56px);"):
+                aside.left-sidebar(style: "height: 100%;"):
                     div.sidebar-row:
                         img.sidebar-avatar(src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100")
                         span.sidebar-text: "Abdalluh Harahshuh"
@@ -245,7 +245,7 @@ view Facebook:
                                     span: "Share"
 
                 # Right Sidebar
-                aside.right-sidebar(style: "height: calc(100vh - 56px);"):
+                aside.right-sidebar(style: "height: 100%;"):
                     h3.sidebar-section-title: "Sponsored"
 
                     div.sponsored-ad:
@@ -295,7 +295,8 @@ view Facebook:
         .fb-wrapper:
             background: #18191a
             color: #e4e6eb
-            min-height: 100vh
+            height: 100vh
+            overflow: hidden
             font-family: Segoe UI, Helvetica, Arial, sans-serif
             display: flex
             flex-direction: column
@@ -427,7 +428,7 @@ view Facebook:
             display: flex
             flex-direction: row
             width: 100%
-            flex-grow: 1
+            height: calc(100vh - 56px)
             overflow: hidden
 
         .left-sidebar:
@@ -435,8 +436,7 @@ view Facebook:
             flex-shrink: 0
             padding: 16px clamp(0px, (100vw - 1100px) * 99999, 8px)
             overflow-y: auto
-            position: sticky
-            top: 56px
+            height: 100%
             overflow-x: hidden
 
         .right-sidebar:
@@ -444,8 +444,7 @@ view Facebook:
             flex-shrink: 0
             padding: 16px clamp(0px, (100vw - 1300px) * 99999, 8px)
             overflow-y: auto
-            position: sticky
-            top: 56px
+            height: 100%
             overflow-x: hidden
 
         .sidebar-row:
@@ -516,6 +515,7 @@ view Facebook:
         .feed-area:
             padding: clamp(8px, (100vw - 768px) * 99999, 16px) clamp(0px, (100vw - 768px) * 99999, 32px)
             overflow-y: auto
+            height: 100%
             max-width: 680px
             margin: 0 auto
             width: 100%

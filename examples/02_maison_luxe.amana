@@ -147,12 +147,12 @@ view Home:
                         h2.section-title: "The Editorial Collection"
                         p.section-desc: "A carefully curated selection of high-end garments featuring delicate textures and gold-hued borders."
 
-                    div.magazine-grid:
+                    Grid.magazine-grid(responsive: "stacked"):
                         compose:
                             layout: magazine
                         
                         for item in items:
-                            div.luxury-item-card:
+                            Card.luxury-item-card:
                                 div.card-tag-row:
                                     span.fabric-tag: "Atelier Premium"
                                     span.season-badge: item.season

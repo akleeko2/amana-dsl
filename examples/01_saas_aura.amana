@@ -20,7 +20,7 @@ theme:
     text: "#ffffff"
     muted: "#8b949e"
     border: "#202538"
-    radius: hard
+    radius: sharp
     surface: glass
     density: comfortable
 
@@ -87,7 +87,7 @@ view Home:
         div.quantum-portal:
             Navbar(brand: "Aetheris Command", sticky: true, links: "Monitor #monitor, Simulator #simulator, Registry #registry")
 
-            section.hero-shell:
+            section.hero-shell(responsive: "stacked"):
                 compose:
                     layout: split
                     ratio: "1:1"
@@ -108,8 +108,10 @@ view Home:
                     lighting: dark-neon
                     texture: translucent
                 responsive:
-                    desktop_columns: "1.2fr 0.8fr"
-                    mobile_columns: "1fr"
+                    desktop:
+                        columns: "1.2fr 0.8fr"
+                    mobile:
+                        columns: "1fr"
                 type:
                     scale: spacious
                     align: center
@@ -162,8 +164,10 @@ view Home:
                                 span.src: met.source
                             div.card-body:
                                 span.val: met.value
-                                span.trend.trend-up(show: met.is_trend_up): met.trend
-                                span.trend.trend-down(show: !met.is_trend_up): met.trend
+                                if met.is_trend_up:
+                                    span.trend.trend-up: met.trend
+                                if !met.is_trend_up:
+                                    span.trend.trend-down: met.trend
 
                 # Manual Control Panel
                 div.monitor-layout:

@@ -54,7 +54,7 @@ view Home:
         div.studio-page:
             Navbar(brand: "Nova Studio")
 
-            section.hero-shell:
+            section.hero-shell(responsive: "stacked"):
                 compose:
                     layout: asymmetric
                     rhythm: dramatic
@@ -115,7 +115,7 @@ view Home:
 
             section.philosophy-section:
                 Container(width: "wide"):
-                    div.philosophy-split:
+                    div.philosophy-split(responsive: "stacked"):
                         compose:
                             layout: split
                         visual:

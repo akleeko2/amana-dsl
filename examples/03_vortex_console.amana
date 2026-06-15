@@ -190,12 +190,12 @@ view Home:
                         h2.section-title: "Edge Database Sync"
                         p.section-desc: "Live logs showing compilation duration for each pipeline stage."
 
-                    div.masonry-grid:
+                    Grid.masonry-grid(responsive: "stacked"):
                         compose:
                             layout: masonry
                         
                         for log in logs:
-                            div.cyber-readout-card:
+                            Card.cyber-readout-card:
                                 div.card-head-row:
                                     span.stage-badge: log.stage
                                     span.status-tag: log.status

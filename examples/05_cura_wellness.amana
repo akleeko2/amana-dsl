@@ -54,46 +54,47 @@ view Home:
         div.cura-page:
             Navbar(brand: "Cura Wellness", sticky: true)
 
-            section.hero-shell:
-                compose:
-                    layout: split
-                visual:
-                    gradient: spotlight
-                    surface: elevated
-                    border: "rgba(13,148,136,0.12)"
-                creative:
-                    uniqueness: signature
-                brand:
-                    voice: friendly
-                art:
-                    direction: organic
-                responsive:
-                    desktop:
-                        columns: "1.1fr 0.9fr"
-                        gap: 3xl
-                        padding: 4xl
-                    mobile:
-                        columns: "1fr"
-                        padding: xl
-                type:
-                    scale: spacious
-                    align: center
-                motion:
-                    entrance: slide-up
-                    hover: scale
-
+            section.hero-section:
                 Container(width: "wide"):
-                    div.hero-copy:
-                        Badge(label: "Healthcare Redefined")
-                        h1.hero-title: "Modern clinic care at your fingertips."
-                        p.hero-sub: "Book consultations, browse medical specialties, and request appointments with verified practitioners on a secure, day-mode wellness platform."
-                        div.hero-actions:
-                            Button(label: "Book appointment", href: "#booking")
-                            Button(label: "Specialties catalog", href: "#specialties", variant: "ghost")
+                    div.hero-grid(responsive: "stacked"):
+                        compose:
+                            layout: split
+                        visual:
+                            gradient: spotlight
+                            surface: elevated
+                            border: "rgba(13,148,136,0.12)"
+                        creative:
+                            uniqueness: signature
+                        brand:
+                            voice: friendly
+                        art:
+                            direction: organic
+                        responsive:
+                            desktop:
+                                columns: "1.1fr 0.9fr"
+                                gap: 3xl
+                                padding: 4xl
+                            mobile:
+                                columns: "1fr"
+                                padding: xl
+                        type:
+                            scale: spacious
+                            align: center
+                        motion:
+                            entrance: slide-up
+                            hover: scale
 
-                    div.hero-preview:
-                        Card(title: "Wellness Stats", subtitle: "Operational signals", variant: "luxury"):
-                            p: "Verified doctors: 48 practitioners. Average response: 12 mins. Patient satisfaction: 99.4%."
+                        div.hero-copy:
+                            Badge(label: "Healthcare Redefined")
+                            h1.hero-title: "Modern clinic care at your fingertips."
+                            p.hero-sub: "Book consultations, browse medical specialties, and request appointments with verified practitioners on a secure, day-mode wellness platform."
+                            div.hero-actions:
+                                Button(label: "Book appointment", href: "#booking")
+                                Button(label: "Specialties catalog", href: "#specialties", variant: "ghost")
+
+                        div.hero-preview:
+                            Card(title: "Wellness Stats", subtitle: "Operational signals", variant: "luxury"):
+                                p: "Verified doctors: 48 practitioners. Average response: 12 mins. Patient satisfaction: 99.4%."
 
             section.specialties-section(id: "specialties"):
                 Container(width: "wide"):
@@ -102,14 +103,14 @@ view Home:
                         h2.section-title: "Medical Departments"
                         p.section-desc: "Sticky sidebar layout presenting clinic divisions."
 
-                    div.specialties-layout:
+                    div.specialties-layout(responsive: "stacked"):
                         compose:
                             layout: sidebar
                             sidebar_width: "16rem"
                             sidebar_position: "left"
                             sticky_sidebar: "true"
                         
-                        Sidebar():
+                        Sidebar(responsive: "stacked"):
                             div.sidebar-menu:
                                 Badge(label: "Clinic Navigation")
                                 div.sidebar-link: "Cardiology"
@@ -128,7 +129,7 @@ view Home:
                         h2.section-title: "Our Medical Specialists"
                         p.section-desc: "Bento grid layout mapping verified clinical practitioners."
 
-                    div.doctors-grid:
+                    div.doctors-grid(responsive: "stacked"):
                         compose:
                             layout: bento
                             rhythm: steady
@@ -194,7 +195,7 @@ view Home:
             color: text
             min-height: screen
 
-        .hero-shell:
+        .hero-section:
             padding: 7rem 1.25rem 4rem
             gradient: hero
 
@@ -262,6 +263,14 @@ view Home:
             padding: sm
             color: text
             font-weight: 700
+            text-decoration: none
+            cursor: pointer
+            transition: all 0.25s ease
+
+        .sidebar-link:hover:
+            background: #0d9488
+            color: #ffffff
+            transform: translateX(4px)
 
         .specialties-content:
             layout: stack

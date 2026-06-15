@@ -2637,7 +2637,7 @@ class AmanaEngine {
     body { width: 100%; max-width: 100%; min-width: 0; margin: 0; overflow-x: hidden; background-color: var(--bg-secondary); color: var(--text-primary); font: var(--font-body); text-rendering: geometricPrecision; }
     body.amana-page { display: block; padding: 0 !important; gap: normal !important; }
     :where(main, section, article, aside, header, footer, nav, div, form) { min-width: 0; }
-    :where(h1, h2, h3, h4, h5, h6, p, span, strong, a, button, label, input, textarea, pre) { max-width: 100%; overflow-wrap: anywhere; word-break: normal; letter-spacing: 0; }
+    :where(h1, h2, h3, h4, h5, h6, p, span, strong, a, button, label, input, textarea, pre) { max-width: 100%; overflow-wrap: break-word; word-break: normal; letter-spacing: 0; }
     :where(h1, h2, h3) { text-wrap: balance; }
     :where(p, li, blockquote) { text-wrap: pretty; }
     img, svg, video, canvas { max-width: 100%; display: block; }
@@ -3791,7 +3791,7 @@ fn compile_view_ejs(
     {}
     :where(.amana-runtime-shell, .amana-page, .page) {{ width: 100%; max-width: 100%; overflow-x: hidden; }}
     :where(.amana-runtime-shell, .amana-page, .page) :where(section, header, main, footer, div, article, aside, form) {{ min-width: 0; }}
-    :where(.amana-runtime-shell, .amana-page, .page) :where(h1, h2, h3, p, a, button, span, strong, label, input, textarea, pre) {{ max-width: 100%; overflow-wrap: anywhere; }}
+    :where(.amana-runtime-shell, .amana-page, .page) :where(h1, h2, h3, p, a, button, span, strong, label, input, textarea, pre) {{ max-width: 100%; overflow-wrap: break-word; }}
     :where(.dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, .dg-layout-magazine, .dg-layout-bento, .dg-layout-command-center, .dg-layout-showcase-rail) > .amana-container {{ grid-column: 1 / -1; }}
     @media (max-width: 1200px) {{
       :where(.hero-title, .section-title, .auth-card h1, .cta-box h2, .amana-hero h1, h1) {{ font-size: clamp(2.15rem, 8vw, 4.4rem) !important; line-height: 1.08 !important; max-width: 100% !important; }}
@@ -4275,7 +4275,7 @@ const BASE_CSS_CLASSES: &str = r#"
     body { width: 100%; max-width: 100%; min-width: 0; margin: 0; overflow-x: hidden; background-color: var(--bg-secondary); color: var(--text-primary); font: var(--font-body); text-rendering: geometricPrecision; }
     body.amana-page { display: block; padding: 0 !important; gap: normal !important; }
     :where(main, section, article, aside, header, footer, nav, div, form) { min-width: 0; }
-    :where(h1, h2, h3, h4, h5, h6, p, span, strong, a, button, label, input, textarea, pre) { max-width: 100%; overflow-wrap: anywhere; word-break: normal; letter-spacing: 0; }
+    :where(h1, h2, h3, h4, h5, h6, p, span, strong, a, button, label, input, textarea, pre) { max-width: 100%; overflow-wrap: break-word; word-break: normal; letter-spacing: 0; }
     :where(h1, h2, h3) { text-wrap: balance; }
     :where(p, li, blockquote) { text-wrap: pretty; }
     img, svg, video, canvas { max-width: 100%; display: block; }
