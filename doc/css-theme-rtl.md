@@ -1,174 +1,242 @@
-# CSS Styling Engine & Theme System (DSL v2.1)
+# CSS, Theme, RTL, And Design Grammar
 
-Amana compiles styling declarations into high-performance, scoped, and RTL-compliant CSS rules. The styling system enforces architectural safety while providing deep support for custom animations, gradients, and typography scales.
+This document describes the styling surface implemented by `src/parser/css.rs`, `src/parser/styles.rs`, `src/parser/design.rs`, `src/semantic/mod.rs`, and `src/codegen/express/theme.rs`.
 
----
-
-## 🎨 Global Theme Configuration
-
-Global visual variables are configured under the top-level `theme:` block in the entry `.amana` file:
+## Theme
 
 ```amana
 theme:
     mode: dark
-    direction: ltr
-    language: en
+    direction: rtl
+    language: ar
     font_provider: google
-    font_family: "Space Mono"
-    heading_font_family: "Orbitron"
-    arabic_font_family: "Noto Sans Arabic"
-    primary: "#10b981"
-    accent: "#ff007f"
-    canvas: "#020813"
-    base: "#0b0e17"
-    elevated: "#121724"
-    text: "#ffffff"
-    muted: "#8b949e"
-    border: "#202538"
+    font_family: "Inter"
+    heading_font_family: "Inter"
+    arabic_font_family: "Tajawal"
+    primary: "#4f46e5"
+    accent: "#06b6d4"
+    canvas: "#0f172a"
+    text: "#f8fafc"
     radius: soft
-    surface: glass
     density: comfortable
-    gradient_hero: "linear-gradient(135deg, #05070f 0%, #121724 100%)"
 ```
 
-### Supported Keys:
-- `mode`: Fallback rendering mode (`light`, `dark`, `day`, `night`).
-- `direction`: Script layout orientation (`ltr` or `rtl`).
-- `language`: Target locale code (e.g. `ar` or `en`).
-- `font_provider`: Provider endpoint (`google` or `system`).
-- `font_family`, `heading_font_family`, `arabic_font_family`: Font name declarations. The engine loads Google Fonts automatically if `font_provider: google` is active.
-- `primary`, `accent`: Primary visual identity coloring.
-- `canvas`, `base`, `elevated`, `text`, `muted`, `border`: UI system colors.
-- `radius`: Standard element curve scale alias (`sm` through `2xl`).
-- `surface`: Backdrop layers styling layout (`glass`, `elevated`, `flat`, etc.).
-- `density`: Global layout density margins (`compact`, `comfortable`, `spacious`).
-- `gradient_hero`: Hero section layout linear/radial background gradient definitions.
+Theme keys are allowlisted. Unknown keys fail semantic validation.
 
----
+Closed values:
 
-## 🔁 Logical Properties & RTL/LTR Mirroring
+- `mode`: `dark`, `night`, `day`, `light`.
+- `direction`: `ltr`, `rtl`.
+- `radius`: `none`, `sharp`, `soft`, `round`, `pill`.
+- `density`: `compact`, `comfortable`, `spacious`.
+- `font_provider`: `system`, `google`.
 
-Amana guarantees pixel-perfect layout mirroring when switching text directions:
+Safety rules:
 
-### 1. Logical Properties Mappings
-Instead of compiling physical properties (like `margin-left` or `padding-right`), the Amana compiler automatically rewrites rules to **CSS Logical Properties**:
-- `margin-left` compiles to `margin-inline-start`.
-- `margin-right` compiles to `margin-inline-end`.
-- `padding-left` compiles to `padding-inline-start`.
-- `padding-right` compiles to `padding-inline-end`.
-- `left: 0` compiles to `inset-inline-start: 0`.
-- `right: 0` compiles to `inset-inline-end: 0`.
+- Values containing `javascript:`, `expression(`, `<script`, `</style`, `behavior:`, `;`, `{`, or `}` are rejected.
+- Font values are limited to 80 characters.
+- Other values are limited to 260 characters.
 
-### 2. Direction-Aware Alignments
-Flexbox and Grid layout properties are dynamically mirrored based on theme configuration:
-- Horizontal alignments like `flex-start` and `flex-end` align relative to the reading origin (`inline-start` / `inline-end`).
-- Flex columns change flow axes without breaking child node distribution.
-- **RTL Arabic Fonts**: If `direction: rtl` or `language: ar` is configured, the compiler prioritizes `arabic_font_family` in the CSS font stack for clean glyph rendering.
+For the full key list, use [language-inventory.generated.md](language-inventory.generated.md).
 
----
+> [!IMPORTANT]
+> No new custom theme system or component registry is supported. The baseline fallback theme remains `indigo`/`cyan`.
 
-## 📏 Design Token Scale Systems
+## Runtime Theme Output
 
-Amana populates root custom variables (`var(--token-name)`) to guarantee visual consistency:
+The generated Express/EJS runtime emits root CSS variables for:
 
-### 1. Spacing Scale (`--space-*`)
-Controls grid margins, section paddings, and card gaps:
-- `--space-xs`: `0.25rem` (4px)
-- `--space-sm`: `0.5rem` (8px)
-- `--space-md`: `1rem` (16px) - *adjusts dynamically based on density*
-- `--space-lg`: `1.5rem` (24px) - *adjusts dynamically based on density*
-- `--space-xl`: `2rem` (32px) - *adjusts dynamically based on density*
-- `--space-2xl`: `3rem` (48px)
-- `--space-3xl`: `4.5rem` (72px)
-- `--space-4xl`: `6rem` (96px)
+- Primary/accent colors (defaulting to indigo/cyan if not specified).
+- Surface/canvas/text colors.
+- Radius scale.
+- Spacing scale affected by density.
+- Font stacks.
+- Gradients.
+- Glass and elevation variables.
 
-### 2. Typographic Size Scale (`--text-*`)
-- `--text-xs`: `0.75rem` (12px)
-- `--text-sm`: `0.875rem` (14px)
-- `--text-md`: `1rem` (16px)
-- `--text-lg`: `1.125rem` (18px)
-- `--text-xl`: `1.35rem` (21.6px)
-- `--text-2xl`: `1.75rem` (28px)
-- `--text-3xl`: `2.4rem` (38.4px)
+If `font_provider: google`, the runtime emits a Google Fonts import using the configured body, heading, and Arabic font families.
 
-### 3. Border Radius Scale (`--radius-*`)
-- `--radius-sm`: `10px` (badges, tags, mini inputs)
-- `--radius-md` / `--radius-soft`: `16px` (form fields, standard buttons)
-- `--radius-lg` / `--radius-large`: `22px` (standard cards, timeline content blocks)
-- `--radius-xl`: `28px` (large container grids, sidebars, dashboard shells)
-- `--radius-2xl`: `36px` (hero sections, modals, overlay boards)
+### Phase 2 Visual Preset & Styles
+Visual features are compiled to dedicated utility and component classes as CSS overrides and presets:
+- **Neo-Bento/Glass Surface**: Implemented via CSS variables and selectors (e.g. backdrop filter and border-radius styles) as standard improvements, not as a separate theme.
+- **Navbar Glass**: The `Navbar(variant: "glass")` tag compiles to include `.amana-navbar-glass` which adds a backdrop-filter blur.
+- **Timeline RTL Markers**: The timeline markers adjust alignment dynamically based on direction. In LTR mode, `.amana-timeline-item::before` is aligned to the left, and in RTL mode, `[dir="rtl"] .amana-timeline-item::before` shifts the marker to the right.
+- **PricingCard Featured Variant**: Compiled to `.amana-pricing-card.amana-variant-featured`.
+- **Button Focus & Active States**: Emitted with `.amana-btn:focus-visible` and `.amana-btn:active` styling.
+- **Card Hover Transitions**: Styled with transition offsets under `.amana-card:hover`.
+- **KPI Styling**: Emitted under `.amana-kpi-value` classes for structured data displays.
+- **Preview Engine Synchronization**: The runtime preview engine (`engine.js`) matches all visual/layout CSS variables and class rules exactly to guarantee identical visual rendering between dev mode and build output.
+- **State Scope Wrapper**: Every EJS page with client-side state is compiled inside a `.amana-state-scope` wrapper to isolate dynamic states and maintain `height: 100%` viewport sizing constraints.
+- **Mobile DashboardShell Layout Contract**: Under mobile viewports (`max-width: 720px`), sidebars (`.side-rail`) and settings tab bars (`.settings-nav`) automatically convert into compact, touch-scrollable horizontal swipe rails (`flex-wrap: nowrap; overflow-x: auto;`). Multi-column layout grids automatically stack vertically (`grid-template-columns: 1fr !important`), and padding is compacted to `1rem` to maximize mobile viewport utilization.
+- **Mobile Density Contract**: In mobile viewports, card spacing, headings, grid gap variables, and components are down-scaled. Secondary long lists and logging panels are constrained with max-height limits (`max-height: 380px` or `max-height: 400px`) and vertical auto-scroll behaviors to minimize vertical page scroll lengths without hiding critical user information.
 
-### 4. Elevation Depth Shadows (`--shadow-*`)
-- `--shadow-sm`: Subtle inset border-glow.
-- `--shadow-md` / `--shadow-soft`: Default cards shadow outline.
-- `--shadow-lg`: Deep card float shadow.
-- `--shadow-xl`: Main landing hero card shadows.
-- `--shadow-smooth`: Ambient low-contrast blur shadow.
-- `--shadow-floating`: High-depth shadow for modals and popups.
-- `--shadow-strong`: Maximum overlay drop shadow.
+## RTL And Language
 
----
+`direction: rtl` changes the document direction and runtime CSS direction variables. `language: ar` configures the document language and encourages Arabic font fallback in the generated font stack.
 
-## 🎨 Mesh Gradients
+The current implementation primarily emits direction-aware page-level CSS and font stack behavior. The compiler does not perform a complete source-to-source rewrite of every physical CSS property into logical CSS properties.
 
-The `gradient: mesh` visual rule compiles into a premium, dynamic background gradient:
+## Style Block DSL
 
-```css
-background: radial-gradient(circle at 12% 8%, var(--color-primary-soft), transparent 30%), 
-            radial-gradient(circle at 80% 90%, var(--color-accent-soft), transparent 35%), 
-            var(--canvas-bg);
-```
-
-- Instead of hardcoded colors, it binds variables mapping back to the configured theme `primary` and `accent` options.
-- Safely shifts colors automatically during light/dark theme toggle operations.
-
----
-
-## 🛡️ 4-Layer CSS Scoped Sanitizer
-
-To secure user interfaces and prevent style pollution, the compiler subjects all custom CSS style blocks to a 4-layer sanitizer validation:
-
-```mermaid
-graph TD
-    Input["Custom CSS Block"] --> Layer1["1. Selector Validator"]
-    Layer1 -->|Allowed Selectors| Layer2["2. Property Allowlist"]
-    Layer2 -->|Safe Properties| Layer3["3. Value Sanitizer"]
-    Layer3 -->|Sanitized Values| Layer4["4. CSS Layers Scoping"]
-    Layer4 --> Output["Scoped Stylesheet Output"]
-```
-
-### 1. Selector Safety Validator
-Blocks attempts to style global document variables.
-- **Rejected Selectors**: `body`, `html`, `*`, `script`, `iframe`, element tag selectors without scope.
-- **Rejected Attributes**: Attribute selectors (like `[onclick]`) that present script execution vulnerabilities.
-
-### 2. Property Safety Allowlist
-Only allows safe layout, typography, borders, and painting declarations. Insecure layout hacks or hardware-tampering properties are rejected.
-
-### 3. Value Sanitizer
-Inspects property values for code injection sequences.
-- **Rejected Values**: Strings containing `javascript:`, `expression(`, `behavior:`, `<script`, `</style`, `-moz-binding`, `binding:`.
-- **URL Sanitization Rules**: 
-  - Unquoted URL schema targets (`url(data:`, `url(http:`, `url(https:`) are strictly blocked by default to prevent malicious payload bindings or unapproved script/asset imports.
-  - Quoted URLs (e.g., `url("https://...")` or `url('https://...')`) are **permitted** inside approved properties (like `background-image` or `background`) to allow safe loading of external image/media assets.
-
-### 4. CSS Layers Scoping
-- Custom styles are grouped inside `@layer components, variants, overrides` to resolve style conflicts cleanly.
-- Selectors are automatically prepended with view or custom component scoping IDs to prevent styles from leaking to other views.
-
----
-
-## ⚙️ Syntax Syntax Capabilities & Constraints
-
-### 1. Multi-Line Grouped Selectors
-CSS selector grouping separated by commas can span across multiple lines. The parser consumes trailing newlines automatically:
 ```amana
-.telemetry-card,
-.metrics-card,
-.diagnostic-alert:
-    margin-bottom: var(--space-xl)
+style:
+    .panel:
+        layout: column
+        gap: lg
+        surface: glass
+        radius: soft
+        shadow: floating
+        transition: fade 300ms ease
 ```
 
-### 2. Nesting Constraints
-Because Amana uses a flat `selector: property-value` AST structure, **percentage blocks inside `@keyframes` or media blocks inside `@media` cannot be nested within `.amana` files**.
-- Standard animations and responsive layouts must be declared using the design grammar configuration blocks (`motion:`, `responsive:`) which generate standard token styles natively.
+Style blocks parse selector blocks and declarations. Declarations are compiled by `compile_css_decl`.
+
+Important mapped properties:
+
+- `layout`: `row`, `column`, `stack`, `grid`, `center`, `inline`, `cluster`, `split`.
+- `center`: `both`, `x`, `y`.
+- `columns`, `rows`, `responsive-columns`.
+- `position`: `sticky`, `fixed`, `absolute`, `relative`, `static`.
+- `layer`, `z`, `z-index`.
+- `direction`, `dir`.
+- `radius`, `border-radius`.
+- `shadow`, `box-shadow`.
+- `border`.
+- `surface`.
+- `background`, `background-color`.
+- `gradient`.
+- `glow`.
+- `hover`.
+- `color`, `text`, `ink`, `fill`, `stroke`, `outline`.
+- `opacity`, `blur`, `blend`, `shape`.
+- `font`, `size`, `font-size`, `weight`, `leading`, `tracking`.
+- `transition`, `scroll`, `hide`.
+
+Spacing tokens:
+
+```text
+none, 0, xs, sm, small, md, medium, lg, large, xl, 2xl, xxl, 3xl, 4xl
+```
+
+Size tokens:
+
+```text
+full, screen, fit, min, max, content, readable, wide,
+fluid-xs, fluid-sm, fluid-md, fluid-lg, fluid-xl, fluid-2xl, fluid-3xl
+```
+
+Color tokens:
+
+```text
+primary, primary-soft, accent, success, warning, danger,
+surface, surface-muted, surface-elevated, ink, subtle, canvas-soft,
+custom-primary, custom-accent, custom-bg, custom-text,
+canvas, text, muted, secondary, border,
+indigo, cyan, violet, emerald, rose, slate
+```
+
+## CSS Security
+
+Semantic validation checks style rules before codegen.
+
+Blocked selectors:
+
+```text
+body html * script iframe object embed link meta base
+```
+
+Attribute selector manipulation such as `[onclick]` or `[on...]` is rejected.
+
+Blocked value patterns include:
+
+```text
+javascript:
+expression(
+behavior:
+url(data:
+url(http:
+url(https:
+<script
+</style
+-moz-binding
+binding:
+```
+
+Properties are allowlisted. See the generated inventory for the full allowlist.
+
+## Design Grammar
+
+Design blocks are declarative metadata and token controls placed inside render trees or view-level `canvas:`.
+
+```amana
+section.hero:
+    compose:
+        layout: bento
+        columns: 3
+        gap: lg
+    visual:
+        surface: glass
+        gradient: hero
+    motion:
+        hover: lift
+    responsive:
+        mobile.columns: 1
+```
+
+Supported blocks:
+
+```text
+canvas compose visual type motion creative brand art responsive interaction a11y component tokens states
+```
+
+Closed-value properties:
+
+- `layout`
+- `surface`
+- `hover`
+- `entrance` / `reveal`
+- `gradient`
+- `density`
+- `shadow`
+
+Open metadata fields are accepted after safety checks and length limits. Examples:
+
+```text
+voice, colorway, direction, motif, lighting, texture, feedback, cursor,
+contrast, screenreader, uniqueness, freedom, signature
+```
+
+Key names normalize underscores and dashes for validation. Nested paths such as `responsive.mobile` and `mobile.columns` are accepted when the base key is allowed.
+
+## Layout-Specific Compose Rules
+
+When `compose.layout` is one of the following, additional key restrictions apply:
+
+| Layout | Allowed keys |
+| --- | --- |
+| `bento` | `layout`, `columns`, `rows`, `gap`, `auto_place`, `responsive`, `rhythm`, `focus_path`, `density` |
+| `masonry` | `layout`, `columns`, `image_ratio`, `gap` |
+| `split` | `layout`, `ratio`, `align`, `visual_position` |
+| `asymmetric` | `layout`, `rhythm`, `dominant`, `overlap` |
+| `magazine` | `layout`, `columns`, `headline_span`, `aside_span`, `pull_quote` |
+| `sidebar` | `layout`, `sidebar_width`, `sidebar_position`, `sticky_sidebar` |
+| `timeline` | `layout`, `axis`, `marker`, `alternate` |
+| `dashboard-shell` | `layout`, `sidebar`, `topbar`, `content_width`, `density`, `rhythm` |
+
+## Top-Level Tokens Block
+
+The parser accepts:
+
+```amana
+tokens:
+    colors:
+        brand: "#4f46e5"
+    spacing:
+        section: "4rem"
+    radius:
+        card: "18px"
+    shadows:
+        card: "0 20px 40px rgba(0,0,0,.2)"
+```
+
+Current status: parsed into `TokenConfigBlock`, preserved in IR, and emitted into generated theme CSS as root custom properties.

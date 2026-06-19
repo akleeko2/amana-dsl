@@ -1,139 +1,130 @@
-# Amana Examples Gallery
+# Examples Policy And Current Patterns
 
-The `examples/` directory contains premium-designed showcases demonstrating the capabilities of the **Amana DSL v2 Design Engine**. These examples showcase advanced layout primitives, custom visual themes, typography scales, micro-animations, secure database mappings, and real-time form handlers.
+Verified examples are reference artifacts, not the implementation source of truth. Use this file as a pattern guide; the implementation reference remains [language.md](language.md) and [language-inventory.generated.md](language-inventory.generated.md).
 
----
+> **Note on history:** Earlier versions of this repository shipped numbered examples (`01_saas_aura.amana`, `02_maison_luxe.amana`, ..., `09_multi_file_portal/`). Those were removed because they drifted from the current language surface and were not verified against the compiler. They are **not** authoritative; do not treat them as reference even if found in old commits or external copies. The only verified examples today are listed below.
 
-## 🚀 Build & Verification Commands
+## Verified Examples Gallery
 
-All examples are verified to compile successfully without warnings and produce fully valid Node.js/Express runtimes with EJS views. You can compile them using the following commands:
+The following examples exist in [`examples/`](../examples/) and are the only canonical examples:
 
-```powershell
-# 1. SaaS Aura (AI Analytics Dashboard)
-cargo run -- build examples/01_saas_aura.amana examples/01_saas_aura_dist
+| # | File | What it demonstrates | Build command |
+| --- | --- | --- | --- |
+| 1 | [examples/landing.amana](../examples/landing.amana) | A multi-column landing page: grids, layouts, forms, custom styled grids. | `cargo run -- build examples/landing.amana landing_dist` |
+| 2 | [examples/royal_deck.amana](../examples/royal_deck.amana) | A daytime luxury console: standard elements with native HTML fallbacks, premium aesthetics, animations, responsive column rules, interactive Alpine bindings, Unsplash media. | `cargo run -- build examples/royal_deck.amana royal_deck_dist` |
+| 3 | [examples/test_ternary.amana](../examples/test_ternary.amana) | A minimal test fixture exercising the ternary expression syntax (`cond ? a : b`). Not a full app; used as a language-feature smoke test. | `cargo run -- check examples/test_ternary.amana --json` |
 
-# 2. Maison Luxe (Luxury Editorial Atelier)
-cargo run -- build examples/02_maison_luxe.amana examples/02_maison_luxe_dist
+> The multi-file `apps/` directory (e.g. `apps/02-customer-care-hub/`, `apps/03-ai-chat-workspace/`) contains larger integrated applications structured per [AMANA_DEVELOPMENT_STANDARDS.md](../AMANA_DEVELOPMENT_STANDARDS.md). These are real apps, not minimal examples — see their per-app `README.md` files.
 
-# 3. Vortex Console (DevOps Cyber Telemetry Center)
-cargo run -- build examples/03_vortex_console.amana examples/03_vortex_console_dist
+## Example Acceptance Checklist
 
-# 4. Nova Creative (Design Studio & Showcase)
-cargo run -- build examples/04_nova_creative.amana examples/04_nova_creative_dist
+Before adding or restoring an example to this project:
 
-# 5. Cura Wellness (Teal Health & Wellness Directory)
-cargo run -- build examples/05_cura_wellness.amana examples/05_cura_wellness_dist
+1. Run `cargo run -- check <example>.amana --json`.
+2. Run `cargo run -- build <example>.amana <dist> --json`.
+3. Run `node --check <dist>/runtime/engine.js`.
+4. Run `cargo run -- inspect-design <example>.amana --json`.
+5. Add a row to the table above.
+6. Do not reference the example in docs until all commands pass.
 
-# 6. Pro Dashboard (Enterprise Analytics Command Panel)
-cargo run -- build examples/06_pro_dashboard.amana examples/06_pro_dashboard_dist
+## Pattern Reference (extracts)
 
-# 7. Nexus Portal (Asymmetric Workspace Feed Hub)
-cargo run -- build examples/07_nexus_portal.amana examples/07_nexus_portal_dist
+These short patterns are illustrative. Always validate against the full [language.md](language.md).
 
-# 8. Atelier Aurelia (Timeless Luxury Horology Atelier)
-cargo run -- build examples/08_atelier_aurelia.amana examples/08_atelier_aurelia_dist
+### Minimal App
 
-# 9. Multi-File Portal (Modular landing page & Dark-mode Facebook clone)
-cargo run -- build examples/09_multi_file_portal/main.amana examples/09_multi_file_portal_dist
+```amana
+app MinimalApp:
+    title: "Minimal"
+    db_path: "minimal.db"
+
+model User:
+    email: email unique
+    password: password
+
+route / -> view Home
+
+view Home:
+    render:
+        div.page:
+            h1: "Home"
 ```
 
----
+### Auth-Protected Data View
 
-## 🎨 Premium Examples Showcase
+```amana
+app ProjectApp:
+    title: "Projects"
+    auth_model: User
+    capabilities:
+        - auth
 
-### 1. SaaS Aura (`01_saas_aura.amana`)
-* **Theme & Voice:** Cyberpunk/Space Control Center (`canvas: "#05070f"`, `primary: "#00f0ff"` glowing cyan, `accent: "#ff007f"` neon magenta, `font_family: "Space Mono"`). Strict technical command room voice.
-* **Layout Blocks:**
-  * `column` (main container stack).
-  * `grid` (Bento diagnostic panels and sliders).
-  * `flex` (interactive control panels and particle colliders).
-* **Key Features:**
-  * Interactive Coolant and Magnetic Containment sliders that dynamically update status banners (SAFE/WARNING/DANGER) based on thresholds.
-  * Built-in Particle Accelerator simulator to compute simulated fusion yields based on particle choices and excitation states.
-  * System Anomaly Registry with a database form connected directly to SQLite `Feedback.create` and live telemetry log archives.
-  * Database models: `Metric` (reactor metrics) and `Feedback` (telemetry anomaly logs).
+model User:
+    email: email unique required
+    password: password required min 8
 
-### 2. Maison Luxe (`02_maison_luxe.amana`)
-* **Theme & Voice:** Light Mode Luxury Day Editorial (`canvas: "#fcfbf7"`, `primary: "#111111"`, `accent: "#d4af37"` gold, `font_family: "Playfair Display"` serif). Elegant and architectural voice.
-* **Layout Blocks:**
-  * `split` (hero showcase with high-contrast text and boutique reservation entry).
-  * `grid` (catalog sections with gold borders and custom metadata badges).
-  * `stack` (heritage timeline and reservation flow).
-* **Key Features:**
-  * Floating transparent header menu with custom luxury styling.
-  * Clean bottom-border input fields for scheduling atelier bookings.
-  * Serif typography-driven visual hierarchy.
-  * Database models: `CollectionItem` (seasonal fashion lines) and `Booking` (atelier sessions).
+model Project:
+    name: str required
+    owner_id: int foreign_key User(id) on_delete CASCADE
 
-### 3. Vortex Console (`03_vortex_console.amana`)
-* **Theme & Voice:** Obsidian Hacker Cyberpunk (`canvas: "#020813"`, `primary: "#10b981"` emerald, `accent: "#34d399"` neon mint, `font_family: "Space Mono"` / `"Fira Code"`). Dev-ops technical command style.
-* **Layout Blocks:**
-  * `split` (active DevOps stage telemetry header).
-  * `grid` (bento diagnostic reading cards with glowing borders).
-  * `stack` (stage build timelines and diagnostic command prompt input).
-* **Key Features:**
-  * Alternate stage timeline with monospace indicators.
-  * Interactive CLI input simulator displaying stdout/stderr logs.
-  * Custom code success badges (`.code.success`) with glowing shadows.
-  * Database models: `DeployLog` (stage log lines) and `AccessRequest` (developer telemetry logs).
+route /projects -> view Projects
 
-### 4. Nova Creative (`04_nova_creative.amana`)
-* **Theme & Voice:** Deep Orchid Neon Purple (`canvas: "#090514"`, `primary: "#d946ef"`, `accent: "#8b5cf6"` violet, `surface: glass`). Creative and bold voice.
-* **Layout Blocks:**
-  * `split` (hero asymmetric showcase showcasing design philosophies).
-  * `grid` (portfolio rail showcasing visual works).
-  * `stack` (client request questionnaire).
-* **Key Features:**
-  * Vibrant gradient blobs and orchid glow backdrops.
-  * Lift-on-hover card transformations with smooth scale.
-  * Database models: `ProjectBrief` (design client requests).
+view Projects:
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+    server:
+        fetch projects = Project.filter(owner_id: User.current.id, limit: 50)
+    render:
+        div.page:
+            for project in projects:
+                p: project.name
+```
 
-### 5. Cura Wellness (`05_cura_wellness.amana`)
-* **Theme & Voice:** Modern Healing Teal Clean Mode (`canvas: "#f0fdf4"`, `primary: "#0f766e"`, `accent: "#14b8a6"`, `surface: elevated`). Soft, clean, and reliable voice.
-* **Layout Blocks:**
-  * `split` (clean hero section with appointment scheduler).
-  * `grid` (doctor directory grid cards).
-  * `stack` (clinical specialties list).
-* **Key Features:**
-  * High-density clean layout optimized for medical search.
-  * Seamless reservation form connecting clients directly to caregivers.
-  * Database models: `Appointment` (medical visit slots).
+### Form With Ownership Default
 
-### 6. Pro Dashboard (`06_pro_dashboard.amana`)
-* **Theme & Voice:** Professional Enterprise Blue/Teal Light Mode (`canvas: "#f0f2f5"`, `primary: "#1890ff"`, `accent: "#13c2c2"`, `surface: custom`). Corporate and analytical voice.
-* **Layout Blocks:**
-  * `column` (dashboard frame setup).
-  * `grid` (analytics cards grid and KPI indicators).
-* **Key Features:**
-  * Interactive sidebar navigation supporting 7 tabs (Dashboard, Form, List, Profile, Result, Exception, Account).
-  * Live Chart.js graphs (line chart for visits, bar chart for payments, doughnut chart for operation effects).
-  * Database models: `ShopRanking` (sales leaderboards).
+```amana
+form [name]:
+    connect Project.create
+    default owner_id = User.current.id
+    submit: "Create"
+    redirect success -> /projects
+    field name:
+        label: "Project name"
+        required: true
+```
 
-### 7. Nexus Portal (`07_nexus_portal.amana`)
-* **Theme & Voice:** Deep Violet Slate Dark Mode (`canvas: "#0a0a0f"`, `primary: "#7c3aed"`, `accent: "#2563eb"`, `surface: elevated`). Modern digital workplace community feed.
-* **Layout Blocks:**
-  * `sidebar` (navigation menu layout).
-  * `grid` (feed cards and trending boxes).
-* **Key Features:**
-  * Complex layout with profile cards, left sidebar shortcuts, main feed (supporting new posts creation), and active community members directory.
-  * Interactive comments toggle for posts.
-  * Database models: `NexusPost` (community announcements) and `Feedback` (user workspace metrics).
+This form must be inside a protected view because it uses `User.current`.
 
-### 8. Atelier Aurelia (`08_atelier_aurelia.amana`)
-* **Theme & Voice:** Luxury Timeless Horology Dark Mode (`canvas: "#0d0f12"`, `primary: "#d4af37"` gold, `accent: "#0b2e24"`, `surface: custom`). Sophisticated, high-end, premium craftsmanship tone.
-* **Layout Blocks:**
-  * `column` (main timeline).
-  * `grid` (luxury specs details and bespoke configurator).
-* **Key Features:**
-  * Luxury watch bespoke configurator letting users toggle dial faces, straps, and casings to view real-time valuations.
-  * Craftsmanship timeline showing mechanical blueprints, forging, assembly, and testing milestones in real-time.
-  * Elegant dark-gold typography hierarchy with background glow effects.
-  * Database models: `AtelierBooking` (private viewing reservations).
+### Design-Driven Section
 
-### 9. Multi-File Portal (`examples/09_multi_file_portal`)
-* **Theme & Voice:** Modular Emerald-Gold Slate Dark Mode (`canvas: "#020617"`, `primary: "#10b981"`, `accent: "#1877f2"`, `surface: "glass-layered"`). Extremely professional development portal.
-* **Key Features:**
-  * **Multi-File Architecture**: Demonstrates module importing and code isolation across components (`section1.amana` through `section6.amana`), model declaration (`models.amana`), and routing entrypoint (`main.amana`).
-  * **Interactive Tab Showcase**: Select between "The Heritage", "The Celestial", and "The Sovereign" specifications with Dynamic AlpineJS state switching.
-  * **Facebook Feed (/facebook)**: Facebook-inspired dark-mode social feed including left sidebar shortcut directories, middle story sliders (Create Story + 5 users), Roya News Donald Trump feed post fetched from SQLite models, sponsored ads, and birthdays notification.
-  * Database models: `FacebookPost` (feed records) and `LeadBrief` (consultation form requests).
+```amana
+section.hero:
+    compose:
+        layout: bento
+        columns: 3
+        gap: lg
+    visual:
+        surface: glass
+        gradient: hero
+    responsive:
+        mobile.columns: 1
+    Hero(title: "Launch", subtitle: "Build with Amana"):
+        Button(label: "Start", href: "/projects")
+```
+
+### Resource Grid Pattern
+
+```amana
+ResourceGrid(projects):
+    item ProjectCard(project)
+    empty:
+        EmptyState(title: "No projects")
+    loading:
+        p: "Loading"
+    error:
+        Alert(tone: "warning", message: "Could not load projects")
+```
+
+Current EJS output renders the item loop plus lifecycle blocks at runtime.
