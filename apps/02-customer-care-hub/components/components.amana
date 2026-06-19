@@ -1,0 +1,419 @@
+component SideRail(active_page: str):
+    style:
+        .side-rail:
+            width: "240px"
+            background: "rgba(13, 15, 23, 0.98)"
+            border-right: "1px solid rgba(255, 255, 255, 0.06)"
+            display: "flex"
+            flex-direction: "column"
+            position: "sticky"
+            top: "0"
+            flex-shrink: "0"
+            z-index: "50"
+        .rail-brand:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+            padding: "1.5rem 1.25rem 1.25rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+        .rail-logo:
+            font-size: "1.5rem"
+            color: "#6366f1"
+            flex-shrink: "0"
+        .rail-brand-name:
+            font-size: "0.95rem"
+            font-weight: "800"
+            color: "#f1f5f9"
+            letter-spacing: "-0.02em"
+        .rail-nav:
+            flex: "1"
+            padding: "1rem 0.75rem"
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.2rem"
+        .rail-link:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+            padding: "0.7rem 0.85rem"
+            border-radius: "12px"
+            color: "#64748b"
+            text-decoration: "none"
+            font-size: "0.87rem"
+            font-weight: "500"
+            transition: "all 200ms ease"
+        .rail-link:hover:
+            background: "rgba(99, 102, 241, 0.1)"
+            color: "#c7d2fe"
+        .rail-link.active:
+            background: "rgba(99, 102, 241, 0.15)"
+            color: "#a5b4fc"
+            font-weight: "600"
+        .rail-icon:
+            font-size: "1.1rem"
+            flex-shrink: "0"
+            width: "22px"
+            text-align: "center"
+        .rail-label:
+            flex: "1"
+        .rail-footer:
+            padding: "0.75rem 0.75rem 1.25rem"
+            border-top: "1px solid rgba(255, 255, 255, 0.05)"
+        .rail-agent:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+            padding: "0.6rem 0.1rem"
+        .rail-avatar:
+            width: "36px"
+            height: "36px"
+            border-radius: "999px"
+            background: "linear-gradient(135deg, #6366f1, #22d3ee)"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-weight: "700"
+            font-size: "0.78rem"
+            color: "#ffffff"
+            flex-shrink: "0"
+        .rail-agent-name:
+            font-size: "0.82rem"
+            font-weight: "600"
+            color: "#e2e8f0"
+        .rail-agent-role:
+            font-size: "0.7rem"
+            color: "#475569"
+        .rail-agent-info:
+            flex: "1"
+    render:
+        nav.side-rail:
+            div.rail-brand:
+                div.rail-logo: "⬡"
+                div.rail-brand-name: "Care Hub"
+            div.rail-nav:
+                a.rail-link(href: "/dashboard"):
+                    div.rail-icon: "◈"
+                    span.rail-label: "Dashboard"
+                a.rail-link(href: "/tickets"):
+                    div.rail-icon: "⊡"
+                    span.rail-label: "Tickets"
+                a.rail-link(href: "/customers"):
+                    div.rail-icon: "◎"
+                    span.rail-label: "Customers"
+                a.rail-link(href: "/agents"):
+                    div.rail-icon: "⊛"
+                    span.rail-label: "Agents"
+                a.rail-link(href: "/reports"):
+                    div.rail-icon: "▤"
+                    span.rail-label: "Reports"
+                a.rail-link(href: "/settings"):
+                    div.rail-icon: "⊙"
+                    span.rail-label: "Settings"
+            div.rail-footer:
+                div.rail-agent:
+                    div.rail-avatar: "SC"
+                    div.rail-agent-info:
+                        div.rail-agent-name: Agent.current.name
+                        div.rail-agent-role: Agent.current.role
+
+component TicketCard(ticket):
+    style:
+        .ticket-card:
+            background: "rgba(22, 28, 44, 0.9)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "14px"
+            padding: "1.1rem 1.25rem"
+            transition: "all 250ms ease"
+            cursor: "pointer"
+        .ticket-card:hover:
+            border: "1px solid rgba(99, 102, 241, 0.25)"
+            transform: "translateY(-2px)"
+            box-shadow: "0 8px 28px rgba(0, 0, 0, 0.4)"
+        .ticket-top-row:
+            display: "flex"
+            align-items: "flex-start"
+            justify-content: "space-between"
+            gap: "0.75rem"
+            margin-bottom: "0.5rem"
+        .ticket-subject:
+            font-weight: "600"
+            font-size: "0.9rem"
+            color: "#f1f5f9"
+            line-height: "1.4"
+            flex: "1"
+        .ticket-meta:
+            font-size: "0.78rem"
+            color: "#475569"
+            display: "flex"
+            gap: "0.5rem"
+            align-items: "center"
+            flex-wrap: "wrap"
+        .ticket-badges:
+            display: "flex"
+            gap: "0.4rem"
+            flex-wrap: "wrap"
+            margin-top: "0.6rem"
+        .priority-urgent:
+            background: "rgba(239, 68, 68, 0.12)"
+            color: "#fca5a5"
+            border: "1px solid rgba(239, 68, 68, 0.22)"
+            border-radius: "999px"
+            padding: "0.15rem 0.55rem"
+            font-size: "0.7rem"
+            font-weight: "600"
+        .priority-high:
+            background: "rgba(245, 158, 11, 0.12)"
+            color: "#fcd34d"
+            border: "1px solid rgba(245, 158, 11, 0.22)"
+            border-radius: "999px"
+            padding: "0.15rem 0.55rem"
+            font-size: "0.7rem"
+            font-weight: "600"
+        .priority-medium:
+            background: "rgba(99, 102, 241, 0.1)"
+            color: "#a5b4fc"
+            border: "1px solid rgba(99, 102, 241, 0.18)"
+            border-radius: "999px"
+            padding: "0.15rem 0.55rem"
+            font-size: "0.7rem"
+            font-weight: "600"
+        .priority-low:
+            background: "rgba(16, 185, 129, 0.1)"
+            color: "#6ee7b7"
+            border: "1px solid rgba(16, 185, 129, 0.18)"
+            border-radius: "999px"
+            padding: "0.15rem 0.55rem"
+            font-size: "0.7rem"
+            font-weight: "600"
+        .status-badge:
+            background: "rgba(255, 255, 255, 0.05)"
+            color: "#94a3b8"
+            border: "1px solid rgba(255, 255, 255, 0.08)"
+            border-radius: "999px"
+            padding: "0.15rem 0.55rem"
+            font-size: "0.7rem"
+            font-weight: "500"
+    render:
+        article.ticket-card:
+            div.ticket-top-row:
+                span.ticket-subject: ticket.subject
+                span.status-badge: ticket.status
+            div.ticket-meta:
+                span: ticket.customer_name
+                span: "·"
+                span: ticket.channel
+            div.ticket-badges:
+                span.priority-medium: ticket.priority
+
+component CustomerCard(customer):
+    style:
+        .customer-card:
+            background: "rgba(22, 28, 44, 0.9)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "16px"
+            padding: "1.5rem"
+            transition: "all 250ms ease"
+        .customer-card:hover:
+            border: "1px solid rgba(99, 102, 241, 0.22)"
+            transform: "translateY(-2px)"
+            box-shadow: "0 12px 36px rgba(0, 0, 0, 0.4)"
+        .customer-avatar-row:
+            display: "flex"
+            align-items: "center"
+            gap: "0.85rem"
+            margin-bottom: "1rem"
+        .customer-avatar:
+            width: "44px"
+            height: "44px"
+            border-radius: "999px"
+            background: "linear-gradient(135deg, #4f46e5, #06b6d4)"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-weight: "700"
+            font-size: "0.88rem"
+            color: "#ffffff"
+            flex-shrink: "0"
+        .customer-name:
+            font-weight: "700"
+            font-size: "0.95rem"
+            color: "#f1f5f9"
+        .customer-company:
+            font-size: "0.78rem"
+            color: "#64748b"
+        .customer-divider:
+            height: "1px"
+            background: "rgba(255, 255, 255, 0.05)"
+            margin: "0.85rem 0"
+        .customer-stats:
+            display: "flex"
+            gap: "1.5rem"
+        .stat-item:
+            text-align: "center"
+        .stat-value:
+            font-weight: "700"
+            font-size: "1.2rem"
+            color: "#a5b4fc"
+        .stat-label:
+            font-size: "0.7rem"
+            color: "#475569"
+            margin-top: "0.15rem"
+        .plan-badge:
+            display: "inline-block"
+            font-size: "0.7rem"
+            font-weight: "600"
+            border-radius: "999px"
+            padding: "0.2rem 0.65rem"
+            background: "rgba(99, 102, 241, 0.12)"
+            color: "#a5b4fc"
+            border: "1px solid rgba(99, 102, 241, 0.2)"
+            margin-top: "0.75rem"
+    render:
+        article.customer-card:
+            div.customer-avatar-row:
+                div.customer-avatar: customer.name
+                div:
+                    div.customer-name: customer.name
+                    div.customer-company: customer.company
+            div.customer-divider: ""
+            div.customer-stats:
+                div.stat-item:
+                    div.stat-value: customer.total_tickets
+                    div.stat-label: "Tickets"
+                div.stat-item:
+                    div.stat-value: customer.satisfaction_score
+                    div.stat-label: "CSAT"
+            div.plan-badge: customer.plan
+
+component AgentCard(agent):
+    style:
+        .agent-card:
+            background: "rgba(22, 28, 44, 0.9)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "16px"
+            padding: "1.5rem"
+            transition: "all 250ms ease"
+            text-align: "center"
+        .agent-card:hover:
+            border: "1px solid rgba(99, 102, 241, 0.22)"
+            transform: "translateY(-3px)"
+            box-shadow: "0 16px 40px rgba(0, 0, 0, 0.45)"
+        .agent-avatar:
+            width: "60px"
+            height: "60px"
+            border-radius: "999px"
+            background: "linear-gradient(135deg, #6366f1, #22d3ee)"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-weight: "700"
+            font-size: "1.1rem"
+            color: "#ffffff"
+            margin: "0 auto 0.85rem"
+        .agent-name:
+            font-weight: "700"
+            font-size: "0.95rem"
+            color: "#f1f5f9"
+            margin-bottom: "0.2rem"
+        .agent-dept:
+            font-size: "0.78rem"
+            color: "#64748b"
+            margin-bottom: "0.5rem"
+        .agent-divider:
+            height: "1px"
+            background: "rgba(255, 255, 255, 0.05)"
+            margin: "0.85rem 0"
+        .agent-stats:
+            display: "flex"
+            justify-content: "center"
+            gap: "2rem"
+        .agent-stat-value:
+            font-weight: "700"
+            font-size: "1.1rem"
+            color: "#a5b4fc"
+        .agent-stat-label:
+            font-size: "0.7rem"
+            color: "#475569"
+            margin-top: "0.2rem"
+    render:
+        article.agent-card:
+            div.agent-avatar: agent.avatar_initials
+            div.agent-name: agent.name
+            div.agent-dept: agent.department
+            div.agent-divider: ""
+            div.agent-stats:
+                div:
+                    div.agent-stat-value: agent.tickets_resolved
+                    div.agent-stat-label: "Resolved"
+                div:
+                    div.agent-stat-value: agent.satisfaction_score
+                    div.agent-stat-label: "CSAT %"
+
+component MetricCard(label: str, value: str, trend: str, color: str):
+    style:
+        .metric-card:
+            background: "rgba(22, 28, 44, 0.95)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "16px"
+            padding: "1.4rem 1.5rem"
+            position: "relative"
+            overflow: "hidden"
+            transition: "all 250ms ease"
+        .metric-card:hover:
+            transform: "translateY(-2px)"
+            box-shadow: "0 12px 32px rgba(0, 0, 0, 0.4)"
+            border: "1px solid rgba(99, 102, 241, 0.2)"
+        .metric-label:
+            font-size: "0.75rem"
+            font-weight: "600"
+            color: "#64748b"
+            text-transform: "uppercase"
+            letter-spacing: "0.08em"
+            margin-bottom: "0.6rem"
+        .metric-value:
+            font-size: "2.1rem"
+            font-weight: "800"
+            color: "#f1f5f9"
+            line-height: "1"
+            margin-bottom: "0.5rem"
+            letter-spacing: "-0.03em"
+        .metric-trend:
+            font-size: "0.76rem"
+            color: "#10b981"
+            font-weight: "500"
+    render:
+        article.metric-card:
+            div.metric-label: label
+            div.metric-value: value
+            div.metric-trend: trend
+
+component KnowledgeCard(article):
+    style:
+        .knowledge-card:
+            background: "rgba(22, 28, 44, 0.9)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "14px"
+            padding: "1.25rem 1.5rem"
+            transition: "all 250ms ease"
+        .knowledge-card:hover:
+            border: "1px solid rgba(99, 102, 241, 0.2)"
+            transform: "translateY(-2px)"
+        .article-title:
+            font-weight: "600"
+            font-size: "0.9rem"
+            color: "#e2e8f0"
+            margin-bottom: "0.5rem"
+        .article-meta:
+            font-size: "0.78rem"
+            color: "#475569"
+        .article-votes:
+            font-size: "0.78rem"
+            color: "#6ee7b7"
+            font-weight: "500"
+    render:
+        article.knowledge-card:
+            div.article-title: article.title
+            div.article-meta:
+                span: article.category
+                span: " · "
+                span.article-votes: f"{article.helpful_votes} helpful"

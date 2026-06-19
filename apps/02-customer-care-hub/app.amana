@@ -1,0 +1,24 @@
+import "./config/theme.amana"
+import "./models/models.amana"
+import "./seeds/seeds.amana"
+import "./components/components.amana"
+import "./routes/routes.amana"
+import "./views/home.amana"
+import "./views/dashboard.amana"
+import "./views/tickets.amana"
+import "./views/ticket_detail.amana"
+import "./views/customers.amana"
+import "./views/agents.amana"
+import "./views/reports.amana"
+import "./views/settings.amana"
+import "./views/login.amana"
+import "./views/signup.amana"
+
+app CustomerCareHub:
+    title: "Customer Care Hub"
+    db_path: "care_hub.db"
+    auth_model: Agent
+    capabilities:
+        - auth
+        - api.rest
+        - time

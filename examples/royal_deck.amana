@@ -1,0 +1,403 @@
+app RoyalDeckApp:
+    title: "أثير - لوحة التحكم الملكية"
+    db_path: "royal_deck.db"
+    auth_model: User
+    capabilities:
+        - auth
+        - api.rest
+        - time
+
+theme:
+    mode: day
+    direction: rtl
+    language: ar
+    font_provider: google
+    font_family: "Playfair Display"
+    heading_font_family: "Cinzel"
+    accent: "#1a1a1c"
+    primary: "#d4af37"
+    radius: soft
+    density: comfortable
+
+tokens:
+    colors:
+        brand: "#d4af37"
+    spacing:
+        section: "2rem"
+    radius:
+        card: "32px"
+    shadows:
+        card: "0 30px 60px rgba(212, 175, 55, 0.12)"
+
+model User:
+    email: email unique required
+    password: password required min 8
+    role: str default "member"
+
+model ConciergeRequest:
+    guest_name: str required max 100
+    room_number: str required max 10
+    service_type: str default "dining"
+    notes: str required max 500
+
+seed User:
+    row:
+        email: "monarch@royal.deck"
+        password: "royal_deck_pass"
+        role: "admin"
+
+route / -> view Home
+
+view Home:
+    canvas:
+        layout: center
+        flow: immersive
+        density: comfortable
+
+    client:
+        state active_cabin = "pool" [persist: local]
+        state illumination_level = "golden" [persist: local]
+        state mist_flow = "breeze" [persist: local]
+        state sonic_theme = "lounge" [persist: local]
+
+    render:
+        div.console-device:
+            brand:
+                voice: premium
+                personality: premium
+            art:
+                direction: cinematic-product
+                motif: orbit
+            creative:
+                uniqueness: signature
+            responsive:
+                mobile: stacked
+
+            div.device-chassis:
+                responsive:
+                    mobile:
+                        padding: "1.25rem"
+                        gap: "1.25rem"
+                
+                div.device-header:
+                    div.brand-area:
+                        span.logo-star: "✦"
+                        h1: "أثـيـر • AETHER"
+                    div.status-area:
+                        span.live-dot: ""
+                        p: "منصة اليخت الملكي • التحكم البيئي"
+
+                Split(responsive: "stacked"):
+                    div.panel-left:
+                        h2: "بيئة المقصورة"
+                        p.subtitle: "تحكم فوري بالأجواء المحيطة"
+
+                        div.control-block:
+                            p.section-label: "الموقع النشط"
+                            div.button-group:
+                                div.btn-gold(click: active_cabin = "terrace", show: active_cabin == "terrace"): "شرفة غروب الشمس"
+                                div.btn-subtle(click: active_cabin = "terrace", show: active_cabin != "terrace"): "شرفة غروب الشمس"
+                                
+                                div.btn-gold(click: active_cabin = "pool", show: active_cabin == "pool"): "المسبح البانورامي"
+                                div.btn-subtle(click: active_cabin = "pool", show: active_cabin != "pool"): "المسبح البانورامي"
+                                
+                                div.btn-gold(click: active_cabin = "salon", show: active_cabin == "salon"): "الصالون الإمبراطوري"
+                                div.btn-subtle(click: active_cabin = "salon", show: active_cabin != "salon"): "الصالون الإمبراطوري"
+
+                        div.control-block:
+                            p.section-label: "مستوى الإضاءة الشمسية"
+                            div.button-group:
+                                div.btn-gold(click: illumination_level = "dawn", show: illumination_level == "dawn"): "الشرق الصافي"
+                                div.btn-subtle(click: illumination_level = "dawn", show: illumination_level != "dawn"): "الشرق الصافي"
+                                
+                                div.btn-gold(click: illumination_level = "golden", show: illumination_level == "golden"): "شمس الزوال"
+                                div.btn-subtle(click: illumination_level = "golden", show: illumination_level != "golden"): "شمس الزوال"
+                                
+                                div.btn-gold(click: illumination_level = "sunset", show: illumination_level == "sunset"): "الغسق المخملي"
+                                div.btn-subtle(click: illumination_level = "sunset", show: illumination_level != "sunset"): "الغسق المخملي"
+
+                    div.panel-right:
+                        div.portal-frame(show: active_cabin == "pool"):
+                            div.portal-img(style: "background-image: url(\"https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=800&q=80\");"):
+                                p: ""
+                            div.portal-meta:
+                                h3: "المسبح البانورامي"
+                                p(text: illumination_level == "dawn" ? "الحالة البصرية: إضاءة صباحية منعشة" : (illumination_level == "sunset" ? "الحالة البصرية: ألوان الشفق الدافئة" : "الحالة البصرية: سطوع كامل")): ""
+
+                        div.portal-frame(show: active_cabin == "terrace"):
+                            div.portal-img(style: "background-image: url(\"https://images.unsplash.com/photo-1508333706533-1ab43ecb1606?auto=format&fit=crop&w=800&q=80\");"):
+                                p: ""
+                            div.portal-meta:
+                                h3: "شرفة غروب الشمس"
+                                p(text: illumination_level == "dawn" ? "الحالة البصرية: إضاءة خافتة" : (illumination_level == "sunset" ? "الحالة البصرية: غروب الشمس المطلق" : "الحالة البصرية: إضاءة نهارية")): ""
+
+                        div.portal-frame(show: active_cabin == "salon"):
+                            div.portal-img(style: "background-image: url(\"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80\");"):
+                                p: ""
+                            div.portal-meta:
+                                h3: "الصالون الإمبراطوري"
+                                p(text: illumination_level == "dawn" ? "الحالة البصرية: إضاءة استرخاء" : (illumination_level == "sunset" ? "الحالة البصرية: ألوان الشفق" : "الحالة البصرية: سطوع النهار")): ""
+
+                        div.dials-grid:
+                            responsive:
+                                mobile:
+                                    columns: 1
+                            div.mini-card:
+                                p.card-label: "ترطيب الهواء"
+                                div.button-group-row:
+                                    div.btn-gold-sm(click: mist_flow = "breeze", show: mist_flow == "breeze"): "هادئ"
+                                    div.btn-subtle-sm(click: mist_flow = "breeze", show: mist_flow != "breeze"): "هادئ"
+                                    div.btn-gold-sm(click: mist_flow = "mist", show: mist_flow == "mist"): "كثيف"
+                                    div.btn-subtle-sm(click: mist_flow = "mist", show: mist_flow != "mist"): "كثيف"
+                            
+                            div.mini-card:
+                                p.card-label: "المشهد الصوتي"
+                                div.button-group-row:
+                                    div.btn-gold-sm(click: sonic_theme = "jazz", show: sonic_theme == "jazz"): "جاز"
+                                    div.btn-subtle-sm(click: sonic_theme = "jazz", show: sonic_theme != "jazz"): "جاز"
+                                    div.btn-gold-sm(click: sonic_theme = "lounge", show: sonic_theme == "lounge"): "كلاسيك"
+                                    div.btn-subtle-sm(click: sonic_theme = "lounge", show: sonic_theme != "lounge"): "كلاسيك"
+
+                div.device-indicators:
+                    div.kpis-grid:
+                        responsive:
+                            mobile:
+                                columns: 1
+                        div.custom-kpi:
+                            span.kpi-label: "استقرار الطاقة"
+                            strong.kpi-value: "98.7%"
+                            span.kpi-trend: "نموذجي"
+                        
+                        div.custom-kpi:
+                            span.kpi-label: "معدل الرطوبة"
+                            strong.kpi-value(text: mist_flow == "mist" ? "65%" : "42%"): ""
+                            span.kpi-trend: "مثالي"
+                        
+                        div.custom-kpi:
+                            span.kpi-label: "درجة الحرارة"
+                            strong.kpi-value(text: active_cabin == "pool" ? "24°C" : "22°C"): ""
+                            span.kpi-trend: "ثابت"
+
+    style:
+        .console-device:
+            background: "#faf8f5"
+            color: "#1a1a1c"
+            font-family: "Playfair Display"
+            width: 100%
+            min-height: 100vh
+            display: flex
+            align-items: center
+            justify-content: center
+        .device-chassis:
+            width: 100%
+            max-width: 960px
+            background: rgba(255, 255, 255, 0.9)
+            backdrop-filter: blur(20px)
+            border: 1px solid rgba(212, 175, 55, 0.25)
+            border-radius: 32px
+            box-shadow: 0 30px 60px rgba(212, 175, 55, 0.12)
+            padding: var(--component-padding, 2.5rem)
+            display: flex
+            flex-direction: column
+            gap: var(--component-gap, 2rem)
+        .device-header:
+            display: flex
+            justify-content: space-between
+            align-items: center
+            border: 1px solid rgba(212, 175, 55, 0.15)
+            border-radius: 16px
+            padding: 1rem 1.5rem
+            background: rgba(212, 175, 55, 0.05)
+        .brand-area:
+            display: flex
+            align-items: center
+            gap: 0.5rem
+        .brand-area h1:
+            margin: 0
+            font-family: "Cinzel"
+            font-size: 1.5rem
+            font-weight: bold
+            color: #d4af37
+        .logo-star:
+            color: #d4af37
+            font-size: 1.25rem
+        .status-area:
+            display: flex
+            align-items: center
+            gap: 0.75rem
+        .live-dot:
+            width: 10px
+            height: 10px
+            background-color: #d4af37
+            border-radius: 9999px
+        .status-area p:
+            margin: 0
+            font-size: 0.875rem
+            color: #1a1a1c
+            font-weight: bold
+        .panel-left:
+            display: flex
+            flex-direction: column
+            gap: 1.5rem
+            padding: 1rem
+        .panel-left h2:
+            margin: 0
+            font-family: "Cinzel"
+            font-size: 1.75rem
+            color: #1a1a1c
+        .panel-left p.subtitle:
+            margin: 0
+            font-size: 0.95rem
+            color: rgba(26, 26, 28, 0.6)
+        .control-block:
+            display: flex
+            flex-direction: column
+            gap: 0.75rem
+        .section-label:
+            margin: 0
+            font-weight: bold
+            font-size: 0.85rem
+            letter-spacing: 0.05em
+            text-transform: uppercase
+            color: #d4af37
+        .button-group:
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+        .btn-gold:
+            background: linear-gradient(135deg, #faf8f5 0%, #d4af37 100%)
+            color: #1a1a1c
+            font-weight: bold
+            border: 1px solid #d4af37
+            border-radius: 12px
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2)
+            padding: 0.75rem 1rem
+            text-align: center
+            cursor: pointer
+            transition: all 180ms ease
+        .btn-gold:hover:
+            transform: translateY(-1px)
+            box-shadow: 0 6px 18px rgba(212, 175, 55, 0.35)
+        .btn-subtle:
+            background: rgba(26, 26, 28, 0.04)
+            color: #1a1a1c
+            border: 1px solid rgba(26, 26, 28, 0.08)
+            border-radius: 12px
+            padding: 0.75rem 1rem
+            text-align: center
+            cursor: pointer
+            transition: all 180ms ease
+        .btn-subtle:hover:
+            background: rgba(26, 26, 28, 0.08)
+            border-color: rgba(212, 175, 55, 0.3)
+        .panel-right:
+            display: flex
+            flex-direction: column
+            gap: 1.5rem
+            padding: 1rem
+            border: 1px solid rgba(26, 26, 28, 0.05)
+            border-radius: 24px
+            background: rgba(26, 26, 28, 0.02)
+        .portal-frame:
+            display: flex
+            flex-direction: column
+            gap: 1rem
+        .portal-img:
+            height: 240px
+            background-size: cover
+            background-position: center
+            border-radius: 20px
+        .portal-meta:
+            display: flex
+            flex-direction: column
+            gap: 0.25rem
+        .portal-meta h3:
+            margin: 0
+            font-family: "Cinzel"
+            font-size: 1.25rem
+            color: #1a1a1c
+        .portal-meta p:
+            margin: 0
+            font-size: 0.85rem
+            color: #d4af37
+            font-weight: bold
+        .dials-grid:
+            display: grid
+            grid-template-columns: var(--component-columns, repeat(2, minmax(0, 1fr)))
+            gap: 1rem
+        .mini-card:
+            display: flex
+            flex-direction: column
+            gap: 0.5rem
+            background: white
+            border: 1px solid rgba(212, 175, 55, 0.15)
+            border-radius: 16px
+            padding: 1rem
+        .card-label:
+            margin: 0
+            font-size: 0.8rem
+            font-weight: bold
+            color: rgba(26, 26, 28, 0.5)
+        .button-group-row:
+            display: flex
+            gap: 0.5rem
+        .btn-gold-sm:
+            background: linear-gradient(135deg, #faf8f5 0%, #d4af37 100%)
+            color: #1a1a1c
+            font-weight: bold
+            border: 1px solid #d4af37
+            border-radius: 8px
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15)
+            padding: 0.5rem 0.75rem
+            text-align: center
+            cursor: pointer
+            transition: all 180ms ease
+            font-size: 0.875rem
+        .btn-gold-sm:hover:
+            transform: translateY(-1px)
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25)
+        .btn-subtle-sm:
+            background: rgba(26, 26, 28, 0.04)
+            color: #1a1a1c
+            border: 1px solid rgba(26, 26, 28, 0.08)
+            border-radius: 8px
+            padding: 0.5rem 0.75rem
+            text-align: center
+            cursor: pointer
+            transition: all 180ms ease
+            font-size: 0.875rem
+        .btn-subtle-sm:hover:
+            background: rgba(26, 26, 28, 0.08)
+            border-color: rgba(212, 175, 55, 0.3)
+        .device-indicators:
+            border: 1px solid rgba(212, 175, 55, 0.15)
+            border-radius: 20px
+            padding: 1.25rem
+            background: white
+        .kpis-grid:
+            display: grid
+            grid-template-columns: var(--component-columns, repeat(3, minmax(0, 1fr)))
+            gap: 1rem
+        .custom-kpi:
+            display: flex
+            flex-direction: column
+            align-items: center
+            justify-content: center
+            padding: 0.75rem
+            border: 1px solid rgba(26, 26, 28, 0.05)
+            border-radius: 12px
+            background: rgba(26, 26, 28, 0.01)
+        .kpi-label:
+            font-size: 0.8rem
+            color: rgba(26, 26, 28, 0.5)
+            margin-bottom: 0.25rem
+        .kpi-value:
+            font-family: "Cinzel"
+            font-size: 1.5rem
+            font-weight: bold
+            color: #1a1a1c
+        .kpi-trend:
+            font-size: 0.75rem
+            color: #d4af37
+            font-weight: bold
+            margin-top: 0.25rem

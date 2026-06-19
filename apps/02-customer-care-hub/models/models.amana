@@ -1,0 +1,94 @@
+model Agent:
+    name: str required min 2 max 90
+    email: email unique required
+    password: password required min 8
+    role: str default "agent"
+    department: str default "Support"
+    status: str default "online"
+    avatar_initials: str default "AG"
+    tickets_resolved: int default 0
+    satisfaction_score: int default 95
+    permit public create Agent fields [name, email, password]
+    permit public register Agent fields [name, email, password]
+    permit Admin manage Agent
+    permit Agent read Agent fields [name, email, role, department, status, tickets_resolved, satisfaction_score]
+
+model Ticket:
+    subject: str required max 200
+    description: str required max 2000
+    status: str default "open"
+    priority: str default "medium"
+    category: str default "general"
+    customer_id: int
+    customer_name: str required max 120
+    customer_email: email required
+    assigned_agent_id: int
+    assigned_agent_name: str default "Unassigned"
+    channel: str default "email"
+    sentiment: str default "neutral"
+    response_time_hours: int default 0
+    resolved_at: str default ""
+    sla_breach: bool default false
+    tags: str default ""
+    permit Admin manage Ticket
+    permit Agent read Ticket fields [subject, description, status, priority, category, customer_name, customer_email, assigned_agent_name, channel, sentiment, response_time_hours, sla_breach, tags]
+    permit Agent update Ticket fields [status, priority, assigned_agent_id, assigned_agent_name, tags]
+
+model TicketMessage:
+    ticket_id: int required
+    sender_name: str required max 90
+    sender_role: str default "customer"
+    content: str required max 5000
+    is_internal: bool default false
+    permit Admin manage TicketMessage
+    permit Agent read TicketMessage fields [ticket_id, sender_name, sender_role, content, is_internal]
+    permit Agent create TicketMessage fields [ticket_id, sender_name, sender_role, content, is_internal]
+
+model Customer:
+    name: str required max 120
+    email: email unique required
+    company: str required max 120
+    plan: str default "starter"
+    status: str default "active"
+    total_tickets: int default 0
+    open_tickets: int default 0
+    satisfaction_score: int default 90
+    lifetime_value: money default 0
+    last_contact: str default ""
+    notes: str default ""
+    permit Admin manage Customer
+    permit Agent read Customer fields [name, email, company, plan, status, total_tickets, open_tickets, satisfaction_score, lifetime_value, last_contact]
+    permit Agent update Customer fields [notes, status]
+
+model KnowledgeArticle:
+    title: str required max 200
+    content: str required max 10000
+    category: str default "general"
+    status: str default "published"
+    views: int default 0
+    helpful_votes: int default 0
+    author_name: str required max 90
+    permit Admin manage KnowledgeArticle
+    permit Agent read KnowledgeArticle fields [title, category, status, views, helpful_votes, author_name]
+    permit Agent create KnowledgeArticle fields [title, content, category, author_name]
+    permit Agent update KnowledgeArticle fields [content, status]
+
+model SatisfactionSurvey:
+    ticket_id: int required
+    customer_name: str required max 120
+    score: int required min 1
+    feedback: str default ""
+    resolved: bool default true
+    permit Admin manage SatisfactionSurvey
+    permit Agent read SatisfactionSurvey fields [ticket_id, customer_name, score, feedback, resolved]
+    permit public create SatisfactionSurvey fields [ticket_id, customer_name, score, feedback]
+
+model DailyMetric:
+    date_label: str required max 20
+    tickets_received: int default 0
+    tickets_resolved: int default 0
+    avg_response_hours: int default 0
+    satisfaction_avg: int default 0
+    sla_compliance: int default 0
+    permit Admin manage DailyMetric
+    permit Agent read DailyMetric fields [date_label, tickets_received, tickets_resolved, avg_response_hours, satisfaction_avg, sla_compliance]

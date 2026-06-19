@@ -1,0 +1,16 @@
+app AiChatWorkspace:
+    title: "AI Chat Workspace"
+    db_path: "chat.db"
+    auth_model: User
+    capabilities:
+        - auth
+        - time
+
+import "./config/theme.amana"
+import "./models/models.amana"
+import "./seeds/seeds.amana"
+import "./routes/routes.amana"
+import "./views/login.amana"
+import "./views/chat.amana"
+import "./views/prompts.amana"
+import "./views/settings.amana"

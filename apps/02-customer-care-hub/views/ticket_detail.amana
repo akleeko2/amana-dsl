@@ -1,0 +1,434 @@
+view TicketDetail:
+    protected:
+        allow: Agent.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+
+    canvas:
+        layout: dashboard-shell
+        density: comfortable
+
+    server:
+        fetch ticket = Ticket.find(params.id)
+        fetch messages = TicketMessage.filter(ticket_id: params.id, limit: 50)
+
+    client:
+        state reply_open = false
+        state message_content = ""
+
+    render:
+        div.app-shell:
+            nav.side-rail:
+                div.rail-brand:
+                    div.rail-logo: "⬡"
+                    div.rail-brand-name: "Care Hub"
+                div.rail-nav:
+                    a.rail-link(href: "/dashboard"):
+                        div.rail-icon: "◈"
+                        span.rail-label: "Dashboard"
+                    a.rail-link.active(href: "/tickets"):
+                        div.rail-icon: "⊡"
+                        span.rail-label: "Tickets"
+                    a.rail-link(href: "/customers"):
+                        div.rail-icon: "◎"
+                        span.rail-label: "Customers"
+                    a.rail-link(href: "/agents"):
+                        div.rail-icon: "⊛"
+                        span.rail-label: "Agents"
+                    a.rail-link(href: "/reports"):
+                        div.rail-icon: "▤"
+                        span.rail-label: "Reports"
+                div.rail-footer:
+                    div.rail-agent:
+                        div.rail-avatar: "SC"
+                        div.rail-agent-info:
+                            div.rail-agent-name: Agent.current.name
+                            div.rail-agent-role: Agent.current.role
+
+            main.dashboard-main:
+                header.dash-header:
+                    div.dash-header-inner:
+                        a.back-link(href: "/tickets"): "← All Tickets"
+                        div.ticket-header-meta:
+                            Badge(label: ticket.priority, tone: "warning")
+                            Badge(label: ticket.status, tone: "info")
+                    div.dash-actions:
+                        Button(label: "Resolve", variant: "primary-glow")
+                        Button(label: "Assign", variant: "ghost")
+
+                div.ticket-detail-grid:
+                    div.ticket-thread-col:
+                        div.ticket-subject-panel:
+                            h1.ticket-subject: ticket.subject
+                            div.ticket-meta-row:
+                                span.ticket-from: f"From: {ticket.customer_name}"
+                                span.separator: "·"
+                                span.ticket-channel: ticket.channel
+                                span.separator: "·"
+                                span.ticket-sentiment: ticket.sentiment
+
+                        div.message-thread:
+                            for message in messages:
+                                div.message-item:
+                                    div.message-avatar: message.sender_name
+                                    div.message-body:
+                                        div.message-header-row:
+                                            span.message-sender: message.sender_name
+                                            span.message-role-badge: message.sender_role
+                                        div.message-content: message.content
+                            EmptyState(title: "No messages yet", description: "Add a reply to start the conversation")
+
+                        div.reply-panel(show: reply_open):
+                            h3.reply-title: "Write a Reply"
+                            form [content, ticket_id, sender_name, sender_role]:
+                                connect TicketMessage.create
+                                default ticket_id = ticket.id
+                                default sender_name = Agent.current.name
+                                default sender_role = "agent"
+                                submit: "Send Reply"
+                                redirect success -> /tickets
+                                field content:
+                                    label: "Reply"
+                                    type: textarea
+                                    placeholder: "Write your response to the customer..."
+                                    required: true
+
+                        div.reply-toggle-bar:
+                            Button(label: "Reply to Customer", click: reply_open = true, variant: "primary-glow")
+                            Button(label: "Add Internal Note", click: reply_open = true, variant: "ghost")
+
+                    div.ticket-info-col:
+                        div.info-panel:
+                            Accordion:
+                                panel "Ticket Details":
+                                    div.info-row:
+                                        div.info-key: "Priority"
+                                        div.info-val: ticket.priority
+                                    div.info-row:
+                                        div.info-key: "Status"
+                                        div.info-val: ticket.status
+                                    div.info-row:
+                                        div.info-key: "Category"
+                                        div.info-val: ticket.category
+                                    div.info-row:
+                                        div.info-key: "Channel"
+                                        div.info-val: ticket.channel
+                                    div.info-row:
+                                        div.info-key: "SLA Breach"
+                                        div.info-val: ticket.sla_breach
+                                panel "Assigned Agent":
+                                    div.info-agent:
+                                        div.info-agent-avatar: "MJ"
+                                        div.info-agent-name: ticket.assigned_agent_name
+                                panel "Customer":
+                                    div.info-row:
+                                        div.info-key: "Name"
+                                        div.info-val: ticket.customer_name
+                                    div.info-row:
+                                        div.info-key: "Email"
+                                        div.info-val: ticket.customer_email
+                                panel "Tags":
+                                    div.tags-list: ticket.tags
+
+                        div.update-panel:
+                            h3.update-title: "Update Ticket"
+                            form [status, priority, assigned_agent_name, id]:
+                                connect Ticket.update
+                                where id = ticket.id
+                                submit: "Update"
+                                redirect success -> /tickets
+                                field status:
+                                    label: "Status"
+                                    placeholder: "open"
+                                field priority:
+                                    label: "Priority"
+                                    placeholder: "medium"
+                                field assigned_agent_name:
+                                    label: "Assigned Agent"
+                                    placeholder: "Agent name"
+
+    style:
+        .app-shell:
+            display: "flex"
+            background: "#0f1117"
+            width: "100%"
+            height: "100%"
+            min-height: "0"
+            overflow: "hidden"
+        .side-rail:
+            width: "240px"
+            height: "100%"
+            min-height: "0"
+            background: "rgba(15, 17, 23, 0.98)"
+            border-right: "1px solid rgba(255, 255, 255, 0.06)"
+            display: "flex"
+            flex-direction: "column"
+            position: "sticky"
+            top: "0"
+            flex-shrink: "0"
+        .rail-brand:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+            padding: "1.5rem 1.25rem 1.25rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+        .rail-logo:
+            font-size: "1.5rem"
+            color: "#6366f1"
+        .rail-brand-name:
+            font-size: "0.95rem"
+            font-weight: "700"
+            color: "#f1f5f9"
+        .rail-nav:
+            flex: "1"
+            padding: "1rem 0.75rem"
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.25rem"
+        .rail-link:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+            padding: "0.65rem 0.75rem"
+            border-radius: "10px"
+            color: "#64748b"
+            text-decoration: "none"
+            font-size: "0.88rem"
+            font-weight: "500"
+            transition: "all 180ms ease"
+        .rail-link:hover:
+            background: "rgba(99, 102, 241, 0.1)"
+            color: "#a5b4fc"
+        .rail-link.active:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+            padding: "0.65rem 0.75rem"
+            border-radius: "10px"
+            background: "rgba(99, 102, 241, 0.15)"
+            color: "#a5b4fc"
+            text-decoration: "none"
+            font-size: "0.88rem"
+            font-weight: "600"
+        .rail-icon:
+            font-size: "1.1rem"
+            flex-shrink: "0"
+            width: "20px"
+            text-align: "center"
+        .rail-footer:
+            padding: "1rem 0.75rem 1.5rem"
+            border-top: "1px solid rgba(255, 255, 255, 0.05)"
+        .rail-agent:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+        .rail-avatar:
+            width: "34px"
+            height: "34px"
+            border-radius: "999px"
+            background: "linear-gradient(135deg, #6366f1, #22d3ee)"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-weight: "700"
+            font-size: "0.75rem"
+            color: "#ffffff"
+            flex-shrink: "0"
+        .rail-agent-name:
+            font-size: "0.82rem"
+            font-weight: "600"
+            color: "#e2e8f0"
+        .rail-agent-role:
+            font-size: "0.72rem"
+            color: "#475569"
+        .rail-agent-info:
+            flex: "1"
+        .dashboard-main:
+            flex: "1"
+            min-height: "0"
+            overflow-y: "auto"
+            display: "flex"
+            flex-direction: "column"
+            min-width: "0"
+        .dash-header:
+            display: "flex"
+            align-items: "center"
+            justify-content: "space-between"
+            padding: "1.25rem 2rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+            background: "rgba(15, 17, 23, 0.7)"
+            backdrop-filter: "blur(20px)"
+            position: "sticky"
+            top: "0"
+            z-index: "10"
+        .dash-header-inner:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.5rem"
+        .back-link:
+            font-size: "0.82rem"
+            color: "#6366f1"
+            text-decoration: "none"
+            font-weight: "500"
+        .back-link:hover:
+            color: "#a5b4fc"
+        .ticket-header-meta:
+            display: "flex"
+            gap: "0.5rem"
+            align-items: "center"
+        .dash-actions:
+            display: "flex"
+            gap: "0.75rem"
+        .ticket-detail-grid:
+            display: "grid"
+            grid-template-columns: "1fr 300px"
+            gap: "1.5rem"
+            padding: "1.5rem 2rem"
+            flex: "1"
+            align-items: "start"
+        .ticket-thread-col:
+            display: "flex"
+            flex-direction: "column"
+            gap: "1.25rem"
+        .ticket-subject-panel:
+            background: "rgba(22, 27, 39, 0.9)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "14px"
+            padding: "1.5rem"
+        .ticket-subject:
+            font-size: "1.3rem"
+            font-weight: "700"
+            color: "#f1f5f9"
+            margin: "0 0 0.75rem"
+        .ticket-meta-row:
+            display: "flex"
+            gap: "0.5rem"
+            align-items: "center"
+            font-size: "0.8rem"
+            color: "#64748b"
+        .separator:
+            color: "#2d3748"
+        .message-thread:
+            background: "rgba(22, 27, 39, 0.9)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "14px"
+            padding: "1.25rem"
+            display: "flex"
+            flex-direction: "column"
+            gap: "1rem"
+            min-height: "200px"
+        .message-item:
+            display: "flex"
+            gap: "0.85rem"
+        .message-avatar:
+            width: "34px"
+            height: "34px"
+            border-radius: "999px"
+            background: "linear-gradient(135deg, #6366f1, #22d3ee)"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-size: "0.65rem"
+            font-weight: "700"
+            color: "#ffffff"
+            flex-shrink: "0"
+        .message-body:
+            flex: "1"
+        .message-header-row:
+            display: "flex"
+            gap: "0.5rem"
+            align-items: "center"
+            margin-bottom: "0.35rem"
+        .message-sender:
+            font-size: "0.82rem"
+            font-weight: "600"
+            color: "#e2e8f0"
+        .message-role-badge:
+            font-size: "0.68rem"
+            color: "#6366f1"
+            background: "rgba(99, 102, 241, 0.1)"
+            border-radius: "999px"
+            padding: "0.1rem 0.45rem"
+        .message-content:
+            font-size: "0.88rem"
+            color: "#94a3b8"
+            line-height: "1.65"
+        .reply-panel:
+            background: "rgba(22, 27, 39, 0.9)"
+            border: "1px solid rgba(99, 102, 241, 0.15)"
+            border-radius: "14px"
+            padding: "1.5rem"
+        .reply-title:
+            font-size: "0.95rem"
+            font-weight: "700"
+            color: "#f1f5f9"
+            margin: "0 0 1rem"
+        .reply-toggle-bar:
+            display: "flex"
+            gap: "0.75rem"
+        .ticket-info-col:
+            display: "flex"
+            flex-direction: "column"
+            gap: "1rem"
+        .info-panel:
+            background: "rgba(22, 27, 39, 0.9)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "14px"
+            padding: "1.25rem"
+        .info-section:
+            margin-bottom: "1.25rem"
+            padding-bottom: "1.25rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+        .info-heading:
+            font-size: "0.72rem"
+            font-weight: "700"
+            color: "#6366f1"
+            text-transform: "uppercase"
+            letter-spacing: "0.08em"
+            margin-bottom: "0.75rem"
+        .info-row:
+            display: "flex"
+            justify-content: "space-between"
+            padding: "0.35rem 0"
+        .info-key:
+            font-size: "0.78rem"
+            color: "#475569"
+        .info-val:
+            font-size: "0.78rem"
+            color: "#e2e8f0"
+            font-weight: "500"
+        .info-agent:
+            display: "flex"
+            align-items: "center"
+            gap: "0.6rem"
+        .info-agent-avatar:
+            width: "28px"
+            height: "28px"
+            border-radius: "999px"
+            background: "linear-gradient(135deg, #6366f1, #22d3ee)"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-size: "0.65rem"
+            font-weight: "700"
+            color: "#ffffff"
+        .info-agent-name:
+            font-size: "0.82rem"
+            color: "#e2e8f0"
+            font-weight: "500"
+        .tags-list:
+            font-size: "0.78rem"
+            color: "#6366f1"
+            display: "flex"
+            gap: "0.4rem"
+            flex-wrap: "wrap"
+        .update-panel:
+            background: "rgba(22, 27, 39, 0.9)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "14px"
+            padding: "1.25rem"
+        .update-title:
+            font-size: "0.9rem"
+            font-weight: "700"
+            color: "#f1f5f9"
+            margin: "0 0 1rem"

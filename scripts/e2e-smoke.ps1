@@ -1,10 +1,15 @@
 param(
-    [string]$Source = "examples/teamboard.amana",
+    [Parameter(Mandatory = $true)]
+    [string]$Source,
     [string]$Output = ".amana_e2e_dist",
     [int]$Port = 3210
 )
 
 $ErrorActionPreference = "Stop"
+
+if (!(Test-Path -LiteralPath $Source)) {
+    throw "Source file '$Source' does not exist. Pass a real .amana entry file, for example: scripts/e2e-smoke.ps1 -Source path\to\app.amana"
+}
 
 Write-Host "[Amana E2E] Building Amana CLI..."
 cargo build

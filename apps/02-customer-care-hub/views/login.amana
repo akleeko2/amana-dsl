@@ -1,0 +1,139 @@
+view Login:
+    canvas:
+        layout: column
+        density: comfortable
+
+    render:
+        div.auth-shell:
+            div.auth-left:
+                div.auth-brand:
+                    div.auth-logo: "⬡"
+                    div.auth-brand-name: "Customer Care Hub"
+                div.auth-headline: "Welcome back"
+                div.auth-sub: "Sign in to your support workspace"
+                div.auth-form-wrap:
+                    form [email, password]:
+                        connect Agent.login
+                        submit: "Sign In"
+                        redirect success -> /dashboard
+                        field email:
+                            label: "Email address"
+                            type: "email"
+                            placeholder: "you@company.com"
+                            required: true
+                        field password:
+                            label: "Password"
+                            placeholder: "••••••••"
+                            required: true
+                div.auth-footer:
+                    p: "Don't have an account? "
+                    a(href: "/signup"): "Create workspace"
+            div.auth-right:
+                div.auth-visual:
+                    div.auth-visual-card:
+                        div.visual-header: "Today's Snapshot"
+                        div.visual-stats:
+                            div.visual-stat:
+                                div.visual-stat-num: "47"
+                                div.visual-stat-label: "Open Tickets"
+                            div.visual-stat:
+                                div.visual-stat-num: "94%"
+                                div.visual-stat-label: "CSAT Score"
+                            div.visual-stat:
+                                div.visual-stat-num: "2.3h"
+                                div.visual-stat-label: "Avg Response"
+                    div.auth-visual-badge: "🏆 #1 Rated Support Platform 2025"
+
+    style:
+        .auth-shell:
+            display: "flex"
+            min-height: "100vh"
+            background: "#0f1117"
+        .auth-left:
+            flex: "1"
+            display: "flex"
+            flex-direction: "column"
+            justify-content: "center"
+            padding: "3rem 4rem"
+            max-width: "520px"
+        .auth-brand:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+            margin-bottom: "3rem"
+        .auth-logo:
+            font-size: "1.8rem"
+            color: "#6366f1"
+        .auth-brand-name:
+            font-size: "1.05rem"
+            font-weight: "700"
+            color: "#f1f5f9"
+        .auth-headline:
+            font-size: "2rem"
+            font-weight: "800"
+            color: "#f1f5f9"
+            margin-bottom: "0.4rem"
+        .auth-sub:
+            color: "#64748b"
+            font-size: "0.95rem"
+            margin-bottom: "2.5rem"
+        .auth-form-wrap:
+            width: "100%"
+        .auth-footer:
+            display: "flex"
+            gap: "0.3rem"
+            margin-top: "1.5rem"
+            font-size: "0.88rem"
+            color: "#64748b"
+        .auth-right:
+            flex: "1"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            background: "rgba(30, 37, 56, 0.5)"
+            border-left: "1px solid rgba(255, 255, 255, 0.06)"
+            padding: "3rem"
+        .auth-visual:
+            display: "flex"
+            flex-direction: "column"
+            gap: "1.5rem"
+            align-items: "center"
+        .auth-visual-card:
+            background: "rgba(30, 37, 56, 0.9)"
+            border: "1px solid rgba(255, 255, 255, 0.08)"
+            border-radius: "20px"
+            padding: "2rem 2.5rem"
+            backdrop-filter: "blur(20px)"
+            box-shadow: "0 20px 60px rgba(0, 0, 0, 0.5)"
+            width: "340px"
+        .visual-header:
+            font-size: "0.78rem"
+            font-weight: "700"
+            color: "#6366f1"
+            text-transform: "uppercase"
+            letter-spacing: "0.1em"
+            margin-bottom: "1.5rem"
+        .visual-stats:
+            display: "grid"
+            grid-template-columns: "repeat(3, 1fr)"
+            gap: "1rem"
+            text-align: "center"
+        .visual-stat-num:
+            font-size: "1.75rem"
+            font-weight: "800"
+            background: "linear-gradient(135deg, #6366f1, #22d3ee)"
+            -webkit-background-clip: "text"
+            -webkit-text-fill-color: "transparent"
+            background-clip: "text"
+        .visual-stat-label:
+            font-size: "0.72rem"
+            color: "#475569"
+            margin-top: "0.2rem"
+        .auth-visual-badge:
+            background: "rgba(99, 102, 241, 0.12)"
+            border: "1px solid rgba(99, 102, 241, 0.2)"
+            border-radius: "999px"
+            padding: "0.5rem 1.25rem"
+            font-size: "0.82rem"
+            color: "#a5b4fc"
+            font-weight: "500"

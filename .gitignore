@@ -16,14 +16,19 @@ pnpm-debug.log*
 .lerna
 
 # Amana Compiler Outputs & Temporary Dist Directories
-dist/
-test_dist/
+/dist/
+/test_dist/
+/examples_dist/
+/examples_dist_test/
+/royal_deck_dist/
 .amana_verify_dist/
 .amana_saas_dist/
 .amana_tasks_dist/
 .amana_medical_dist/
 .amana_forge_verify_dist/
+.amana_live_dist/
 .amana_*_dist/
+*_dist/
 
 # SQLite & Databases
 *.db
@@ -64,3 +69,11 @@ examples/*_dist/
 # Amana build plan & issues
 AMANA_BUILD_PLAN.md
 مشاكل لغة امانة*.md
+
+# Scratch, drafts, and personal planning artifacts (not part of the project)
+/scratch/
+/المستقبل/
+/task.md
+/task_*.md
+/notes/
+/tmp/
