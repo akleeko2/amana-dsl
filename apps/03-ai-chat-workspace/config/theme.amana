@@ -1,0 +1,12 @@
+theme:
+    mode: dark
+    direction: ltr
+    primary: "#0ea5e9"
+    accent: "#10b981"
+    canvas: "#0f172a"
+    text: "#f8fafc"
+    radius: soft
+    density: comfortable
+    font_provider: google
+    font_family: "Inter"
+    arabic_font_family: "Tajawal"

@@ -1,359 +1,839 @@
-# Amana Language Reference (DSL v2.1)
+# Amana Language Reference
 
-Amana is a single-source domain-specific language (DSL) for building hardened full-stack web applications. An Amana source graph is compiled directly into a Node.js/Express backend with pre-compiled EJS templates, an automated SQLite migration/seed engine, and Alpine.js client-side interactivity.
+This document describes the Amana language as implemented in the compiler source. It does not use the old examples or tests as authority. For exhaustive generated lists, see [language-inventory.generated.md](language-inventory.generated.md).
 
----
+## Compiler Pipeline
 
-## 🏛️ Program Structure & File Shape
+An `.amana` source graph is compiled through these stages:
 
-An Amana application consists of top-level blocks. These blocks can be organized in a single file or modularized across multiple files using relative imports:
+1. Import resolution in `src/main.rs`.
+2. Lexing in `src/lexer/mod.rs`.
+3. Parsing in `src/parser/*`.
+4. Semantic validation in `src/semantic/*`.
+5. AST optimization and IR generation in `src/semantic/optimizer.rs` and `src/semantic/ir_gen.rs`.
+6. Express/EJS/SQLite project generation in `src/codegen/*`.
+
+The generated backend target is currently `express-node`.
+
+## File Graph And Imports
+
+Imports are handled before lexing/parsing each file.
 
 ```amana
-# 1. Imports (Optional, can be declared anywhere in the file)
-import "./models/user.amana"
-import "./views/dashboard.amana"
+import "./models.amana"
+import "./views/home.amana"
+```
 
-# 2. Application Definition
-app CyberConsole:
-    title: "Vortex Command Center"
-    db_path: "cyber_console.db"
+Rules:
+
+- Imports may appear anywhere in a file. The preprocessor strips import lines before parsing.
+- Paths must be quoted strings.
+- Relative imports are resolved from the importing file's directory.
+- Duplicate imports are deduplicated by canonical path.
+- Circular imports fail with an imports-stage diagnostic.
+- Duplicate top-level public symbols across the resolved graph fail before IR generation. `model`, `view`, and `component` share one symbol namespace; route paths and variant targets are checked separately.
+- `amana fmt --all` traverses the same import graph.
+
+## Lexical Rules
+
+Amana is indentation-sensitive.
+
+- Spaces are required for indentation. Tabs are lexer errors.
+- Blank lines and full-line comments are skipped.
+- `#` starts a comment unless followed by an ASCII alphanumeric character, in which case it is lexed as a `HashColor`.
+- Identifiers are ASCII letters, digits, and underscores; the first character must be a letter or underscore.
+- Strings support `"single line"`, `"""multi-line"""`, and formatted strings like `f"Hello {name}"`.
+- Numbers are parsed as `f64` internally.
+- Route arrows use `->`; the lexer also recognizes the Unicode arrow if present.
+
+Reserved words:
+
+```text
+app model route view component protected server client render state form
+if else for in permit fetch style variant slot optional tokens
+str int float bool email password datetime money true false null and or not
+```
+
+Operators and punctuation:
+
+```text
++ - * / == != > < >= <= = ? : . , -> % ( ) [ ]
+```
+
+Ternary expressions using `condition ? then_value : else_value` are parsed and emitted through the runtime expression path.
+
+## Top-Level Blocks
+
+Implemented top-level parse nodes:
+
+```text
+app, theme, model, seed, route, view, component, variant, tokens
+```
+
+Current status:
+
+| Block | Status |
+| --- | --- |
+| `app` | Parsed, validated indirectly, emitted into IR/runtime. |
+| `theme` | Parsed, semantically validated, emitted into runtime CSS. |
+| `model` | Parsed, validated through usage, emitted into SQLite schema. |
+| `seed` | Parsed, semantically validated, emitted into runtime seed engine. |
+| `route` | Parsed, validated through referenced views, emitted into Express routes. |
+| `view` | Parsed, semantically validated, emitted into EJS views. |
+| `component` | Parsed, semantically validated when used, inlined into view IR. |
+| `variant` | Parsed, semantically validated, preserved in IR, and emitted as target-specific runtime CSS. |
+| `tokens` | Parsed into AST, preserved in IR, and emitted as generated CSS variables. |
+| `permit` inside `model` | Parsed into `ModelDecl.permissions`, emitted into IR, and enforced by the generated runtime for REST, forms, and server fetches. |
+
+## App Block
+
+```amana
+app AdminPanel:
+    title: "Admin Panel"
+    db_path: "admin.db"
     auth_model: User
     capabilities:
         - auth
         - api.rest
+        - time
+```
 
-# 3. Global Styling Theme
+Supported keys:
+
+- `title`: string; defaults to app name.
+- `db_path`: string; defaults to `app.db`.
+- `auth_model`: identifier; defaults to `User`.
+- `capabilities`: bracket list of strings or indented dash list. Dotted names such as `network.outbound` are supported in the dash form.
+
+Recognized runtime capabilities:
+
+- `auth`: enables auth standard library access and auth-oriented form actions against the configured auth model.
+- `api.rest`: emits REST endpoints under `/api/<table>`.
+- `time`: allows server fetches from `time.now()`.
+- `network.outbound`: allows server fetches from `http.get(...)` and `http.post(...)`.
+
+If no `app` block is present, the compiler uses:
+
+```text
+name = AmanaApp
+title = Amana Generated App
+db_path = app.db
+auth_model = User
+capabilities = []
+```
+
+## Theme Block
+
+```amana
 theme:
     mode: dark
-    direction: ltr
-    language: en
+    direction: rtl
+    language: ar
     font_provider: google
-    font_family: "Space Mono"
-    heading_font_family: "Orbitron"
-    primary: "#10b981"      # Emerald
-    accent: "#ff007f"       # Neon Pink
-    canvas: "#020813"
+    font_family: "Inter"
+    arabic_font_family: "Tajawal"
+    primary: "#4f46e5"
+    accent: "#06b6d4"
     radius: soft
-    surface: glass
     density: comfortable
+```
 
-# 4. Data Models & Seeding
-model Ticket:
-    title: str required min 3 max 100
-    user_id: int required foreign_key User(id) on_delete CASCADE
-    severity: str default "low"
+Theme keys are allowlisted. Unknown keys fail semantic validation and may include a spelling suggestion.
 
-seed Ticket:
+> [!IMPORTANT]
+> No new theme system or custom component registry is supported. The baseline fallback theme remains `indigo`/`cyan`.
+
+Closed-value keys:
+
+- `mode`: `dark`, `night`, `day`, `light`.
+- `direction`: `ltr`, `rtl`.
+- `radius`: `none`, `sharp`, `soft`, `round`, `pill`.
+- `density`: `compact`, `comfortable`, `spacious`.
+- `font_provider`: `system`, `google`.
+
+Theme value safety:
+
+- Values containing `javascript:`, `expression(`, `<script`, `</style`, `behavior:`, `;`, `{`, or `}` are rejected.
+- Font values have an 80-character limit and restricted characters.
+- Other values have a 260-character limit and restricted characters.
+
+See the generated inventory for the complete key list.
+
+## Models
+
+```amana
+model User:
+    email: email unique required
+    password: password required min 8
+    role: str default "member"
+
+model Project:
+    name: str required max 120
+    owner_id: int foreign_key User(id) on_delete CASCADE
+```
+
+Types:
+
+- `str`: SQLite `TEXT`.
+- `int`: SQLite `INTEGER`.
+- `float`: SQLite `REAL`.
+- `bool`: SQLite `INTEGER`.
+- `email`: SQLite `TEXT`; treated as string-compatible.
+- `password`: SQLite `TEXT`; runtime hashes submitted values with Argon2.
+- `datetime`: SQLite `TEXT`.
+- `money`: SQLite `REAL`.
+- Custom identifiers are parsed as `DataType::Custom` and emitted as `TEXT` in SQL.
+
+Field modifiers:
+
+- `primary_key`
+- `unique`
+- `required`
+- `min <number>` or `min: <number>`
+- `max <number>` or `max: <number>`
+- `default "value"`, `default 10`, `default true`
+- `foreign_key Model(field)`
+- `on_delete CASCADE`
+- `on_delete SET NULL`
+
+Legacy bracket modifiers are also parsed:
+
+```amana
+model User:
+    email: email [unique, required]
+    age: int [min: 13, max: 130]
+    team_id: int [foreign_key: Team.id, on_delete: CASCADE]
+```
+
+SQL generation:
+
+- If no explicit primary key exists, codegen adds `"id" INTEGER PRIMARY KEY AUTOINCREMENT`.
+- Field names and table names are lowercased in generated SQL.
+- Table and column names are quoted to avoid reserved-word collisions.
+- `required` emits `NOT NULL` unless the field has a default or is primary key.
+- `min` and `max` emit SQL `CHECK` constraints. Text-like fields use `length(field)`.
+
+Model permissions:
+
+```amana
+model Project:
+    name: str
+    secret: str
+    owner_id: int
+    permit Manager read Project where owner_id = User.current.id fields [name]
+    permit Manager update Project where owner_id = User.current.id fields [name]
+```
+
+- A model with any `permit` rule is default-deny for that model.
+- `where` is row-level policy evaluated against the current row, submitted values, request scope, and current principal.
+- `fields` on `read` masks output fields. Allowed rows still include `id`; other fields are returned only when listed.
+- `fields` on `create` and `update` is a write allowlist. Submitted fields outside the matching rules are rejected.
+- `manage` and `*` match all actions; action aliases such as `list`, `find`, `write`, and `edit` are normalized by the runtime.
+
+## Seeds
+
+Two seed shapes are accepted.
+
+```amana
+seed PricingPlan:
     row:
-        title: "Database flux loops"
-        user_id: 1
-        severity: "critical"
+        name: "Starter"
+        price: 0
+    row:
+        name: "Pro"
+        price: 19
+```
 
-# 5. Route Mapping
+Single-row shorthand:
+
+```amana
+seed PricingPlan:
+    name: "Starter"
+    price: 0
+```
+
+Validation:
+
+- The model must exist.
+- Fields must exist on the model.
+- Duplicate fields in a row are rejected.
+- Required fields without defaults must be present.
+- Seed expression types must be compatible with field types.
+- `<auth_model>.current`, `User.current`, and equivalent auth-current expressions are forbidden in seeds because seeds run without a request session.
+
+Runtime behavior:
+
+- Seeds run by default outside production.
+- In production, seeds are skipped unless `AMANA_RUN_SEEDS=true`.
+- Password fields are hashed before insertion.
+
+## Routes
+
+Simple route:
+
+```amana
 route / -> view Home
-route /tickets/[id] -> view TicketDetails
+route /projects/[id] -> view ProjectDetails
+```
 
-# 6. View Declaration
-view Home:
+Block route:
+
+```amana
+route /admin:
+    guard User.current != null else redirect /login
+    fetch users = User.all(limit: 50)
+    view Admin
+```
+
+Rules:
+
+- Route paths must start with `/`.
+- Paths may contain identifiers, numbers, `-`, `/`, and bracket parameters such as `[id]`.
+- Bracket parameters become Express params and are readable through `params.id`.
+- Simple routes map directly to a view.
+- Block routes may declare `guard`, route-level `fetch`, and `view`.
+- If a view also has `protected:`, the view-level guard is used in IR; otherwise the first route-level guard is used.
+
+## Views
+
+```amana
+view Projects:
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+
     canvas:
         layout: column
-        surface: glass
         density: comfortable
-    client:
-        state active_tab = "overview"
+
     server:
-        fetch active_tickets = Ticket.filter(severity: "critical")
+        fetch projects = Project.filter(owner_id: User.current.id, limit: 50)
+
+    client:
+        state filter_open = false [persist: local]
+
     render:
-        div.app-shell:
-            Navbar(brand: "Vortex")
-            # Component layout and nodes...
+        div.page:
+            h1: "Projects"
+
+    style:
+        .page:
+            layout: column
+            gap: lg
 ```
 
----
+Supported view blocks:
 
-## 📦 Modular Architecture & Imports
+- `protected`
+- `canvas`
+- `server`
+- `client`
+- `render`
+- `style`
 
-Multi-file systems are managed using the `import` statement.
-
-### Flexible Import Placement
-- **Location Independence**: The compiler preprocessor scans and extracts `import` directives from *anywhere* in the source file before parsing. Although placing imports at the top is a standard styling convention, they can safely appear after `app` or `theme` definitions (as seen in modular portal entrypoints).
-- **Syntax**: `import "./path/to/file.amana"`
-- **Relative Resolution**: All imports are resolved relative to the directory of the file containing the import statement.
-- **Cycle Prevention**: Duplicate imports of the same file are deduplicated automatically when the dependency graph is constructed.
-
-### Compilation Behavior
-- **Checking**: Running `amana check main.amana` parses and semantically validates the entire imported graph.
-- **Formatting**: Running `amana fmt main.amana --all` formats the entry file and recursively traverses and formats all imported files in place.
-- **Building**: Compiling the entrypoint merges all model schemas, seeds, routes, and views into a single unified Express application target.
-
----
-
-## ⚙️ App Configuration
-
-The `app` block defines the system metadata and active features of the generated app:
-
-- `title`: The `<title>` tag of all rendered HTML headers, as well as the default branding string.
-- `db_path`: The filename of the auto-generated SQLite database (e.g. `"app.db"`).
-- `auth_model`: Points to the model class used to handle user sessions and authentication logic.
-- `capabilities`: Active feature layers. Supported values:
-  - `auth`: Automatically generates secure registration, login, logout, and session middleware.
-  - `api.rest`: Generates automatic CRUD REST API endpoints (`/api/v1/ModelName/`) secured by default.
-
----
-
-## 🎨 Theme System & Visual Configuration
-
-The `theme` block controls the compiler's generated design variables. These settings are compiled into root CSS custom properties (`var(--token-name)`) and passed to EJS layouts:
-
-- `mode`: Color scheme layout (`light`, `dark`, `day`, `night`).
-- `direction`: Text layout direction (`ltr` or `rtl`).
-- `language`: Locale string (e.g., `en`, `ar`). Enforces correct document lang properties.
-- `font_provider`: Font fetching backend (`system` or `google`).
-- `font_family`: Body font family.
-- `heading_font_family`: Header (`h1`, `h2`, etc.) font family.
-- `arabic_font_family`: Arabic-fallback text rendering font family (injected dynamically when `direction: rtl` or `language: ar`).
-- `primary` & `accent`: Base hex codes or CSS color strings.
-- `canvas`, `base`, `elevated`, `text`, `muted`, `border`: System colors mapping directly to UI components.
-- `radius`: Standard element curves (`sm`, `md`, `lg`, `xl`, `2xl`, or aliases like `soft` / `round` / `sharp`).
-- `surface`: Default backdrop visual layer style (`base`, `elevated`, `glass`, `layered`, `glass-layered`, etc.).
-- `density`: Layout margins and padding scale (`compact`, `comfortable`, `spacious`).
-- `gradient_hero`: Custom CSS background linear/radial gradient definition for main views.
-
----
-
-## 🗄️ Database Models & Schema Definition
-
-Amana models map directly to SQLite tables using a secure compiler schema validator.
-
-### Primitive Types
-- `str`: Text column.
-- `int`: 64-bit integer column.
-- `float`: Double-precision float column.
-- `bool`: Boolean column.
-- `email`: Text column validated against email formats.
-- `password`: Secure text column automatically hashed using **Argon2** inside form/auth middleware.
-- `datetime`: SQLite timestamp representation.
-- `money`: Formatted financial numeric decimal column.
-
-### Field Constraints
-- `required`: Field is non-nullable.
-- `unique`: Generates unique index constraints.
-- `min <number>`: Minimum string length or minimum numeric value.
-- `max <number>`: Maximum string length or maximum numeric value.
-- `default <expression>`: Default fallback value (e.g. `default "active"` or `default 0`).
-- `foreign_key Model(field)`: Configures database relational links.
-- `on_delete CASCADE`: Cascade deletion behavior for relational foreign key links.
-
----
-
-## 🌱 Database Seeding
-
-The `seed` block populates the SQLite database with starting entries during development compilation:
+### Protected
 
 ```amana
-seed ModelName:
-    row:
-        field_1: "Value 1"
-        field_2: 12.5
-    row:
-        field_1: "Value 2"
-        field_2: 45.0
+protected:
+    allow: User.current != null
+    deny: -> /forbidden
+    unauthenticated: -> /login
 ```
 
-### Static Evaluation Rule
-Seed expressions must be statically evaluatable at compile time.
-- **Forbidden**: Seeds cannot call dynamic runtime variables, request parameters, or context states (e.g. `<Model>.current` or `params.id`).
-- **Production Guard**: Seeds apply automatically in development. In production (`NODE_ENV=production`), seeds are disabled by default and require launching the server with `AMANA_RUN_SEEDS=true`.
+`allow` must evaluate to `bool`. `deny` and `unauthenticated` paths are used by runtime guards.
 
----
+### Server Fetches
 
-## 🛣️ Routing
-
-Routes map URL endpoints directly to view render pipelines:
-
-```amana
-route / -> view Home
-route /profile -> view Profile
-route /projects/[id] -> view ProjectPage
-```
-
-- **Static Routes**: Match exact URL segments.
-- **Dynamic Segment Parsing**: Brackets (`/[id]`, `/posts/[slug]`) translate to Express request path parameters (`req.params.id`).
-- Inside `server:` blocks, these parameters are accessible via the `params` namespace (e.g. `Project.find(params.id)`).
-
----
-
-## 📺 View Declarations
-
-Views define a route's visual structure, dynamic client state, server-side data fetching, and local styles:
-
-### 1. `canvas` block
-Sets default view settings:
-```amana
-canvas:
-    layout: column
-    surface: glass
-    density: comfortable
-```
-
-### 2. `client` block
-Declares client-side reactive state variables backed by **Alpine.js**:
-```amana
-client:
-    state active_tab = "overview"
-    state counter = 0
-    state show_modal = false
-```
-
-### 3. `server` block
-Fetches database records before rendering the view:
 ```amana
 server:
-    fetch items = Item.all(limit: 10, page: 1)
-    fetch item = Item.find(params.id)
-    fetch critical_issues = Issue.filter(status: "critical")
+    fetch all_projects = Project.all(limit: 100)
+    fetch page_projects = Project.all(limit: 20, page: 2)
+    fetch project = Project.find(params.id)
+    fetch active = Project.filter(status: "active", offset: 40)
+    fetch total = Project.count(status: "active")
 ```
-- Supported query types: `all()`, `find()`, `filter()`, `count()`.
-- Supports pagination parameters: `limit`, `offset`, `page`. If omitted, default query limits are applied for database performance.
 
-### 4. `render` block
-Contains the HTML node structure and component call tree.
+Query methods:
 
-### 5. `style` block
-Declares local scoped CSS styling. The CSS is compiled into scoped `@layer components, overrides` rules.
+- `all(limit:, offset:, page:)`: accepts only pagination arguments.
+- `find(id)`: requires one positional id argument.
+- `filter(field: value, limit:, offset:, page:)`: accepts named field filters and pagination.
+- `count(field: value)`: accepts named field filters.
 
----
+Pagination:
 
-## 🛠️ Custom Components
+- Default limit is `100`.
+- `offset` and `page` cannot be used together.
+- `page` compiles to `OFFSET ((page - 1) * limit)`.
 
-Amana allows declaring custom, reusable visual components with parameter attributes and named slots:
+Standard library fetches:
 
 ```amana
-component PortfolioCard(title: str, category: str = "Design", price: money = 0.0):
+server:
+    fetch now = time.now()
+    fetch payload = http.get(env("API_URL"))
+    fetch valid = auth.verify(hash_value, password_value)
+```
+
+Required capabilities:
+
+- `time.now()` requires `time`.
+- `http.get(...)` and `http.post(...)` require `network.outbound`.
+- `auth.verify(...)` and `auth.hash(...)` require `auth`.
+
+Standard libraries are not allowed inside `render:` blocks. They must be used through server fetches.
+
+### Client State
+
+```amana
+client:
+    state count = 0
+    state open = false [persist: local]
+```
+
+The parser records `persist` values as `memory`, `cookie`, `session`, or `local`. Generated EJS uses Alpine `x-data`; non-memory states hydrate from and watch browser storage.
+
+### Render Tree
+
+Lowercase names render as HTML tags unless blocked by security validation. Uppercase names are treated as standard or custom component calls.
+
+```amana
+render:
+    div.page:
+        h1: "Dashboard"
+        p: f"Hello {User.current.email}"
+        Button(label: "Open", click: open = true)
+```
+
+Element rules:
+
+- Classes use dot syntax: `div.card.featured`.
+- Hyphenated tags and classes are supported through minus tokens: `main-shell.hero-card`.
+- Attributes use parentheses: `a(href: "/docs", click: count = count + 1)`.
+- Anchors and IDs: Native ID and anchor link paths are supported (e.g. `section(id: "features")` and `a(href: "#features")`). They translate to EJS-scoped HTML attributes (`id="<%= "features" %>"` and `href="<%= "#features" %>"`).
+- A colon starts child or text content.
+- A component with no children should be written without a trailing colon: `Navbar()`.
+- `amana fmt` removes empty trailing colons from self-closing component calls.
+
+Blocked raw HTML tags:
+
+```text
+script iframe object embed applet link meta base style noscript
+```
+
+### Interactive DSL Layout Primitives
+
+Amana features compiler-supported layout primitives that compile to dynamic, responsive EJS/Alpine.js structures. Unlike standard components, these primitives have dedicated parser syntax and validation:
+
+1. **Tabs Primitive (`Tabs:`)**: Group related layout panels under click-switchable tab headers.
+   - *Syntax*: Declared using `Tabs:` block with nested `tab "Tab Title":` child elements.
+   - *Restrictions*: The compiler checks that all children of a `Tabs:` block are valid `tab` declarations.
+   - *Example*:
+     ```amana
+     Tabs:
+         tab "Overview":
+             p: "Dashboard summary"
+         tab "Performance":
+             p: "Performance chart"
+     ```
+
+2. **Accordion Primitive (`Accordion:`)**: Render an expandable and collapsible list of panels.
+   - *Syntax*: Declared using `Accordion:` block with nested `panel "Panel Title":` child elements.
+   - *Restrictions*: The compiler checks that all children of an `Accordion:` block are valid `panel` declarations.
+   - *Example*:
+     ```amana
+     Accordion:
+         panel "General Information":
+             p: "SLA details"
+         panel "Logs":
+             p: "System logs"
+     ```
+
+3. **Collapsible Sections (`[collapsible: true]`)**: Convert any element or component call into a collapsible section.
+   - *Syntax*: Add bracketed attribute `[collapsible: true]` (along with optional `default: "open"` or `default: "closed"`).
+   - *Behavior*: The first child of the collapsible container is treated as the clickable toggle header. All subsequent children are wrapped in the collapsible body.
+   - *Example*:
+     ```amana
+     section.card [collapsible: true, default: "open"]:
+         div.card-header:
+             h3: "Section Title"
+         div.card-body:
+             p: "Collapsible content here"
+     ```
+
+### Control Flow
+
+```amana
+if User.current != null:
+    p: "Signed in"
+else:
+    p: "Guest"
+```
+
+The condition must typecheck as `bool`.
+
+```amana
+for project in projects:
+    p: project.name
+```
+
+The list expression in current parser syntax is an identifier. It must resolve to a list, usually from `Model.all(...)` or `Model.filter(...)`.
+
+## Expressions
+
+Primary expressions:
+
+- identifiers
+- numbers
+- strings
+- booleans
+- `null`
+- grouped expressions: `(expr)`
+- unary `not expr`
+- unary `-expr`
+
+Binary operators:
+
+```text
+* /        arithmetic
++ -        arithmetic or string concatenation for +
+== != > < >= <=
+and or
+=          assignment in client/event contexts
+```
+
+Member access and calls:
+
+```amana
+User.current.email
+Project.find(params.id)
+env("SESSION_SECRET", "dev")
+```
+
+Semantic type rules:
+
+- Arithmetic requires numeric operands unless `+` is used with a string.
+- Comparisons require equal types or compatible numeric/null types.
+- `and` and `or` require booleans.
+- Assignment left side must be an identifier or member access.
+- `env(...)` accepts one or two string arguments and compiles to `process.env[...] || fallback`.
+
+Ternary expressions are production syntax and compile as `condition ? a : b` across parser, semantic analysis, JS codegen, optimizer, and runtime evaluation.
+
+## Forms
+
+```amana
+form [name, description]:
+    connect Project.create
+    default owner_id = User.current.id
+    ui: card
+    submit: "Create project"
+    redirect success -> /projects
+    field name:
+        label: "Project name"
+        placeholder: "Apollo"
+        required: true
+```
+
+Supported settings:
+
+- `connect Model.action`
+- `redirect success -> /path`
+- `default field = expression`
+- `where field = expression`
+- `ui: value`
+- `submit: value`
+- `field name:` with `label`, `placeholder`, `type`, `help`, `required`. Specifying `type: textarea` inside a form field option renders a native HTML `<textarea>` with Class `amana-form-control` and 4 rows (e.g. `field message: type: textarea`). This behaves identically to standalone `FormField(name: "message", type: "textarea")` calls.
+
+Supported actions:
+
+- `create`
+- `update`
+- `delete`
+- `login`
+- `register`
+- `logout`
+
+Rules:
+
+- The connected model must exist.
+- Listed fields must exist, except implicit `id`.
+- `login` requires `email` and `password`.
+- `login`, `register`, and `logout` must target the configured `auth_model`.
+- `where` constraints are allowed only for `update` and `delete`.
+- `update` and `delete` form actions must include `id`.
+- `default` and `where` expressions using `<auth_model>.current` require a protected view. `User.current` is the compatible spelling when `auth_model: User`.
+- Field option blocks must reference a field listed in the form field list.
+
+Runtime behavior:
+
+- Forms POST to `/form-submit/<model>/<action>`.
+- CSRF hidden fields are injected automatically.
+- Password fields are hashed with Argon2.
+- Constraints are evaluated on submit and become authorization filters.
+
+## ResourceGrid And ResourceTable
+
+```amana
+ResourceGrid(projects):
+    item ProjectCard(project)
+    empty:
+        p: "No projects"
+    loading:
+        p: "Loading"
+    error:
+        p: "Could not load projects"
+    filters:
+        - status
+    sort:
+        - name
+```
+
+Rules:
+
+- The resource expression must typecheck as a list.
+- `item ComponentName(arg)` must reference a declared custom component.
+- `empty`, `loading`, and `error` blocks are parsed.
+- Current EJS codegen renders the list, `empty`, `loading`, `error`, `filters`, and `sort` blocks into Alpine-powered runtime behavior.
+- `inspect-design` warns when resource blocks lack lifecycle handlers.
+
+## Components
+
+```amana
+component ProjectCard(project):
     style:
         .card:
-            surface: glass
-            radius: lg
-            padding: xl
+            surface: elevated
+            padding: lg
+
     render:
-        div.card:
-            span.category: category
-            h3: title
-            slot content
+        article.card:
+            h3: project.name
             slot footer optional
 ```
 
-### Slot Distribution Rules
-- `slot`: Default unnamed slot. Collects all children called on the component that do not match named slots.
-- `slot name`: Required named slot. The compiler throws a validation error if this slot is missing when the component is called.
-- `slot name optional`: Optional named slot. Will render empty if omitted.
-- **Usage**:
-  ```amana
-  PortfolioCard(title: "Horology Chrono", category: "Luxury"):
-      content:
-          p: "Fine mechanical movements crafted from gold."
-      footer:
-          Button(): "Purchase"
-  ```
+Parameters:
 
----
+```amana
+component Badge(label: str, tone: str = "neutral"):
+```
 
-## 🎭 Style Variants
+Rules:
 
-Style variants allow extending built-in or custom components with custom visual parameters:
+- Parameters may have optional type annotations.
+- Defaults make parameters optional.
+- Required parameters must be supplied at call sites.
+- Type annotations are checked for `str`, `int`, `float`, `bool`, and custom types.
+- Component bodies are inlined into view IR.
+- Component styles are aggregated into views that use the component.
+
+Slots:
+
+```amana
+slot:
+slot footer
+slot actions optional
+```
+
+- `slot:` declares the default slot.
+- `slot name` declares a required named slot.
+- `slot name optional` declares an optional named slot.
+- Required slots must be supplied by matching child elements.
+
+## Built-In Components
+
+The current EJS codegen recognizes:
+
+```text
+Button, Card, FeatureCard, PricingCard, Container, Section, Grid, Stack,
+FormField, Navbar, Hero, Alert, Footer, Icon, Modal, Tabs, Badge, Kpi,
+Stat, LogoCloud, TestimonialCard, Timeline, TimelineItem, EmptyState,
+Split, Cluster, Sidebar, Slides
+```
+
+> [!IMPORTANT]
+> Not every listed component is fully production-safe yet. Some standard components have documented active bugs (e.g. `Modal` lacks overlay/backdrop/scroll-lock; `Grid` cards stretch to the tallest column on desktop). See [Known Issues](language-runtime-trust-plan.md) in the trust plan before relying on a component in a critical flow.
+
+Attributes are component-specific and mostly optional. See [html-components-forms.md](html-components-forms.md) for the focused component reference.
+
+### Grid Numeric Columns Behavior
+- `Grid(columns: "3")` compiles to `--dg-columns:repeat(3, minmax(0, 1fr))`
+- `Grid(columns: "1")` compiles to `--dg-columns:minmax(0, 1fr)`
+- Responsive mobile column configurations such as `responsive.mobile.columns: 1` compile to `--bp-mobile-columns:minmax(0, 1fr)`.
+- No raw numeric columns reach the compiled output (e.g. `--bp-mobile-columns:1` is never output, preventing CSS display issues).
+
+## Alpine/Event Attributes
+
+Raw elements and components can use these event attributes:
+
+```text
+click submit change input keydown keyup focus blur mouseenter mouseleave
+```
+
+Special attributes:
+
+- `bind`: binds a server value or client state into an input.
+- `model`: emits Alpine `x-model`.
+- `show`: emits `x-show`.
+- `text`: emits `x-text`.
+- `init`: emits `x-init`.
+- `disabled`, `checked`, `selected`, `readonly`: emitted as Alpine boolean bindings.
+- `style`: merged with design-generated inline style variables.
+
+## Style Block
+
+```amana
+style:
+    .card:
+        layout: column
+        gap: lg
+        surface: glass
+        radius: soft
+        shadow: floating
+```
+
+The style parser accepts complex selector blocks and declaration blocks. Values are normalized and compiled through the CSS DSL.
+
+Selectors can include:
+- Class and element names.
+- Pseudo-classes and functional pseudo-classes (e.g. `:has()`, `:not()`, `:nth-child()`).
+- Combinators (e.g. child combinator `>` and adjacent sibling combinator `+`).
+- Safe attribute selectors (e.g. `[data-active="true"]`).
+
+Mathematical Expressions:
+- Operators (`+`, `-`, `*`, `/`) inside math functions (`calc()`, `min()`, `max()`, `clamp()`) are parsed and automatically formatted with correct spacing (e.g. `calc(100vh - 2.5rem)`) to comply with CSS syntax standards.
+
+Security:
+
+- Blocked selectors include `body`, `html`, `*`, `script`, `iframe`, `object`, `embed`, `link`, `meta`, `base`.
+- Attribute selectors like `[onclick]` are rejected.
+- Properties are allowlisted.
+- Values containing unsafe script/style patterns are rejected.
+
+## Design Grammar
+
+Design blocks are parsed inside `render:` elements and `canvas:` at view level.
+
+```amana
+section.hero:
+    compose:
+        layout: bento
+        gap: lg
+    visual:
+        surface: glass
+        gradient: hero
+    brand:
+        voice: technical
+    responsive:
+        mobile.columns: 1
+```
+
+Allowed design blocks:
+
+```text
+canvas compose visual type motion creative brand art responsive interaction a11y component tokens states
+```
+
+Closed-value properties:
+
+- `layout`
+- `surface`
+- `hover`
+- `entrance` / `reveal`
+- `gradient`
+- `density`
+- `shadow`
+
+Most descriptive metadata fields are open-ended but still sanitized and length-limited. Examples: `voice`, `colorway`, `direction`, `motif`, `lighting`, `texture`, `feedback`, `cursor`, `contrast`, `screenreader`.
+
+`compose` layout-specific key restrictions are enforced for these layouts:
+
+- `bento`
+- `masonry`
+- `split`
+- `asymmetric`
+- `magazine`
+- `sidebar`
+- `timeline`
+- `dashboard-shell`
+
+## Variants
+
+Global variant:
 
 ```amana
 variant Card.glass:
     base:
         background: glass
-        border: "1px solid rgba(255,255,255,0.1)"
+        radius: soft
     hover:
         shadow: floating
     responsive:
         mobile:
             padding: md
-        desktop:
-            padding: xl
 ```
 
----
+Component-local variants:
 
-## 📐 Design Grammar Blocks
+```amana
+component CardShell:
+    variants:
+        compact:
+            base:
+                padding: sm
+```
 
-Design blocks check visual attributes inside views, custom components, and sections. 
+Variant sections:
 
-> [!IMPORTANT]
-> **Open vs. Closed Settings Validation**:
-> Only properties **`layout:`**, **`surface:`**, **`hover:`**, **`entrance:`** (or `reveal:`), **`gradient:`**, **`density:`**, and **`shadow:`** are strictly validated against closed token enums.
-> All other metadata properties (such as `uniqueness:`, `freedom:`, `voice:`, `colorway:`, `direction:`, `motif:`, `lighting:`, `texture:`, `scale:`, `align:`, `feedback:`, `cursor:`, `contrast:`, `screenreader:`) are **open-ended metadata fields**. They are not checked against a closed list and accept any free-form identifier or string (under 240 characters) sanitized for safety tags (e.g., `uniqueness: facebook-clone` or `direction: pixel-perfect` are completely valid).
+- `base`
+- `hover`
+- `slots`
+- `responsive`
 
-### 1. `compose`
-Layout distribution properties:
-- `layout` (Closed): `row`, `column`, `stack`, `grid`, `center`, `inline`, `cluster`, `split`, `bento`, `split-diagonal`, `asymmetric`, `editorial`, `dashboard-shell`, `magazine`, `command-center`, `showcase-rail`, `masonry`, `sidebar`.
-- `ratio` (Open): Proportional columns (e.g. `"1:1"`, `"2:1"`).
-- `gap` (Closed): Space scale spacing size (`xs` to `4xl`).
+Targets must be a known standard component or a declared custom component. Responsive breakpoints are `desktop`, `tablet`, and `mobile`.
 
-### 2. `visual`
-Background and boundary properties:
-- `surface` (Closed): `base`, `muted`, `elevated`, `glass`, `custom`, `outline`, `flat`, `layered`, `glass-layered`.
-- `border` (Open): CSS border property string.
-- `gradient` (Closed): `primary`, `accent`, `hero`, `mesh`, `aurora`, `spotlight`, `custom`, `brand`, `sunset`, `ocean`, `mesh-cyan-indigo`, `mesh-aurora`.
+Application rules:
 
-### 3. `creative`
-Brand art style choices:
-- `uniqueness` (Open): Uniqueness class name (e.g. `signature`, `standard`, `custom`, `facebook-clone`).
-- `freedom` (Open): Layout freedom style (e.g. `high`, `medium`, `low`, `custom`).
+- Standard components apply variants through a static `variant` attribute such as `Card(variant: "glass")`.
+- Standard components also accept nested design blocks such as `component: variant: glass`.
+- Custom components receive stable runtime classes after inlining: `amana-component-<component>`, `amana-variant-<variant>`, and `dg-component-variant-<variant>`.
+- Variant CSS supports `base`, `hover`, `slots`, and `responsive` sections. CSS declarations use the same safe token lowering as `style:` blocks.
 
-### 4. `brand`
-Editorial style voice:
-- `voice` (Open): Brand editorial voice (e.g. `technical`, `luxury`, `friendly`, `artistic`, `professional`, `authentic`).
-- `colorway` (Open): Theme color scheme (e.g. `"forest"`, `"dark-blue"`, `"cyan-neon-pink"`).
+## Generated Output
 
-### 5. `art`
-Visual assets motif:
-- `direction` (Open): Artistic direction (e.g. `cyberpunk`, `classical`, `organic`, `expressive`, `modern`, `pixel-perfect`).
-- `motif` (Open): Design texture motif (e.g. `reactor-interface`, `clean`, `social-feed`).
-- `lighting` (Open): Theme lighting properties (e.g. `dark-neon`, `light-airy`).
-- `texture` (Open): Surface texture layout (e.g. `translucent`, `opaque`).
+`amana build` emits:
 
-### 6. `responsive`
-Adaptive sizing:
-- `desktop_columns` / `mobile_columns` (Open): CSS column rules.
-- `desktop` / `mobile` (Open): Sub-blocks declaring local responsive property overrides (e.g., `padding`, `gap`, `columns`).
+```text
+app.js
+package.json
+amana_ir.json
+runtime/engine.js
+middleware/security.js
+middleware/hooks-worker.js
+custom/hooks.js
+views/<view>.ejs
+views/login.ejs when no /login route exists
+```
 
-### 7. `type`
-Typography alignment:
-- `scale` (Open): Typographic height scale (e.g. `spacious`, `balanced`, `compact`).
-- `align` (Open): Text orientation (e.g. `left`, `center`, `right`).
+Generated Node package:
 
-### 8. `motion`
-Transitions and hover animations:
-- `entrance` (Closed): `fade`, `slide-up`, `slide-down`, `zoom`, `blur`, `clip`, `stagger-up`, `none`.
-- `hover` (Closed): `lift`, `glow`, `scale`, `lift-glow`, `none`.
+- Runtime dependencies: `express`, `express-session`, `sqlite3`, `ejs`, `argon2`, `express-rate-limit`, `helmet`.
+- Dev dependency: `nodemon`.
+- Scripts: `npm start`, `npm run dev`.
 
-### 9. `interaction`
-Pointer interface:
-- `feedback` (Open): Interactive click feedback (e.g. `tactile`, `ripple`, `hover-highlight`).
-- `cursor` (Open): Pointer styling (e.g. `default`, `pointer`).
+### Current Implementation Boundaries
 
-### 10. `a11y`
-Accessibility and colors:
-- `contrast` (Open): Color contrast standards (e.g. `high`, `aaa`, `dark-accessible`).
-- `screenreader` (Open): Accessibility reader bindings (e.g. `ready`, `structured`).
+These boundaries are intentionally documented so the reference does not overpromise:
 
----
-
-## 🚫 Layout Constraints
-
-The `compose` design block enforces layout configuration constraints. Only validated keys are allowed depending on the configured layout engine:
-
-| Layout (`layout:`) | Allowed Keys |
-| :--- | :--- |
-| `bento` | `layout`, `columns`, `rows`, `gap`, `auto_place`, `responsive`, `rhythm`, `focus_path`, `density` |
-| `masonry` | `layout`, `columns`, `image_ratio`, `gap` |
-| `split` | `layout`, `ratio`, `align`, `visual_position` |
-| `asymmetric` | `layout`, `rhythm`, `dominant`, `overlap` |
-| `magazine` | `layout`, `columns`, `headline_span`, `aside_span`, `pull_quote` |
-| `sidebar` | `layout`, `sidebar_width`, `sidebar_position`, `sticky_sidebar` |
-| `timeline` | `layout`, `axis`, `marker`, `alternate` |
-| `dashboard-shell` | `layout`, `sidebar`, `topbar`, `content_width`, `density`, `rhythm` |
+- `tokens:` blocks reach IR and generated theme CSS as CSS custom properties such as `--color-brand`, `--space-tight`, `--radius-panel`, and `--shadow-card`.
+- `permit` rules reach IR and are enforced by the generated Express runtime for REST reads/writes, form create/update/delete, and server-side model fetches. Row-level `where` expressions, read field masking, and write field allowlists are runtime-enforced. Integration coverage exercises separate sessions against REST and forms with a non-`User` `auth_model`.
+- `Chart(data, type, x, y)` is parsed and rendered through the existing Chart.js runtime path. The current parser form accepts identifier arguments.
+- Ternary expressions using `cond ? then : else` are parsed and emitted through semantic/codegen/runtime expression paths.
+- `ResourceGrid` and `ResourceTable` render server-fetched rows with Alpine lifecycle state, loading/error/empty blocks, client-side filters, and client-side sort over the loaded result set.
+- Client state `persist: memory/local/session/cookie` is represented as an enum and non-memory modes hydrate/watch browser storage in generated EJS.
+- Configurable `auth_model` is used for `<auth_model>.current` in semantic checks, EJS expression output, route guards, form defaults/constraints, REST authorization, and default login table selection.
+- Component variants are parsed, validated, preserved in IR, and emitted as target-specific CSS in generated EJS.
+- Phase 2 Visual styles (Neo-Bento/Glass surfaces, Timeline RTL markers, PricingCard featured variants, Button active/focus states, Card hover transition lifts, Navbar glass variant, and KPI layout styles) are fully integrated as CSS presets and standard component visual classes. The preview engine matches the build engine's layout and style rules.
+- **Interactive DSL Layout Primitives** (`Tabs`, `Accordion`, and collapsible elements) are fully implemented, validated semantically, and emitted as Alpine.js active state toggles in generated EJS views.
+- **State Scope Wrapper**, **Mobile DashboardShell Layout Contract**, and **Mobile Density Contract** are fully enforced at the code-generation and runtime-CSS levels, automatically handling viewport height boundaries and mobile scrolling/density behaviors.

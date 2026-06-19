@@ -1,0 +1,76 @@
+seed User:
+    row:
+        email: "user@chat.dev"
+        password: "chatpass1"
+        role: "member"
+
+seed Conversation:
+    row:
+        title: "Amana Layout Primitives"
+        created_at: "2026-06-17 12:00:00"
+        user_id: 1
+    row:
+        title: "الترجمة البرمجية بلغة أمانا"
+        created_at: "2026-06-17 12:05:00"
+        user_id: 1
+
+seed Message:
+    row:
+        conversation_id: 1
+        sender: "user"
+        content: "How do I implement responsive layout tabs in Amana DSL?"
+        content_type: "text"
+        created_at: "2026-06-17 12:00:10"
+    row:
+        conversation_id: 1
+        sender: "assistant"
+        content: "You can use the new Tabs layout primitive. Here is the syntax:\n\n```amana\nTabs:\n    tab \"Details\":\n        p: \"Detail content\"\n    tab \"Metrics\":\n        p: \"Metrics content\"\n```\nIt compiles to Alpine.js switching logic automatically."
+        content_type: "code"
+        created_at: "2026-06-17 12:00:30"
+    row:
+        conversation_id: 1
+        sender: "user"
+        content: "Can you list the standard components we can use?"
+        content_type: "text"
+        created_at: "2026-06-17 12:01:00"
+    row:
+        conversation_id: 1
+        sender: "assistant"
+        content: "Sure, here are the main components:\n- Button\n- Card\n- Grid\n- Stack\n- FormField\n- Accordion\n- Modal"
+        content_type: "list"
+        created_at: "2026-06-17 12:01:20"
+    row:
+        conversation_id: 2
+        sender: "user"
+        content: "مرحبا، هل تدعم لغة أمانا تخطيط RTL والخطوط العربية؟"
+        content_type: "text"
+        created_at: "2026-06-17 12:05:10"
+    row:
+        conversation_id: 2
+        sender: "assistant"
+        content: "نعم، تدعم لغة أمانا اتجاه RTL بشكل كامل عبر إعداد `direction: rtl` في قالب السمة (theme block)، وتدعم استخدام الخطوط العربية مثل Tajawal كخط افتراضي للمحتوى العربي."
+        content_type: "rtl"
+        created_at: "2026-06-17 12:05:40"
+    row:
+        conversation_id: 2
+        sender: "assistant"
+        content: "[System Note] Assistant generated response using Tajawal font-stack."
+        content_type: "note"
+        created_at: "2026-06-17 12:06:00"
+
+seed PromptTemplate:
+    row:
+        title: "Rust Helper"
+        description: "Generate clean and idiomatic Rust code."
+        category: "Development"
+        content: "Act as a Rust developer. Refactor this code to follow clippy guidelines:"
+    row:
+        title: "Email Composer"
+        description: "Draft professional emails for business communications."
+        category: "Writing"
+        content: "Draft a follow-up email to a client regarding the recent project milestones:"
+    row:
+        title: "UX Reviewer"
+        description: "Analyze web UI layout for accessibility and design consistency."
+        category: "Design"
+        content: "Review this EJS template for layout height overflow issues and accessibility defects:"

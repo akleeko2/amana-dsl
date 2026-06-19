@@ -1,0 +1,315 @@
+view Settings:
+    protected:
+        allow: Agent.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+
+    canvas:
+        layout: dashboard-shell
+        density: comfortable
+
+    server:
+        fetch current_agent = Agent.find(Agent.current.id)
+
+    client:
+        state active_section = "profile"
+        state notifications_email = true
+        state notifications_sla = true
+        state notifications_assign = true
+
+    render:
+        div.app-shell:
+            SideRail(active_page: "settings")
+            main.dashboard-main:
+                header.dash-header:
+                    div.dash-title-area:
+                        h1.dash-title: "Settings"
+                        p.dash-subtitle: "Manage your profile and workspace preferences"
+                    div.dash-actions:
+                        Button(label: "Sign Out", href: "/form-submit/Agent/logout", variant: "ghost")
+
+                div.settings-layout:
+                    nav.settings-nav:
+                        div(click: active_section = "profile", class: active_section == "profile" ? "settings-nav-item active" : "settings-nav-item"): "Profile"
+                        div(click: active_section = "notifications", class: active_section == "notifications" ? "settings-nav-item active" : "settings-nav-item"): "Notifications"
+                        div(click: active_section = "security", class: active_section == "security" ? "settings-nav-item active" : "settings-nav-item"): "Security"
+                        div(click: active_section = "workspace", class: active_section == "workspace" ? "settings-nav-item active" : "settings-nav-item"): "Workspace"
+
+                    div.settings-content:
+                        div.settings-section(show: active_section == "profile"):
+                            div.settings-section-header:
+                                h2.settings-section-title: "Profile Settings"
+                                p.settings-section-sub: "Update your personal information and preferences"
+
+                            div.profile-avatar-area:
+                                div.profile-avatar-large: Agent.current.avatar_initials
+                                div.profile-avatar-info:
+                                    div.profile-avatar-name: Agent.current.name
+                                    div.profile-avatar-email: Agent.current.email
+                                    div.profile-avatar-role: Agent.current.role
+
+                            form [name, email, department, id]:
+                                connect Agent.update
+                                where id = Agent.current.id
+                                default id = Agent.current.id
+                                submit: "Save Changes"
+                                redirect success -> /settings
+                                field name:
+                                    label: "Full Name"
+                                    placeholder: "Your name"
+                                    required: true
+                                field email:
+                                    label: "Email Address"
+                                    type: "email"
+                                    placeholder: "you@company.com"
+                                    required: true
+                                field department:
+                                    label: "Department"
+                                    placeholder: "Support"
+
+                        div.settings-section(show: active_section == "notifications"):
+                            div.settings-section-header:
+                                h2.settings-section-title: "Notification Preferences"
+                                p.settings-section-sub: "Control how and when you receive notifications"
+                            div.notification-settings:
+                                div.notif-row:
+                                    div.notif-info:
+                                        div.notif-title: "Email Notifications"
+                                        div.notif-sub: "Receive ticket updates via email"
+                                    div.notif-toggle(click: notifications_email = true): "●"
+                                div.notif-row:
+                                    div.notif-info:
+                                        div.notif-title: "SLA Breach Alerts"
+                                        div.notif-sub: "Get alerted when a ticket is about to breach SLA"
+                                    div.notif-toggle(click: notifications_sla = true): "●"
+                                div.notif-row:
+                                    div.notif-info:
+                                        div.notif-title: "Assignment Notifications"
+                                        div.notif-sub: "Notify me when a ticket is assigned to me"
+                                    div.notif-toggle(click: notifications_assign = true): "●"
+
+                        div.settings-section(show: active_section == "security"):
+                            div.settings-section-header:
+                                h2.settings-section-title: "Security"
+                                p.settings-section-sub: "Manage your account security settings"
+                            div.security-panel:
+                                div.security-item:
+                                    div.security-item-icon: "🔑"
+                                    div.security-item-info:
+                                        div.security-title: "Change Password"
+                                        div.security-sub: "Update your account password regularly"
+                                    Button(label: "Change", variant: "ghost")
+                                div.security-item:
+                                    div.security-item-icon: "🛡️"
+                                    div.security-item-info:
+                                        div.security-title: "Two-Factor Authentication"
+                                        div.security-sub: "Add an extra layer of security to your account"
+                                    Button(label: "Enable", variant: "ghost")
+                                div.security-item:
+                                    div.security-item-icon: "📱"
+                                    div.security-item-info:
+                                        div.security-title: "Active Sessions"
+                                        div.security-sub: "View and revoke active login sessions"
+                                    Button(label: "View", variant: "ghost")
+
+                        div.settings-section(show: active_section == "workspace"):
+                            div.settings-section-header:
+                                h2.settings-section-title: "Workspace Settings"
+                                p.settings-section-sub: "Configure care hub settings and brand options"
+                            div:
+                                p(style: "color: #64748b; font-size: 0.88rem; margin: 0;"): "Workspace settings are managed by organization administrators."
+
+    style:
+        .app-shell:
+            display: "flex"
+            background: "#0b0d14"
+            width: "100%"
+            height: "100%"
+            min-height: "0"
+            overflow: "hidden"
+        .dashboard-main:
+            flex: "1"
+            min-height: "0"
+            overflow-y: "auto"
+            display: "flex"
+            flex-direction: "column"
+            min-width: "0"
+        .dash-header:
+            display: "flex"
+            align-items: "center"
+            justify-content: "space-between"
+            padding: "1.75rem 2rem 1.25rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+            background: "rgba(11, 13, 20, 0.8)"
+            backdrop-filter: "blur(20px)"
+            position: "sticky"
+            top: "0"
+            z-index: "10"
+            flex-wrap: "wrap"
+            gap: "1rem"
+            min-width: "0"
+            overflow: "hidden"
+        .dash-title-area:
+            min-width: "0"
+        .dash-title:
+            font-size: "clamp(1.2rem, 3vw, 1.5rem)"
+            font-weight: "800"
+            color: "#f1f5f9"
+            margin: "0 0 0.2rem"
+            letter-spacing: "-0.02em"
+            overflow-wrap: "break-word"
+            word-break: "break-word"
+            max-width: "100%"
+        .dash-subtitle:
+            font-size: "0.82rem"
+            color: "#475569"
+            margin: "0"
+            overflow-wrap: "break-word"
+            max-width: "100%"
+        .dash-actions:
+            display: "flex"
+            gap: "0.75rem"
+            flex-shrink: "0"
+        .settings-layout:
+            display: "grid"
+            grid-template-columns: "220px 1fr"
+            gap: "2rem"
+            padding: "1.75rem 2rem"
+            flex: "1"
+            align-items: "start"
+        .settings-nav:
+            position: "sticky"
+            top: "5rem"
+            background: "rgba(17, 21, 33, 0.95)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "16px"
+            padding: "0.5rem"
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.15rem"
+        .settings-nav-item:
+            padding: "0.7rem 1rem"
+            border-radius: "10px"
+            font-size: "0.87rem"
+            font-weight: "500"
+            color: "#64748b"
+            cursor: "pointer"
+            transition: "all 200ms ease"
+        .settings-nav-item:hover:
+            background: "rgba(99, 102, 241, 0.08)"
+            color: "#c7d2fe"
+        .settings-nav-item.active:
+            background: "rgba(99, 102, 241, 0.15)"
+            color: "#a5b4fc"
+            font-weight: "600"
+        .settings-content:
+            display: "flex"
+            flex-direction: "column"
+            gap: "1.5rem"
+        .settings-section:
+            background: "rgba(17, 21, 33, 0.95)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "18px"
+            padding: "1.75rem"
+        .settings-section-header:
+            margin-bottom: "1.5rem"
+            padding-bottom: "1rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+        .settings-section-title:
+            font-size: "1.05rem"
+            font-weight: "700"
+            color: "#f1f5f9"
+            margin: "0 0 0.3rem"
+        .settings-section-sub:
+            font-size: "0.8rem"
+            color: "#475569"
+            margin: "0"
+        .profile-avatar-area:
+            display: "flex"
+            align-items: "center"
+            gap: "1.25rem"
+            margin-bottom: "1.75rem"
+            padding: "1.25rem"
+            background: "rgba(99, 102, 241, 0.05)"
+            border: "1px solid rgba(99, 102, 241, 0.1)"
+            border-radius: "14px"
+        .profile-avatar-large:
+            width: "68px"
+            height: "68px"
+            border-radius: "999px"
+            background: "linear-gradient(135deg, #6366f1, #22d3ee)"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-size: "1.4rem"
+            font-weight: "700"
+            color: "#ffffff"
+            flex-shrink: "0"
+            box-shadow: "0 4px 20px rgba(99, 102, 241, 0.3)"
+        .profile-avatar-name:
+            font-size: "1rem"
+            font-weight: "700"
+            color: "#f1f5f9"
+        .profile-avatar-email:
+            font-size: "0.82rem"
+            color: "#64748b"
+            margin-top: "0.15rem"
+        .profile-avatar-role:
+            font-size: "0.75rem"
+            color: "#6366f1"
+            font-weight: "600"
+            margin-top: "0.25rem"
+        .profile-avatar-info:
+            flex: "1"
+            min-width: "0"
+        .notification-settings:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0"
+        .notif-row:
+            display: "flex"
+            align-items: "center"
+            justify-content: "space-between"
+            padding: "1rem 0"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+            gap: "1rem"
+        .notif-info:
+            flex: "1"
+        .notif-title:
+            font-size: "0.88rem"
+            font-weight: "600"
+            color: "#e2e8f0"
+        .notif-sub:
+            font-size: "0.76rem"
+            color: "#475569"
+            margin-top: "0.15rem"
+        .notif-toggle:
+            cursor: "pointer"
+            color: "#10b981"
+            font-size: "1.5rem"
+            flex-shrink: "0"
+        .security-panel:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0"
+        .security-item:
+            display: "flex"
+            align-items: "center"
+            padding: "1.1rem 0"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+            gap: "1rem"
+        .security-item-icon:
+            font-size: "1.25rem"
+            flex-shrink: "0"
+            width: "32px"
+            text-align: "center"
+        .security-item-info:
+            flex: "1"
+        .security-title:
+            font-size: "0.88rem"
+            font-weight: "600"
+            color: "#e2e8f0"
+        .security-sub:
+            font-size: "0.76rem"
+            color: "#475569"
+            margin-top: "0.15rem"

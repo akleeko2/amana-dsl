@@ -1,0 +1,238 @@
+seed Agent:
+    row:
+        name: "Sarah Chen"
+        email: "admin@carehub.dev"
+        password: "carepass1"
+        role: "Admin"
+        department: "Command Center"
+        status: "online"
+        avatar_initials: "SC"
+        tickets_resolved: 312
+        satisfaction_score: 98
+    row:
+        name: "Marcus Johnson"
+        email: "agent@carehub.dev"
+        password: "carepass1"
+        role: "agent"
+        department: "Technical Support"
+        status: "online"
+        avatar_initials: "MJ"
+        tickets_resolved: 187
+        satisfaction_score: 94
+    row:
+        name: "Priya Patel"
+        email: "priya@carehub.dev"
+        password: "carepass1"
+        role: "agent"
+        department: "Billing Support"
+        status: "busy"
+        avatar_initials: "PP"
+        tickets_resolved: 241
+        satisfaction_score: 96
+    row:
+        name: "Luca Romano"
+        email: "luca@carehub.dev"
+        password: "carepass1"
+        role: "agent"
+        department: "Onboarding"
+        status: "away"
+        avatar_initials: "LR"
+        tickets_resolved: 156
+        satisfaction_score: 92
+
+seed Customer:
+    row:
+        name: "James Mitchell"
+        email: "james@northtech.io"
+        company: "NorthTech Solutions"
+        plan: "enterprise"
+        status: "active"
+        total_tickets: 18
+        open_tickets: 2
+        satisfaction_score: 94
+        lifetime_value: 48000
+        last_contact: "2026-06-15"
+    row:
+        name: "Aisha Okonkwo"
+        email: "aisha@bluewave.co"
+        company: "BlueWave Commerce"
+        plan: "pro"
+        status: "active"
+        total_tickets: 7
+        open_tickets: 1
+        satisfaction_score: 98
+        lifetime_value: 12400
+        last_contact: "2026-06-14"
+    row:
+        name: "Rafael Torres"
+        email: "rafael@lumastudio.com"
+        company: "Luma Studio"
+        plan: "starter"
+        status: "active"
+        total_tickets: 3
+        open_tickets: 0
+        satisfaction_score: 100
+        lifetime_value: 2800
+        last_contact: "2026-06-10"
+    row:
+        name: "Yuki Tanaka"
+        email: "yuki@pixelcraft.jp"
+        company: "PixelCraft Japan"
+        plan: "pro"
+        status: "churned"
+        total_tickets: 24
+        open_tickets: 0
+        satisfaction_score: 72
+        lifetime_value: 18600
+        last_contact: "2026-05-28"
+
+seed Ticket:
+    row:
+        subject: "API rate limiting causing intermittent 429 errors"
+        description: "Our integration started receiving 429 errors at around 800 req/min, well below the documented 2000 req/min limit."
+        status: "open"
+        priority: "high"
+        category: "technical"
+        customer_id: 1
+        customer_name: "James Mitchell"
+        customer_email: "james@northtech.io"
+        assigned_agent_id: 2
+        assigned_agent_name: "Marcus Johnson"
+        channel: "email"
+        sentiment: "frustrated"
+        response_time_hours: 2
+        sla_breach: false
+        tags: "api,rate-limit,enterprise"
+    row:
+        subject: "Unable to process invoice payment - card declined"
+        description: "Our enterprise subscription renewal failed three times this week. Finance team is waiting."
+        status: "in-progress"
+        priority: "urgent"
+        category: "billing"
+        customer_id: 1
+        customer_name: "James Mitchell"
+        customer_email: "james@northtech.io"
+        assigned_agent_id: 3
+        assigned_agent_name: "Priya Patel"
+        channel: "phone"
+        sentiment: "frustrated"
+        response_time_hours: 0
+        sla_breach: false
+        tags: "billing,enterprise,urgent"
+    row:
+        subject: "Feature request: Bulk CSV export for reports"
+        description: "Would love to be able to export our analytics data to CSV for quarterly business reviews."
+        status: "open"
+        priority: "low"
+        category: "feature-request"
+        customer_id: 2
+        customer_name: "Aisha Okonkwo"
+        customer_email: "aisha@bluewave.co"
+        assigned_agent_id: 1
+        assigned_agent_name: "Sarah Chen"
+        channel: "chat"
+        sentiment: "positive"
+        response_time_hours: 4
+        sla_breach: false
+        tags: "feature,export,reports"
+    row:
+        subject: "Dashboard loading extremely slowly - 8+ seconds"
+        description: "The main dashboard takes 8-10 seconds to load. Started after last week's update."
+        status: "resolved"
+        priority: "high"
+        category: "technical"
+        customer_id: 3
+        customer_name: "Rafael Torres"
+        customer_email: "rafael@lumastudio.com"
+        assigned_agent_id: 2
+        assigned_agent_name: "Marcus Johnson"
+        channel: "email"
+        sentiment: "neutral"
+        response_time_hours: 3
+        sla_breach: false
+        tags: "performance,dashboard"
+
+seed KnowledgeArticle:
+    row:
+        title: "How to configure API rate limits for your plan"
+        category: "technical"
+        status: "published"
+        views: 1420
+        helpful_votes: 187
+        author_name: "Marcus Johnson"
+        content: "This article explains how to configure API rate limits for your subscription plan, including best practices for error handling."
+    row:
+        title: "Understanding your invoice and billing cycle"
+        category: "billing"
+        status: "published"
+        views: 893
+        helpful_votes: 142
+        author_name: "Priya Patel"
+        content: "Learn about your billing cycle, invoice dates, payment methods, and how to download your invoices from the billing portal."
+    row:
+        title: "Getting started with the Analytics Dashboard"
+        category: "onboarding"
+        status: "published"
+        views: 2310
+        helpful_votes: 398
+        author_name: "Luca Romano"
+        content: "A complete walkthrough of the Analytics Dashboard, including how to read charts, filter data, and export reports."
+    row:
+        title: "Troubleshooting slow dashboard performance"
+        category: "technical"
+        status: "published"
+        views: 567
+        helpful_votes: 89
+        author_name: "Marcus Johnson"
+        content: "Step-by-step guide to diagnosing and resolving slow dashboard load times, including cache clearing and network optimization tips."
+
+seed DailyMetric:
+    row:
+        date_label: "Jun 10"
+        tickets_received: 47
+        tickets_resolved: 39
+        avg_response_hours: 3
+        satisfaction_avg: 91
+        sla_compliance: 94
+    row:
+        date_label: "Jun 11"
+        tickets_received: 52
+        tickets_resolved: 48
+        avg_response_hours: 2
+        satisfaction_avg: 93
+        sla_compliance: 96
+    row:
+        date_label: "Jun 12"
+        tickets_received: 61
+        tickets_resolved: 54
+        avg_response_hours: 4
+        satisfaction_avg: 88
+        sla_compliance: 91
+    row:
+        date_label: "Jun 13"
+        tickets_received: 44
+        tickets_resolved: 43
+        avg_response_hours: 2
+        satisfaction_avg: 95
+        sla_compliance: 98
+    row:
+        date_label: "Jun 14"
+        tickets_received: 58
+        tickets_resolved: 51
+        avg_response_hours: 3
+        satisfaction_avg: 92
+        sla_compliance: 95
+    row:
+        date_label: "Jun 15"
+        tickets_received: 49
+        tickets_resolved: 46
+        avg_response_hours: 2
+        satisfaction_avg: 94
+        sla_compliance: 97
+    row:
+        date_label: "Jun 16"
+        tickets_received: 35
+        tickets_resolved: 28
+        avg_response_hours: 2
+        satisfaction_avg: 96
+        sla_compliance: 99

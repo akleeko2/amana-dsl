@@ -1,0 +1,513 @@
+app AmanaLandingApp:
+    title: "أمانة كلوود - Amana Cloud"
+    db_path: "amana_landing.db"
+    auth_model: User
+    capabilities:
+        - auth
+        - api.rest
+        - time
+
+theme:
+    mode: night
+    direction: rtl
+    language: ar
+    font_provider: google
+    font_family: "Tajawal"
+    heading_font_family: "Tajawal"
+    arabic_font_family: "Tajawal"
+    primary: "#10b981"
+    accent: "#f59e0b"
+    radius: soft
+    density: comfortable
+
+tokens:
+    colors:
+        brand: "#10b981"
+    spacing:
+        section: "6rem"
+    radius:
+        card: "20px"
+    shadows:
+        card: "0 18px 45px -28px rgba(2, 6, 23, 0.7)"
+
+variant Card.feature:
+    base:
+        background: "rgba(30, 41, 59, 0.45)"
+        backdrop-filter: "blur(12px)"
+        border: "1px solid rgba(255, 255, 255, 0.05)"
+        border-radius: "20px"
+        padding: "2rem"
+    hover:
+        border-color: "rgba(245, 158, 11, 0.35)"
+        transform: "translateY(-6px)"
+        box-shadow: "0 22px 40px 0 rgba(245, 158, 11, 0.18)"
+
+variant Card.glass:
+    base:
+        background: "rgba(15, 23, 42, 0.65)"
+        backdrop-filter: "blur(12px)"
+        border: "1px solid rgba(255, 255, 255, 0.08)"
+        border-radius: "20px"
+        padding: "1.75rem"
+    hover:
+        border-color: "rgba(16, 185, 129, 0.35)"
+        transform: "translateY(-6px)"
+        box-shadow: "0 22px 40px 0 rgba(16, 185, 129, 0.18)"
+
+variant Card.metric:
+    base:
+        background: "rgba(15, 23, 42, 0.55)"
+        backdrop-filter: "blur(10px)"
+        border: "1px solid rgba(255, 255, 255, 0.06)"
+        border-radius: "16px"
+        padding: "1.5rem"
+
+variant PricingCard.featured:
+    base:
+        background: "linear-gradient(180deg, rgba(16, 185, 129, 0.15) 0%, rgba(15, 23, 42, 0.75) 100%)"
+        backdrop-filter: "blur(14px)"
+        border: "2px solid #10b981"
+        border-radius: "24px"
+        padding: "2.5rem 2rem"
+        box-shadow: "0 20px 50px rgba(16, 185, 129, 0.25)"
+    hover:
+        transform: "scale(1.03) translateY(-4px)"
+        box-shadow: "0 25px 60px rgba(16, 185, 129, 0.35)"
+
+variant PricingCard.glass:
+    base:
+        background: "rgba(15, 23, 42, 0.65)"
+        backdrop-filter: "blur(12px)"
+        border: "1px solid rgba(255, 255, 255, 0.08)"
+        border-radius: "20px"
+        padding: "2.5rem 2rem"
+    hover:
+        transform: "translateY(-4px)"
+        box-shadow: "0 22px 45px rgba(0, 0, 0, 0.4)"
+
+variant Button.cta:
+    base:
+        background: "linear-gradient(135deg, #10b981, #0891b2)"
+        color: "#ffffff"
+        font-weight: "900"
+        border-radius: "999px"
+        box-shadow: "0 8px 25px rgba(16, 185, 129, 0.35)"
+    hover:
+        transform: "translateY(-3px)"
+        box-shadow: "0 12px 35px rgba(16, 185, 129, 0.55)"
+
+variant Button.secondary:
+    base:
+        background: "rgba(255, 255, 255, 0.05)"
+        color: "#f8fafc"
+        border: "1px solid rgba(255, 255, 255, 0.1)"
+        border-radius: "999px"
+    hover:
+        background: "rgba(255, 255, 255, 0.12)"
+        border-color: "rgba(255, 255, 255, 0.25)"
+
+variant Navbar.glass:
+    base:
+        background: "rgba(11, 15, 25, 0.65)"
+        backdrop-filter: "blur(14px)"
+        border: "1px solid rgba(255, 255, 255, 0.08)"
+        border-radius: "999px"
+        margin-top: "1rem"
+        padding: "0.75rem 2rem"
+
+model User:
+    email: email unique required
+    password: password required min 8
+    role: str default "member"
+
+model Lead:
+    name: str required max 100
+    email: email required unique
+    project_type: str default "web"
+    message: str required max 500
+
+seed User:
+    row:
+        email: "admin@amana.dev"
+        password: "password123"
+        role: "admin"
+
+route / -> view Home
+route /dashboard -> view Dashboard
+
+component LeadRow(lead):
+    render:
+        div.lead-row:
+            span: lead.name
+            span: lead.email
+            span: lead.project_type
+            span: lead.message
+
+view Home:
+    canvas:
+        layout: column
+        density: comfortable
+
+    client:
+        state billing_cycle = "monthly" [persist: local]
+        state selected_feature = "model" [persist: local]
+
+    render:
+        div.page:
+            brand:
+                voice: premium
+                personality: premium
+            art:
+                direction: cinematic-product
+                motif: grid
+            creative:
+                uniqueness: signature
+            responsive:
+                mobile: stacked
+
+            # Section 1: Navbar & Hero Section
+            section.hero-section(id: "hero", responsive: "stacked"):
+                compose:
+                    layout: column
+                visual:
+                    gradient: spotlight
+                Navbar(brand: "أمانة كلوود", sticky: true, variant: "glass"):
+                    a(href: "#features"): "المميزات"
+                    a(href: "#about"): "سير العمل"
+                    a(href: "#timeline"): "خارطة الطريق"
+                    a(href: "#dashboard-showcase"): "المقاييس"
+                    a(href: "#pricing"): "الأسعار"
+                    a(href: "#contact"): "تواصل معنا"
+                    a(href: "/dashboard"): "لوحة التحكم"
+                
+                Container(width: "wide"):
+                    responsive:
+                        mobile: stacked
+                    Split(responsive: "stacked"):
+                        responsive:
+                            mobile: stacked
+                        div.hero-content:
+                            h1: "طوّر تطبيقاتك السحابية الآمنة بلغة واحدة"
+                            p: "منصة أمانة هي بيئة تطوير وتشغيل متكاملة تتيح لك كتابة النماذج والواجهات والسياسات الأمنية بلغة DSL مبسطة، وتولد تطبيق Node.js/Express متكاملاً وآمناً."
+                            div.cta-buttons:
+                                Button(label: "ابدأ الآن مجاناً", href: "#contact", variant: "cta")
+                                Button(label: "شاهد خارطة الطريق", href: "#timeline", variant: "secondary")
+                        div.hero-mockup:
+                            Card(title: "تعريف النماذج بلغة أمانة", variant: "feature"):
+                                pre:
+                                    code: """model Lead:
+    name: str required
+    email: email unique
+    message: str required
+
+permit Admin manage Lead"""
+
+            # Section 2: Bento Grid Features Section
+            section.features-section(id: "features", responsive: "stacked"):
+                compose:
+                    layout: bento
+                    columns: 3
+                    gap: lg
+                visual:
+                    surface: glass
+                    gradient: mesh-cyan-indigo
+                motion:
+                    hover: lift-glow
+                    entrance: stagger-up
+                responsive:
+                    mobile:
+                        columns: 1
+                Container(width: "wide"):
+                    Section(title: "أمان فائق وميزات استراتيجية", subtitle: "تعرف على أهم ما يميز بيئة تشغيل أمانة لتطوير البرمجيات السحابية العربية"):
+                        responsive:
+                            mobile: stacked
+                        Grid(columns: "3", responsive: "stacked"):
+                            responsive:
+                                mobile:
+                                    columns: 1
+                            Card(title: "الصلاحيات المدمجة", subtitle: "حماية من الهجمات بشكل مدمج", variant: "glass"):
+                                p: "كافة طلبات وقواعد البيانات مؤمنة تلقائياً عبر نظام صلاحيات permit مدمج في قلب المترجم."
+                            Card(title: "توليد REST آمن", subtitle: "توليد كامل للخدمات الخلفية", variant: "glass"):
+                                p: "إنشاء واجهة REST كاملة آمنة تلقائياً بناءً على سياسات الوصول المعرفة في النماذج."
+                            Card(title: "دعم RTL أولاً", subtitle: "تصميم مخصص للمحتوى العربي", variant: "glass"):
+                                p: "دعم مدمج للغة العربية والاتجاه من اليمين إلى اليسار مع خطوط احترافية ومظهر متناسق."
+
+            # Section 3: Interactive Product Showcase / Split Layout Section
+            section.about-section(id: "about", responsive: "stacked"):
+                compose:
+                    layout: split
+                    ratio: "1:1"
+                    align: center
+                visual:
+                    surface: layered
+                    gradient: mesh-aurora
+                motion:
+                    entrance: fade
+                responsive:
+                    mobile: stacked
+                Container():
+                    responsive:
+                        mobile: stacked
+                    Split(responsive: "stacked"):
+                        responsive:
+                            mobile: stacked
+                        div.about-text:
+                            h2: "دورة حياة التطوير في أمانة"
+                            p: "شاهد كيف تبسط أمانة مراحل بناء التطبيقات. تنقل بين الخطوات لترى الكود المقابل لكل مرحلة."
+                            div.features-tab-selector:
+                                div(show: selected_feature == "model"):
+                                    Button(label: "1. تعريف النموذج", variant: "primary")
+                                    Button(label: "2. الصلاحيات", click: selected_feature = "permissions", variant: "secondary")
+                                    Button(label: "3. توليد التطبيق", click: selected_feature = "codegen", variant: "secondary")
+                                div(show: selected_feature == "permissions"):
+                                    Button(label: "1. تعريف النموذج", click: selected_feature = "model", variant: "secondary")
+                                    Button(label: "2. الصلاحيات", variant: "primary")
+                                    Button(label: "3. توليد التطبيق", click: selected_feature = "codegen", variant: "secondary")
+                                div(show: selected_feature == "codegen"):
+                                    Button(label: "1. تعريف النموذج", click: selected_feature = "model", variant: "secondary")
+                                    Button(label: "2. الصلاحيات", click: selected_feature = "permissions", variant: "secondary")
+                                    Button(label: "3. توليد التطبيق", variant: "primary")
+                        div.about-visual:
+                            div(show: selected_feature == "model"):
+                                Card(title: "خطوة 1: تعريف هيكل البيانات", variant: "feature"):
+                                    p: "قم بتعريف الجداول والخصائص البرمجية بلغة مبسطة وسهلة الفهم دون كتابة SQL معقدة."
+                                    pre:
+                                        code: """model Lead:
+    name: str required
+    email: email unique"""
+                            div(show: selected_feature == "permissions"):
+                                Card(title: "خطوة 2: صياغة سياسات الوصول", variant: "feature"):
+                                    p: "حدد بوضوح من يملك صلاحيات القراءة أو الكتابة على مستوى الصفوف والحقول الفردية."
+                                    pre:
+                                        code: """permit Admin manage Lead
+permit Manager read Lead fields [name]"""
+                            div(show: selected_feature == "codegen"):
+                                Card(title: "خطوة 3: التوليد والتشغيل السحابي", variant: "feature"):
+                                    p: "يقوم مترجم أمانة بتحليل الكود وتوليد خادم Express مدمج مع حماية CSRF ومصادقة Argon2 تلقائياً."
+                                    pre:
+                                        code: "cargo run -- build app.amana"
+
+            # Section 4: Milestones Timeline Section
+            section.roadmap-section(id: "timeline", responsive: "stacked"):
+                compose:
+                    layout: column
+                    gap: lg
+                visual:
+                    surface: base
+                art:
+                    motif: grid
+                motion:
+                    entrance: fade
+                responsive:
+                    mobile: stacked
+                Container():
+                    responsive:
+                        mobile: stacked
+                    Section(title: "خارطة الطريق والتطوير", subtitle: "خطواتنا المستمرة نحو بناء مستقبل التطوير البرمجي العربي"):
+                        responsive:
+                            mobile: stacked
+                        Timeline(responsive: "stacked"):
+                            responsive:
+                                mobile: stacked
+                            TimelineItem(title: "إطلاق المترجم الأساسي v1.0", meta: "الربع الأول 2026"):
+                                p: "دعم البنية الأساسية للغة وبناء النماذج وقواعد البيانات وصلاحيات permit."
+                            TimelineItem(title: "دعم التصميم المتجاوب ومصحح الأخطاء", meta: "الربع الثاني 2026"):
+                                p: "تحسين مظهر المكونات ودعم شاشات الهواتف مع كود CSS متوافق تماماً."
+                            TimelineItem(title: "دعم تكامل الذكاء الاصطناعي", meta: "الربع الثالث 2026"):
+                                p: "إضافة خدمات التوليد والترجمة الذكية عبر المخدم السحابي."
+
+            # Section 5: Live Stats Showcase Section
+            section.showcase-section(id: "dashboard-showcase", responsive: "stacked"):
+                compose:
+                    layout: grid
+                visual:
+                    surface: glass
+                    gradient: spotlight
+                responsive:
+                    mobile: stacked
+                Container():
+                    responsive:
+                        mobile: stacked
+                    Section(title: "نظام المقاييس الفورية", subtitle: "مؤشرات أداء حية لبيئة تشغيل أمانة السحابية"):
+                        responsive:
+                            mobile: stacked
+                        Grid(columns: "4", responsive: "stacked"):
+                            responsive:
+                                mobile:
+                                    columns: 1
+                            Kpi(label: "المستخدمين النشطين", value: "14,250", trend: "+12%")
+                            Kpi(label: "طلبات واجهة REST", value: "1.2M", trend: "+24%")
+                            Kpi(label: "سرعة الترجمة وبناء المترجم", value: "45ms", trend: "-5%")
+                            Kpi(label: "معدل استقرار الأمان", value: "100%", trend: "stable")
+
+            # Section 6: Pricing Plans Section
+            section.pricing-section(id: "pricing", responsive: "stacked"):
+                compose:
+                    layout: grid
+                visual:
+                    surface: base
+                art:
+                    motif: orbit
+                responsive:
+                    mobile: stacked
+                Container():
+                    responsive:
+                        mobile: stacked
+                    Section(title: "خطط تسعير مرنة تناسب حجم أعمالك", subtitle: "اختر الخطة الملائمة لمشروعك مع إمكانية الترقية والدفع المرن"):
+                        responsive:
+                            mobile: stacked
+                        div.toggle-container:
+                            div(show: billing_cycle == "monthly"):
+                                Button(label: "عرض الدفع الشهري", variant: "primary")
+                                Button(label: "التحويل للدفع السنوي (خصم 20%)", click: billing_cycle = "yearly", variant: "secondary")
+                            div(show: billing_cycle == "yearly"):
+                                Button(label: "التحويل للدفع الشهري", click: billing_cycle = "monthly", variant: "secondary")
+                                Button(label: "عرض الدفع السنوي (خصم 20%)", variant: "primary")
+                        Grid(columns: "3", responsive: "stacked"):
+                            responsive:
+                                mobile:
+                                    columns: 1
+                            PricingCard(title: "الباقة الأساسية", price: "0$", description: "مناسبة للمشاريع الصغيرة والتجربة الشخصية", action_label: "ابدأ الآن", action_href: "#contact", variant: "glass"):
+                                p: "تجربة أساسية مجانية بالكامل للجميع"
+                            PricingCard(title: "الباقة الاحترافية", price: "29$", description: "مناسبة للشركات الناشئة التي تحتاج ميزات متقدمة", action_label: "اشترك الآن", action_href: "#contact", badge: "الأكثر شيوعاً", variant: "featured"):
+                                div.price-box:
+                                    p(text: billing_cycle == "monthly" ? "29$ / شهرياً" : "232$ / سنوياً"): ""
+                            PricingCard(title: "باقة المؤسسات", price: "99$", description: "حلول مخصصة مع دعم فني متكامل على مدار الساعة", action_label: "تواصل معنا", action_href: "#contact", variant: "glass"):
+                                div.price-box:
+                                    p(text: billing_cycle == "monthly" ? "99$ / شهرياً" : "792$ / سنوياً"): ""
+
+            # Section 7: Contact / Lead Generation Form Section
+            section.contact-section(id: "contact", responsive: "stacked"):
+                compose:
+                    layout: split
+                    ratio: "1:1"
+                visual:
+                    surface: glass
+                    gradient: mesh-cyan-indigo
+                responsive:
+                    mobile: stacked
+                Container():
+                    responsive:
+                        mobile: stacked
+                    Section(title: "ابدأ مشروعك معنا اليوم", subtitle: "املأ الاستمارة أدناه وسيتواصل معك خبراؤنا البرمجيون خلال 24 ساعة"):
+                        responsive:
+                            mobile: stacked
+                        form [name, email, project_type, message]:
+                            connect Lead.create
+                            submit: "إرسال طلب التواصل"
+                            redirect success -> /
+                            field name:
+                                label: "الاسم الكامل"
+                                placeholder: "ادخل اسمك الكامل"
+                                required: true
+                            field email:
+                                label: "البريد الإلكتروني"
+                                placeholder: "name@example.com"
+                                required: true
+                            field project_type:
+                                label: "نوع المشروع المطلوب"
+                                placeholder: "مثال: تطوير متجر إلكتروني، تطبيق سحابي"
+                                required: true
+                            field message:
+                                label: "تفاصيل ووصف المشروع"
+                                placeholder: "اكتب وصفاً لمتطلبات مشروعك..."
+                                type: textarea
+                                required: true
+
+            # Section 8: Partner Logos & Footer Section
+            section.footer-section(id: "footer", responsive: "stacked"):
+                compose:
+                    layout: column
+                visual:
+                    surface: muted
+                responsive:
+                    mobile: stacked
+                Container():
+                    responsive:
+                        mobile: stacked
+                    LogoCloud(title: "تثق بنا كبرى الشركات العربية والعالمية"):
+                        p: "شعار الشركة 1 | شعار الشركة 2 | شعار الشركة 3 | شعار الشركة 4"
+                    Footer():
+                        div.footer-links:
+                            p: "حقوق الطبع محفوظة © 2026 منصة أمانة البرمجية. بني بكل فخر بلغة أمانة."
+
+    style:
+        .page:
+            background: "#0b0f19"
+            color: "#f8fafc"
+            font-family: "Tajawal"
+            overflow-x: hidden
+        .cta-buttons:
+            layout: row
+            gap: md
+            margin-top: lg
+        .price-box:
+            font-size: "2rem"
+            font-weight: "bold"
+            color: "#10b981"
+            margin-top: sm
+            margin-bottom: sm
+        .toggle-container:
+            layout: row
+            justify-content: center
+            gap: sm
+            margin-bottom: xl
+        .about-text:
+            layout: column
+            gap: md
+        .about-visual:
+            layout: column
+            gap: md
+        .footer-links:
+            layout: row
+            justify-content: space-between
+            margin-top: xl
+            border-top: "1px solid #1e293b"
+            padding-top: lg
+        .features-tab-selector:
+            layout: row
+            gap: sm
+            margin-top: md
+            margin-bottom: md
+
+view Dashboard:
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+
+    canvas:
+        layout: column
+        density: comfortable
+
+    server:
+        fetch now = time.now()
+        fetch leads = Lead.all(limit: 10)
+
+    render:
+        div.dashboard-container:
+            brand:
+                voice: professional
+            art:
+                direction: minimalist
+            creative:
+                uniqueness: clean
+            responsive:
+                mobile: stacked
+            Container():
+                Section(title: "لوحة تحكم طلبات التواصل", subtitle: "إدارة بيانات العملاء والطلبات المستلمة"):
+                    Card(title: f"تاريخ الاستعلام: {now}", variant: "metric"):
+                        ResourceTable(leads):
+                            item LeadRow(lead)
+                            empty:
+                                p: "لا توجد طلبات تواصل بعد."
+                            loading:
+                                p: "جاري التحميل..."
+                            error:
+                                p: "حدث خطأ أثناء تحميل البيانات."
+
+    style:
+        .dashboard-container:
+            background: "#0f172a"
+            color: "#f8fafc"
+            padding: xl

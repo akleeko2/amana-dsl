@@ -1,0 +1,10 @@
+route / -> view Test
+
+view Test:
+    canvas:
+        layout: column
+    client:
+        state billing_cycle = "monthly"
+    render:
+        Container():
+            p(text: billing_cycle == "monthly" ? "29$ / شهرياً" : "232$ / سنوياً"): ""

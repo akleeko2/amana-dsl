@@ -1,0 +1,334 @@
+view Dashboard:
+    protected:
+        allow: Agent.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+
+    canvas:
+        layout: dashboard-shell
+        density: comfortable
+        responsive:
+            mobile: stacked
+
+    server:
+        fetch tickets = Ticket.all(limit: 10)
+        fetch agents = Agent.all(limit: 20)
+        fetch metrics = DailyMetric.all(limit: 7)
+        fetch urgent_tickets = Ticket.filter(priority: "urgent", limit: 10)
+
+    client:
+        state sidebar_open = true [persist: local]
+
+    render:
+        div.app-shell:
+            SideRail(active_page: "dashboard")
+            main.dashboard-main:
+                header.dash-header:
+                    div.dash-title-area:
+                        h1.dash-title: "Command Center"
+                        p.dash-subtitle: "Real-time support operations overview"
+                    div.dash-actions:
+                        Button(label: "New Ticket", href: "/tickets", variant: "primary-glow")
+
+                section.kpi-row:
+                    compose:
+                        layout: bento
+                        columns: 4
+                        gap: md
+                    responsive:
+                        mobile: stacked
+                    MetricCard(label: "Open Tickets", value: "47", trend: "↑ 8% from yesterday", color: "brand")
+                    MetricCard(label: "Avg Response", value: "2.3h", trend: "↓ 0.4h improvement", color: "accent")
+                    MetricCard(label: "CSAT Score", value: "94%", trend: "↑ 2pts this week", color: "success")
+                    MetricCard(label: "SLA Compliance", value: "97%", trend: "↑ 1% this week", color: "success")
+
+                div.dashboard-content-area:
+                    Tabs:
+                        tab "Recent Support":
+                            div.dashboard-grid:
+                                div.dashboard-main-col:
+                                    div.panel:
+                                        div.panel-header:
+                                            h2.panel-title: "Recent Tickets"
+                                            a.panel-link(href: "/tickets"): "View all →"
+                                        ResourceTable(tickets):
+                                            item TicketCard(ticket)
+                                            empty:
+                                                EmptyState(title: "No tickets yet", description: "New support requests will appear here")
+                                            loading:
+                                                p: "Loading tickets..."
+                                            error:
+                                                Alert(tone: "warning", message: "Could not load tickets")
+                                            filters:
+                                                - status
+                                                - priority
+                                            sort:
+                                                - priority
+                                div.dashboard-side-col:
+                                    div.panel:
+                                        div.panel-header:
+                                            h2.panel-title: "Urgent Tickets"
+                                            Badge(label: "Needs Attention", tone: "warning")
+                                        div.urgent-list:
+                                            for ticket in urgent_tickets:
+                                                div.urgent-item:
+                                                    div.urgent-subject: ticket.subject
+                                                    div.urgent-customer: ticket.customer_name
+                                            EmptyState(title: "No urgent tickets", description: "All clear!")
+                        tab "Performance Trend":
+                            div.panel:
+                                div.panel-header:
+                                    h2.panel-title: "Performance Trend"
+                                    p.panel-meta: "Last 7 days"
+                                div.chart-wrap:
+                                    div.chart-legend:
+                                        div.legend-item:
+                                            div.legend-dot.dot-received: ""
+                                            div.legend-label: "Received"
+                                        div.legend-item:
+                                            div.legend-dot.dot-resolved: ""
+                                            div.legend-label: "Resolved"
+                                    div.chart-bars:
+                                        for metric in metrics:
+                                            div.bar-group:
+                                                div.bar-wrap:
+                                                    div.bar-received: metric.tickets_received
+                                                    div.bar-resolved: metric.tickets_resolved
+                                                div.bar-label: metric.date_label
+                        tab "Team Status":
+                            div.panel:
+                                div.panel-header:
+                                    h2.panel-title: "Agent Status"
+                                    a.panel-link(href: "/agents"): "See all →"
+                                div.agent-status-list:
+                                    for agent in agents:
+                                        div.agent-status-row:
+                                            div.agent-status-avatar: agent.avatar_initials
+                                            div.agent-status-info:
+                                                div.agent-status-name: agent.name
+                                                div.agent-status-dept: agent.department
+                                            div.agent-status-badge: agent.status
+
+    style:
+        .app-shell:
+            display: "flex"
+            background: "#0b0d14"
+            width: "100%"
+            height: "100%"
+            min-height: "0"
+            overflow: "hidden"
+        .dashboard-main:
+            flex: "1"
+            min-height: "0"
+            overflow-y: "auto"
+            display: "flex"
+            flex-direction: "column"
+            min-width: "0"
+        .dash-header:
+            display: "flex"
+            align-items: "center"
+            justify-content: "space-between"
+            padding: "1.75rem 2rem 1.25rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+            background: "rgba(11, 13, 20, 0.8)"
+            backdrop-filter: "blur(20px)"
+            position: "sticky"
+            top: "0"
+            z-index: "10"
+            flex-wrap: "wrap"
+            gap: "1rem"
+            min-width: "0"
+            overflow: "hidden"
+        .dash-title-area:
+            min-width: "0"
+        .dash-title:
+            font-size: "clamp(1.2rem, 3vw, 1.5rem)"
+            font-weight: "800"
+            color: "#f1f5f9"
+            margin: "0 0 0.2rem"
+            letter-spacing: "-0.02em"
+            overflow-wrap: "break-word"
+            word-break: "break-word"
+            max-width: "100%"
+        .dash-subtitle:
+            font-size: "0.82rem"
+            color: "#475569"
+            margin: "0"
+            overflow-wrap: "break-word"
+            max-width: "100%"
+        .dash-actions:
+            display: "flex"
+            gap: "0.75rem"
+            flex-shrink: "0"
+        .kpi-row:
+            padding: "1.5rem 2rem"
+            display: "grid"
+            grid-template-columns: "repeat(4, 1fr)"
+            gap: "1rem"
+            align-items: "start"
+        .dashboard-content-area:
+            padding: "0 2rem 2rem"
+        .dashboard-grid:
+            display: "grid"
+            grid-template-columns: "62fr 38fr"
+            gap: "1.5rem"
+            align-items: "start"
+        .dashboard-main-col:
+            display: "flex"
+            flex-direction: "column"
+            gap: "1.5rem"
+            min-width: "0"
+        .dashboard-side-col:
+            display: "flex"
+            flex-direction: "column"
+            gap: "1.5rem"
+            min-width: "0"
+        .panel:
+            background: "rgba(17, 21, 33, 0.95)"
+            border: "1px solid rgba(255, 255, 255, 0.06)"
+            border-radius: "18px"
+            padding: "1.5rem"
+            backdrop-filter: "blur(10px)"
+        .panel-header:
+            display: "flex"
+            align-items: "center"
+            justify-content: "space-between"
+            margin-bottom: "1.25rem"
+            flex-wrap: "wrap"
+            gap: "0.5rem"
+        .panel-title:
+            font-size: "1rem"
+            font-weight: "700"
+            color: "#f1f5f9"
+            margin: "0"
+        .panel-meta:
+            font-size: "0.78rem"
+            color: "#475569"
+            margin: "0"
+        .panel-link:
+            font-size: "0.8rem"
+            color: "#6366f1"
+            text-decoration: "none"
+            font-weight: "500"
+            white-space: "nowrap"
+        .panel-link:hover:
+            color: "#a5b4fc"
+        .chart-wrap:
+            min-height: "180px"
+        .chart-legend:
+            display: "flex"
+            gap: "1.25rem"
+            margin-bottom: "1rem"
+        .legend-item:
+            display: "flex"
+            align-items: "center"
+            gap: "0.4rem"
+            font-size: "0.76rem"
+            color: "#64748b"
+        .legend-dot:
+            width: "8px"
+            height: "8px"
+            border-radius: "999px"
+        .dot-received:
+            background: "#6366f1"
+        .dot-resolved:
+            background: "#22d3ee"
+        .chart-bars:
+            display: "flex"
+            align-items: "flex-end"
+            gap: "0.5rem"
+            height: "120px"
+        .bar-group:
+            flex: "1"
+            display: "flex"
+            flex-direction: "column"
+            align-items: "center"
+            gap: "0.35rem"
+            height: "100%"
+            justify-content: "flex-end"
+        .bar-wrap:
+            display: "flex"
+            gap: "4px"
+            align-items: "flex-end"
+            height: "90px"
+        .bar-received:
+            width: "14px"
+            background: "rgba(99, 102, 241, 0.7)"
+            border-radius: "4px 4px 0 0"
+            min-height: "4px"
+            max-height: "100%"
+        .bar-resolved:
+            width: "14px"
+            background: "rgba(34, 211, 238, 0.65)"
+            border-radius: "4px 4px 0 0"
+            min-height: "4px"
+            max-height: "100%"
+        .bar-label:
+            font-size: "0.65rem"
+            color: "#475569"
+            text-align: "center"
+        .agent-status-list:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.25rem"
+        .agent-status-row:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+            padding: "0.6rem 0.5rem"
+            border-radius: "10px"
+            transition: "background 200ms ease"
+        .agent-status-row:hover:
+            background: "rgba(255, 255, 255, 0.03)"
+        .agent-status-avatar:
+            width: "32px"
+            height: "32px"
+            border-radius: "999px"
+            background: "linear-gradient(135deg, #6366f1, #22d3ee)"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-size: "0.7rem"
+            font-weight: "700"
+            color: "#ffffff"
+            flex-shrink: "0"
+        .agent-status-name:
+            font-size: "0.82rem"
+            font-weight: "600"
+            color: "#e2e8f0"
+        .agent-status-dept:
+            font-size: "0.72rem"
+            color: "#475569"
+        .agent-status-info:
+            flex: "1"
+            min-width: "0"
+        .agent-status-badge:
+            font-size: "0.68rem"
+            font-weight: "600"
+            padding: "0.2rem 0.55rem"
+            border-radius: "999px"
+            background: "rgba(16, 185, 129, 0.1)"
+            color: "#6ee7b7"
+            border: "1px solid rgba(16, 185, 129, 0.2)"
+            white-space: "nowrap"
+        .urgent-list:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.6rem"
+        .urgent-item:
+            padding: "0.75rem"
+            background: "rgba(239, 68, 68, 0.05)"
+            border: "1px solid rgba(239, 68, 68, 0.12)"
+            border-radius: "10px"
+            transition: "all 200ms ease"
+        .urgent-item:hover:
+            background: "rgba(239, 68, 68, 0.08)"
+            border: "1px solid rgba(239, 68, 68, 0.2)"
+        .urgent-subject:
+            font-size: "0.82rem"
+            font-weight: "600"
+            color: "#fca5a5"
+            margin-bottom: "0.2rem"
+        .urgent-customer:
+            font-size: "0.72rem"
+            color: "#64748b"

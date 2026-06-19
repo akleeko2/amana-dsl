@@ -1,0 +1,211 @@
+view Tickets:
+    protected:
+        allow: Agent.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+
+    canvas:
+        layout: dashboard-shell
+        density: comfortable
+        responsive:
+            mobile: stacked
+
+    server:
+        fetch tickets = Ticket.all(limit: 100)
+
+    client:
+        state ticket_modal = false
+
+    render:
+        div.app-shell:
+            SideRail(active_page: "tickets")
+            main.dashboard-main:
+                header.dash-header:
+                    div.dash-title-area:
+                        h1.dash-title: "Support Tickets"
+                        p.dash-subtitle: "Manage and resolve customer requests"
+                    div.dash-actions:
+                        Button(label: "Create Ticket", click: ticket_modal = true, variant: "primary-glow")
+
+                div.tickets-container:
+                    div.tickets-toolbar:
+                        div.filter-group:
+                            div.filter-label: "Status"
+                            div.filter-chips:
+                                Button(label: "All", variant: "ghost")
+                                Button(label: "Open", variant: "ghost")
+                                Button(label: "In Progress", variant: "ghost")
+                                Button(label: "Resolved", variant: "ghost")
+                        div.filter-group:
+                            div.filter-label: "Priority"
+                            div.filter-chips:
+                                Button(label: "Urgent", variant: "ghost")
+                                Button(label: "High", variant: "ghost")
+                                Button(label: "Medium", variant: "ghost")
+                                Button(label: "Low", variant: "ghost")
+
+                    ResourceTable(tickets):
+                        item TicketCard(ticket)
+                        empty:
+                            EmptyState(title: "No tickets found", description: "Adjust your filters or create a new ticket", action_label: "Create Ticket", action_href: "/tickets")
+                        loading:
+                            p: "Loading tickets..."
+                        error:
+                            Alert(tone: "warning", message: "Could not load tickets. Please refresh.")
+                        filters:
+                            - status
+                            - priority
+                            - category
+                        sort:
+                            - priority
+                            - response_time_hours
+
+                div.ticket-create-modal(show: ticket_modal):
+                    div.modal-backdrop(click: ticket_modal = false): ""
+                    div.modal-box:
+                        div.modal-header:
+                            h2.modal-title: "Create New Ticket"
+                            Button(label: "✕", click: ticket_modal = false, variant: "ghost")
+                        form [subject, description, customer_name, customer_email, priority, category]:
+                            connect Ticket.create
+                            default assigned_agent_id = Agent.current.id
+                            default assigned_agent_name = Agent.current.name
+                            submit: "Create Ticket"
+                            redirect success -> /tickets
+                            field subject:
+                                label: "Subject"
+                                placeholder: "Briefly describe the issue"
+                                required: true
+                            field description:
+                                label: "Description"
+                                type: textarea
+                                placeholder: "Provide full details about the customer's issue..."
+                                required: true
+                            field customer_name:
+                                label: "Customer Name"
+                                placeholder: "John Smith"
+                                required: true
+                            field customer_email:
+                                label: "Customer Email"
+                                type: "email"
+                                placeholder: "john@company.com"
+                                required: true
+                            field priority:
+                                label: "Priority"
+                                placeholder: "medium"
+                            field category:
+                                label: "Category"
+                                placeholder: "general"
+
+    style:
+        .app-shell:
+            display: "flex"
+            background: "#0b0d14"
+            width: "100%"
+            height: "100%"
+            min-height: "0"
+            overflow: "hidden"
+        .dashboard-main:
+            flex: "1"
+            min-height: "0"
+            overflow-y: "auto"
+            display: "flex"
+            flex-direction: "column"
+            min-width: "0"
+        .dash-header:
+            display: "flex"
+            align-items: "center"
+            justify-content: "space-between"
+            padding: "1.75rem 2rem 1.25rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+            background: "rgba(11, 13, 20, 0.8)"
+            backdrop-filter: "blur(20px)"
+            position: "sticky"
+            top: "0"
+            z-index: "10"
+            flex-wrap: "wrap"
+            gap: "1rem"
+            min-width: "0"
+            overflow: "hidden"
+        .dash-title-area:
+            min-width: "0"
+        .dash-title:
+            font-size: "clamp(1.2rem, 3vw, 1.5rem)"
+            font-weight: "800"
+            color: "#f1f5f9"
+            margin: "0 0 0.2rem"
+            letter-spacing: "-0.02em"
+            overflow-wrap: "break-word"
+            word-break: "break-word"
+            max-width: "100%"
+        .dash-subtitle:
+            font-size: "0.82rem"
+            color: "#475569"
+            margin: "0"
+            overflow-wrap: "break-word"
+            max-width: "100%"
+        .dash-actions:
+            display: "flex"
+            gap: "0.75rem"
+            flex-shrink: "0"
+        .tickets-container:
+            padding: "1.5rem 2rem"
+            flex: "1"
+        .tickets-toolbar:
+            display: "flex"
+            gap: "1.5rem"
+            margin-bottom: "1.25rem"
+            flex-wrap: "wrap"
+            padding: "1rem 1.25rem"
+            background: "rgba(17, 21, 33, 0.8)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "14px"
+        .filter-group:
+            display: "flex"
+            align-items: "center"
+            gap: "0.5rem"
+            flex-wrap: "wrap"
+        .filter-label:
+            font-size: "0.75rem"
+            font-weight: "600"
+            color: "#475569"
+            white-space: "nowrap"
+            text-transform: "uppercase"
+            letter-spacing: "0.06em"
+        .filter-chips:
+            display: "flex"
+            gap: "0.35rem"
+            flex-wrap: "wrap"
+        .ticket-create-modal:
+            position: "fixed"
+            inset: "0"
+            z-index: "100"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            padding: "1rem"
+        .modal-backdrop:
+            position: "absolute"
+            inset: "0"
+            background: "rgba(0, 0, 0, 0.75)"
+            backdrop-filter: "blur(6px)"
+        .modal-box:
+            position: "relative"
+            background: "rgba(17, 21, 33, 0.99)"
+            border: "1px solid rgba(255, 255, 255, 0.09)"
+            border-radius: "22px"
+            padding: "2rem"
+            width: "min(560px, 92vw)"
+            box-shadow: "0 32px 80px rgba(0, 0, 0, 0.65)"
+            max-height: "90vh"
+            overflow: "auto"
+        .modal-header:
+            display: "flex"
+            align-items: "center"
+            justify-content: "space-between"
+            margin-bottom: "1.5rem"
+        .modal-title:
+            font-size: "1.2rem"
+            font-weight: "700"
+            color: "#f1f5f9"
+            margin: "0"

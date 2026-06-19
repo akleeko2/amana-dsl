@@ -1,0 +1,255 @@
+view Chat:
+    canvas:
+        layout: column
+        density: comfortable
+
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+
+    server:
+        fetch conversations = Conversation.all(limit: 100)
+        fetch active_conversation = Conversation.find(params.id)
+        fetch messages = Message.filter(conversation_id: params.id, limit: 200)
+
+    client:
+        state composer_input = ""
+        state typing = false
+
+    render:
+        div.app-shell:
+            compose:
+                layout: dashboard-shell
+            
+            aside.side-rail:
+                div.logo-area:
+                    h3.brand-title: "AI Workspace"
+                
+                # New Chat Creator
+                form [title, user_id]:
+                    connect Conversation.create
+                    default title = "New Conversation"
+                    default user_id = User.current.id
+                    submit: "+ New Chat"
+                    redirect success -> /chat
+
+                div.conversations-scroll:
+                    for conv in conversations:
+                        a(href: f"/chat/{conv.id}", class: "conv-item"):
+                            span: conv.title
+
+                div.sidebar-footer:
+                    a(href: "/prompts", class: "nav-footer-link"): "Prompt Library"
+                    a(href: "/settings", class: "nav-footer-link"): "Settings"
+                    form []:
+                        connect User.logout
+                        submit: "Sign Out"
+                        redirect success -> /login
+
+            main.dashboard-main:
+                if active_conversation != null:
+                    div.chat-container:
+                        div.chat-header:
+                            h3.chat-title: active_conversation.title
+
+                        div.chat-messages:
+                            for msg in messages:
+                                if msg.sender == "user":
+                                    div.message-row.user-row:
+                                        div.message-bubble.user-bubble:
+                                            p: msg.content
+                                else:
+                                    div.message-row.assistant-row:
+                                        div.message-bubble.assistant-bubble:
+                                            if msg.content_type == "code":
+                                                div.code-block-wrapper:
+                                                    pre: msg.content
+                                            else:
+                                                if msg.content_type == "rtl":
+                                                    div(dir: "rtl"):
+                                                        p: msg.content
+                                                else:
+                                                    if msg.content_type == "note":
+                                                        div.system-note:
+                                                            p: msg.content
+                                                    else:
+                                                        p: msg.content
+
+                            # Mock Typing Indicator
+                            div.message-row.assistant-row(show: "typing"):
+                                div.message-bubble.assistant-bubble:
+                                    p.typing-text: "AI is composing a response..."
+
+                        # Quick Prompt Suggestions
+                        div.prompt-chips:
+                            Button(label: "Draft Business Email", click: "composer_input = 'Draft a follow-up email about milestones'")
+                            Button(label: "Explain Rust Generics", click: "composer_input = 'Can you show how to use generics in Rust with an example?'")
+                            Button(label: "شرح اتجاه RTL", click: "composer_input = 'اكتب شرحا لخاصية RTL باللغة العربية'")
+
+                        # Composer Form Container
+                        div.composer-box:
+                            form [content, conversation_id, sender, content_type]:
+                                connect Message.create
+                                default conversation_id = active_conversation.id
+                                default sender = "user"
+                                default content_type = "text"
+                                submit: "Send"
+                                redirect success -> /chat
+                                field content:
+                                    label: ""
+                                    type: textarea
+                                    placeholder: "Ask anything..."
+                                    required: true
+                else:
+                    div.empty-container:
+                        EmptyState(title: "AI Chat Workspace", description: "Select a thread from the sidebar or click '+ New Chat' to start conversing.")
+
+    style:
+        .app-shell:
+            display: flex
+            height: 100vh
+            overflow: hidden
+            background-color: #0f172a
+        .side-rail:
+            width: 280px
+            background-color: #1e293b
+            border-right: 1px solid #334155
+            display: flex
+            flex-direction: column
+            padding: md
+            gap: md
+        .brand-title:
+            font-size: lg
+            font-weight: 700
+            color: #f8fafc
+            margin-bottom: sm
+        .conversations-scroll:
+            flex: 1
+            overflow-y: auto
+            display: flex
+            flex-direction: column
+            gap: xs
+        .conv-item:
+            padding: sm
+            border-radius: 4px
+            color: #cbd5e1
+            text-decoration: none
+            font-size: sm
+            transition: background 200ms
+        .conv-item:hover:
+            background: #334155
+            color: #f8fafc
+        .sidebar-footer:
+            border-top: 1px solid #334155
+            padding-top: md
+            display: flex
+            flex-direction: column
+            gap: sm
+        .nav-footer-link:
+            color: #94a3b8
+            text-decoration: none
+            font-size: sm
+        .nav-footer-link:hover:
+            color: #f8fafc
+        .dashboard-main:
+            flex: 1
+            display: flex
+            flex-direction: column
+            height: 100%
+            overflow: hidden
+        .chat-container:
+            display: flex
+            flex-direction: column
+            height: 100%
+            overflow: hidden
+        .chat-header:
+            padding: md
+            border-bottom: 1px solid #334155
+            background-color: #1e293b
+        .chat-title:
+            font-size: md
+            font-weight: 600
+            color: #f8fafc
+        .chat-messages:
+            height: calc(100vh - 220px)
+            max-height: calc(100vh - 220px)
+            overflow-y: auto
+            padding: md
+            display: flex
+            flex-direction: column
+            gap: md
+            background-color: #0f172a
+        .message-row:
+            display: flex
+            width: 100%
+        .user-row:
+            justify-content: flex-end
+        .assistant-row:
+            justify-content: flex-start
+        .message-bubble:
+            max-width: 70%
+            padding: md
+            border-radius: 8px
+            font-size: sm
+            line-height: comfortable
+        .user-bubble:
+            background-color: #0ea5e9
+            color: #ffffff
+        .assistant-bubble:
+            background-color: #1e293b
+            color: #f8fafc
+            border: 1px solid #334155
+        .code-block-wrapper:
+            background-color: #0f172a
+            padding: md
+            border-radius: 6px
+            overflow-x: auto
+            font-family: monospace
+            border: 1px solid #334155
+            margin-top: sm
+            white-space: pre-wrap
+        .system-note:
+            background-color: #0f172a
+            border-left: 3px solid #10b981
+            padding: sm
+            margin-top: sm
+            color: #10b981
+            font-size: xs
+        .typing-text:
+            color: #94a3b8
+            font-style: italic
+        .prompt-chips:
+            display: flex
+            gap: sm
+            padding: sm
+            background-color: #0f172a
+            border-top: 1px solid #334155
+            overflow-x: auto
+            flex-shrink: 0
+        .composer-box:
+            padding: md
+            background-color: #1e293b
+            border-top: 1px solid #334155
+            display: flex
+            gap: sm
+            align-items: center
+        .composer-textarea:
+            flex: 1
+            background-color: #0f172a
+            color: #f8fafc
+            border: 1px solid #334155
+            border-radius: 6px
+            padding: sm
+            height: 44px
+            font-size: sm
+            resize: none
+        .empty-container:
+            flex: 1
+            display: flex
+            align-items: center
+            justify-content: center
+            background-color: #0f172a
+            padding: xl
+        [for="title"], [for="user_id"], [for="conversation_id"], [for="sender"], [for="content_type"]:
+            display: none

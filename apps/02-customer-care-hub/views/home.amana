@@ -1,0 +1,338 @@
+view Home:
+    canvas:
+        layout: column
+        density: comfortable
+        responsive:
+            mobile: stacked
+
+    render:
+        div.home-shell:
+            Navbar(brand: "Customer Care Hub", variant: "glass", sticky: "true", links: "Dashboard /dashboard, Tickets /tickets, Customers /customers")
+
+            section.hero-section:
+                compose:
+                    layout: split
+                    ratio: "58/42"
+                    align: "center"
+                visual:
+                    gradient: "hero"
+                    surface: glass
+                brand:
+                    voice: "professional"
+                responsive:
+                    mobile: stacked
+                div.hero-content:
+                    div.hero-eyebrow:
+                        div.eyebrow-dot: ""
+                        span: "Next-Generation Support Platform"
+                    h1.hero-title: "Transform Your"
+                    h1.hero-title-accent: "Customer Support."
+                    p.hero-subtitle: "Resolve tickets faster. Delight customers. Empower your team with real-time intelligence and seamless omnichannel workflows."
+                    div.hero-stats-row:
+                        div.hero-inline-stat:
+                            span.inline-stat-value: "94%"
+                            span.inline-stat-label: "CSAT"
+                        div.stat-divider: ""
+                        div.hero-inline-stat:
+                            span.inline-stat-value: "2.1h"
+                            span.inline-stat-label: "Avg Response"
+                        div.stat-divider: ""
+                        div.hero-inline-stat:
+                            span.inline-stat-value: "99.2%"
+                            span.inline-stat-label: "SLA Compliance"
+                    div.hero-actions:
+                        Button(label: "Start Free Trial", href: "/signup", variant: "primary-glow")
+                        Button(label: "View Dashboard", href: "/login", variant: "ghost")
+                div.hero-visual:
+                    div.hero-dashboard-preview:
+                        div.preview-header:
+                            div.preview-dot.red: ""
+                            div.preview-dot.yellow: ""
+                            div.preview-dot.green: ""
+                            div.preview-title: "Customer Care Hub — Dashboard"
+                        div.preview-kpis:
+                            div.preview-kpi:
+                                div.preview-kpi-value: "47"
+                                div.preview-kpi-label: "Open Tickets"
+                            div.preview-kpi:
+                                div.preview-kpi-value: "94%"
+                                div.preview-kpi-label: "CSAT"
+                            div.preview-kpi:
+                                div.preview-kpi-value: "2.3h"
+                                div.preview-kpi-label: "Avg Response"
+                        div.preview-chart:
+                            div.preview-bar: ""
+                            div.preview-bar.tall: ""
+                            div.preview-bar.medium: ""
+                            div.preview-bar.short: ""
+                            div.preview-bar.tall: ""
+                            div.preview-bar.medium: ""
+                            div.preview-bar.tall: ""
+
+            section.features-section:
+                compose:
+                    layout: bento
+                    columns: 3
+                    gap: lg
+                responsive:
+                    mobile: stacked
+                Section(eyebrow: "Platform Features", title: "Everything your support team needs", subtitle: "Built for enterprise-grade customer operations")
+                Grid(columns: "3", responsive: "stacked"):
+                    responsive:
+                        mobile: stacked
+                    FeatureCard(eyebrow: "Unified Inbox", title: "Omnichannel Tickets", description: "Manage email, chat, and phone tickets in one intelligent workspace with AI-powered triage and smart routing.")
+                    FeatureCard(eyebrow: "Live Analytics", title: "Real-Time Reports", description: "Track CSAT, SLA compliance, and agent performance with live dashboards and predictive trend analysis.")
+                    FeatureCard(eyebrow: "Customer 360", title: "Customer Intelligence", description: "Full customer profiles with ticket history, satisfaction scores, LTV tracking, and risk indicators.")
+                    FeatureCard(eyebrow: "Self-Service", title: "Knowledge Base", description: "Self-service articles and internal wikis reduce ticket volume and empower customers to find answers.")
+                    FeatureCard(eyebrow: "Team Tools", title: "Agent Workload", description: "Balance agent capacity, track live performance, and monitor real-time team availability effortlessly.")
+                    FeatureCard(eyebrow: "Enterprise", title: "Role-Based Access", description: "Granular permissions ensure agents see only what they need, keeping data secure and fully compliant.")
+
+            section.social-proof-section:
+                compose:
+                    layout: magazine
+                    columns: 3
+                responsive:
+                    mobile: stacked
+                Section(title: "Loved by support teams worldwide", subtitle: "Join 2,400+ teams already delivering exceptional support")
+                Grid(columns: "3", responsive: "stacked"):
+                    responsive:
+                        mobile: stacked
+                    TestimonialCard(quote: "Customer Care Hub cut our average response time from 6 hours to under 2. Our CSAT jumped 14 points in 60 days.", author: "Sarah V.", role: "Head of Support, NorthTech")
+                    TestimonialCard(quote: "The real-time dashboard and agent workload view have transformed how we manage our global team of 50+ agents.", author: "David K.", role: "VP Operations, BlueWave")
+                    TestimonialCard(quote: "Finally a platform built for support teams, not executives. The ticket workflow is incredible and onboarding took minutes.", author: "Mina R.", role: "Senior Support Lead, Luma Studio")
+
+            section.cta-section:
+                compose:
+                    layout: split
+                    ratio: "55/45"
+                visual:
+                    gradient: "accent"
+                    surface: glass
+                div.cta-content:
+                    div.cta-eyebrow: "Get started today"
+                    h2.cta-title: "Ready to transform your customer support?"
+                    p.cta-subtitle: "Join 2,400+ support teams already using Customer Care Hub. Setup takes less than 5 minutes."
+                    div.cta-buttons:
+                        Button(label: "Get Started Free", href: "/signup", variant: "primary-glow")
+                        Button(label: "Book a Demo", href: "/login", variant: "ghost")
+                div.cta-visual:
+                    div.cta-numbers:
+                        div.cta-big-number: "2,400+"
+                        div.cta-big-desc: "Teams worldwide"
+                    div.cta-numbers:
+                        div.cta-big-number: "12M+"
+                        div.cta-big-desc: "Tickets resolved"
+
+            Footer()
+
+    style:
+        .home-shell:
+            background: "#080a10"
+            min-height: "100vh"
+            overflow-x: "hidden"
+        .hero-section:
+            min-height: "90vh"
+            padding: "7rem clamp(1.5rem, 5vw, 5rem) 5rem"
+            display: "flex"
+            align-items: "center"
+            position: "relative"
+        .hero-content:
+            max-width: "580px"
+        .hero-eyebrow:
+            display: "flex"
+            align-items: "center"
+            gap: "0.5rem"
+            font-size: "0.78rem"
+            font-weight: "700"
+            color: "#6366f1"
+            text-transform: "uppercase"
+            letter-spacing: "0.12em"
+            margin-bottom: "1.5rem"
+        .eyebrow-dot:
+            width: "6px"
+            height: "6px"
+            border-radius: "999px"
+            background: "#6366f1"
+            box-shadow: "0 0 8px rgba(99, 102, 241, 0.8)"
+        .hero-title:
+            font-size: "clamp(2.8rem, 5.5vw, 4.5rem)"
+            font-weight: "900"
+            color: "#f1f5f9"
+            line-height: "1.05"
+            margin: "0 0 0.05em"
+            letter-spacing: "-0.03em"
+        .hero-title-accent:
+            font-size: "clamp(2.8rem, 5.5vw, 4.5rem)"
+            font-weight: "900"
+            background: "linear-gradient(135deg, #6366f1 0%, #22d3ee 100%)"
+            -webkit-background-clip: "text"
+            -webkit-text-fill-color: "transparent"
+            background-clip: "text"
+            line-height: "1.05"
+            margin: "0 0 1.5rem"
+            letter-spacing: "-0.03em"
+        .hero-subtitle:
+            font-size: "1.1rem"
+            color: "#94a3b8"
+            line-height: "1.75"
+            max-width: "500px"
+            margin-bottom: "1.75rem"
+        .hero-stats-row:
+            display: "flex"
+            align-items: "center"
+            gap: "1rem"
+            margin-bottom: "2.5rem"
+            flex-wrap: "wrap"
+        .hero-inline-stat:
+            display: "flex"
+            align-items: "baseline"
+            gap: "0.4rem"
+        .inline-stat-value:
+            font-size: "1.3rem"
+            font-weight: "800"
+            color: "#f1f5f9"
+            letter-spacing: "-0.02em"
+        .inline-stat-label:
+            font-size: "0.78rem"
+            color: "#475569"
+            font-weight: "500"
+        .stat-divider:
+            width: "1px"
+            height: "24px"
+            background: "rgba(255, 255, 255, 0.1)"
+        .hero-actions:
+            display: "flex"
+            gap: "0.85rem"
+            flex-wrap: "wrap"
+        .hero-visual:
+            display: "flex"
+            justify-content: "center"
+            align-items: "center"
+            padding: "1rem"
+        .hero-dashboard-preview:
+            background: "rgba(17, 21, 33, 0.95)"
+            border: "1px solid rgba(255, 255, 255, 0.08)"
+            border-radius: "20px"
+            padding: "1.25rem"
+            width: "min(400px, 100%)"
+            box-shadow: "0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.1)"
+        .preview-header:
+            display: "flex"
+            align-items: "center"
+            gap: "0.4rem"
+            margin-bottom: "1rem"
+            padding-bottom: "0.75rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+        .preview-dot:
+            width: "10px"
+            height: "10px"
+            border-radius: "999px"
+        .preview-dot.red:
+            background: "#ff5f57"
+        .preview-dot.yellow:
+            background: "#ffbd2e"
+        .preview-dot.green:
+            background: "#28c840"
+        .preview-title:
+            font-size: "0.72rem"
+            color: "#475569"
+            margin-left: "0.5rem"
+        .preview-kpis:
+            display: "grid"
+            grid-template-columns: "repeat(3, 1fr)"
+            gap: "0.75rem"
+            margin-bottom: "1.25rem"
+        .preview-kpi:
+            background: "rgba(99, 102, 241, 0.08)"
+            border: "1px solid rgba(99, 102, 241, 0.12)"
+            border-radius: "12px"
+            padding: "0.85rem 0.75rem"
+            text-align: "center"
+        .preview-kpi-value:
+            font-size: "1.3rem"
+            font-weight: "800"
+            color: "#a5b4fc"
+            line-height: "1"
+            margin-bottom: "0.25rem"
+        .preview-kpi-label:
+            font-size: "0.65rem"
+            color: "#475569"
+        .preview-chart:
+            display: "flex"
+            align-items: "flex-end"
+            gap: "0.4rem"
+            height: "70px"
+            padding: "0.5rem 0 0"
+        .preview-bar:
+            flex: "1"
+            background: "rgba(99, 102, 241, 0.5)"
+            border-radius: "4px 4px 0 0"
+            min-height: "20%"
+            height: "40%"
+        .preview-bar.tall:
+            height: "85%"
+            background: "rgba(99, 102, 241, 0.7)"
+        .preview-bar.medium:
+            height: "55%"
+        .preview-bar.short:
+            height: "30%"
+            background: "rgba(99, 102, 241, 0.35)"
+        .features-section:
+            padding: "7rem clamp(1.5rem, 5vw, 5rem)"
+            background: "rgba(11, 13, 20, 0.98)"
+            border-top: "1px solid rgba(255, 255, 255, 0.04)"
+        .social-proof-section:
+            padding: "7rem clamp(1.5rem, 5vw, 5rem)"
+            background: "#080a10"
+            border-top: "1px solid rgba(255, 255, 255, 0.04)"
+        .cta-section:
+            padding: "7rem clamp(1.5rem, 5vw, 5rem)"
+            background: "rgba(99, 102, 241, 0.05)"
+            border-top: "1px solid rgba(99, 102, 241, 0.1)"
+            border-bottom: "1px solid rgba(99, 102, 241, 0.1)"
+        .cta-content:
+            max-width: "560px"
+        .cta-eyebrow:
+            font-size: "0.78rem"
+            font-weight: "700"
+            color: "#6366f1"
+            text-transform: "uppercase"
+            letter-spacing: "0.12em"
+            margin-bottom: "1rem"
+        .cta-title:
+            font-size: "clamp(1.8rem, 4vw, 2.8rem)"
+            font-weight: "800"
+            color: "#f1f5f9"
+            margin-bottom: "0.75rem"
+            letter-spacing: "-0.025em"
+            line-height: "1.15"
+        .cta-subtitle:
+            color: "#94a3b8"
+            font-size: "1.05rem"
+            margin-bottom: "2rem"
+            line-height: "1.65"
+        .cta-buttons:
+            display: "flex"
+            gap: "0.85rem"
+            flex-wrap: "wrap"
+        .cta-visual:
+            display: "flex"
+            flex-direction: "column"
+            gap: "2rem"
+            align-items: "center"
+            justify-content: "center"
+        .cta-numbers:
+            text-align: "center"
+        .cta-big-number:
+            font-size: "clamp(2.5rem, 5vw, 3.5rem)"
+            font-weight: "900"
+            background: "linear-gradient(135deg, #6366f1, #22d3ee)"
+            -webkit-background-clip: "text"
+            -webkit-text-fill-color: "transparent"
+            background-clip: "text"
+            line-height: "1"
+            letter-spacing: "-0.04em"
+        .cta-big-desc:
+            color: "#64748b"
+            font-size: "0.9rem"
+            margin-top: "0.4rem"
