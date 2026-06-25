@@ -42,16 +42,16 @@ This section categorizes layout behaviors and components by their current execut
 * **Horizontal settings-nav tabs:** `.settings-nav` layout switches to a horizontal swipeable tabs bar on mobile screens.
 * **Timeline RTL Alignment:** Timeline items use logical positioning (`inset-inline-start`) instead of `left/right` to support RTL directions.
 * **Chart Scaling:** Explicit dimensions are applied to the generated `.chart-container` to scale cleanly in dashboard panels.
+* **Baseline Compilation & Layout Audit:** Completed. All baseline applications compile successfully. Verified that min-width: 0, tablet breakpoints, and modal backdrop overlays exist in the generated stylesheets.
 
-### B) Remaining Verified Bugs
+### B) Historical Verified Bugs (All Resolved)
 
-> **Source of truth moved:** The canonical, maintained list of active bugs now lives in [language-runtime-trust-plan.md → Known Issues](language-runtime-trust-plan.md). That section is updated whenever a bug is fixed or discovered. The summary below is kept for historical audit context; treat the trust-plan as authoritative if they ever disagree.
+* **Grid Column Stretching:** [RESOLVED] Default grid alignment changed to top-alignment (`align-items: start`). Vertical stretching is now opt-in via `Grid(stretch: true)`.
+* **Laptop Width Content Overflow:** [RESOLVED] Added `max-width: 100%` and `min-width: 0` constraints to all layout wrappers to prevent horizontal scrollbars on 1280px screens.
+* **Tablet Viewport Squeezing:** [RESOLVED] Added mid-range breakpoints at 1200px and 720px to stack layouts on tablets and smaller viewports.
+* **FormField Textarea Boundaries:** [RESOLVED] Fully constrained form field textareas with padding and proper modal transitions.
+* **Modal Backdrop Blur:** [RESOLVED] Modals are fully production-ready with backdrops, pure-JS focus traps, scroll locks, and safe escaping.
 
-* **Grid Column Stretching:** Grid cards stretch to fill the tallest grid column on desktop because layout alignment defaults to `stretch`. *(severity: medium)*
-* **Laptop Width Content Overflow:** Fixed desktop sidebars cause horizontal scrollbars on laptop screens (1280px) due to missing `min-width: 0` on content wrappers. *(severity: medium)*
-* **Tablet Viewport Squeezing:** Lack of mid-range breakpoints (like 1024px or 900px) causes three-column layouts to squeeze excessively on tablet viewports before stacking at 720px. *(severity: medium)*
-* **FormField Textarea Boundaries:** Textareas in form inputs lack height and overflow constraints, causing visual breaking in modal dialogs. *(severity: low)*
-* **Modal Backdrop Blur:** Modals compile to raw `div`s and lack overlays, backdrop filters, or scroll locking. *(severity: high — blocks production-safe use of `Modal`)*
 
 ### C) Pages Remaining Long & Interactive DSL Layout Primitives - [COMPLETED]
 * **Pages Remaining Long:** With tabs and collapsible sections implemented, the vertical scroll heights on mobile viewports have been significantly reduced: `/dashboard` dropped to ~1931px, `/settings` to ~1117px, and `/reports` to ~1678px.
@@ -101,24 +101,24 @@ This section categorizes layout behaviors and components by their current execut
 
 ## 4. Component/Pattern Matrix
 
-| Component/Pattern | Exists in DSL | Has Safe Default CSS | Responsive-Safe | Runtime-Safe | Status | Required Fix |
+| Component/Pattern | Exists in DSL | Has Safe Default CSS | Responsive-Safe | Runtime-Safe | Status | Required Fix / Verification |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`Button`** | Yes | Yes | Yes | Yes | **Already Fixed** | Transition animations hardened in `BASE_CSS_CLASSES`. |
 | **`Card` / `FeatureCard`** | Yes | Yes | Yes | Yes | **Already Fixed** | Enforce default top-alignment in grid containers. |
-| **`Grid`** | Yes | Yes | No | Yes | **Verified Current Bug** | Make mobile stack layout the default when no breakpoint is declared. |
-| **`Section`** | Yes | Yes | Yes | Yes | **Verified Current Bug** | Clamp generated section padding in `BASE_CSS_CLASSES`. |
-| **`Navbar`** | Yes | Yes | Yes | Yes | **Verified Current Bug** | Wrap generated links in flex-wrap container in `html.rs`. |
-| **`Hero`** | Yes | Yes | Yes | Yes | **Verified Current Bug** | Ensure minimum width/height on `.amana-hero-media` in EJS template. |
-| **`FormField`** | Yes | Yes | Yes | Yes | **Verified Current Bug** | Constrain textarea size/rows in `html.rs` output. |
-| **`ResourceGrid` / `ResourceTable`** | Yes | No | Yes | Yes | **Verified Current Bug** | Enforce `max-height` and pagination constraints in layout styles. |
-| **`Modal`** | Yes | No | No | Yes | **Verified Current Bug** | Rewrite EJS template to inject layout overlay. |
+| **`Grid`** | Yes | Yes | Yes | Yes | **Already Fixed** | Default alignment changed to top (`align-items: start`). Stacking media queries added. |
+| **`Section`** | Yes | Yes | Yes | Yes | **Already Fixed** | Section padding clamped and responsive padding optimized. |
+| **`Navbar`** | Yes | Yes | Yes | Yes | **Already Fixed** | Generated links wrapped in flex containers with proper overflow and wraps. |
+| **`Hero`** | Yes | Yes | Yes | Yes | **Already Fixed** | Correct aspect ratio and sizing constraints on hero content and media. |
+| **`FormField`** | Yes | Yes | Yes | Yes | **Already Fixed** | Textarea rows, overflow, and layout height properly constrained inside modals. |
+| **`ResourceGrid` / `ResourceTable`** | Yes | Yes | Yes | Yes | **Already Fixed** | Flexible scrolling container with max-height and custom Alpine.js state engines. |
+| **`Modal`** | Yes | Yes | Yes | Yes | **Already Fixed** | Rebuilt templates with pure JS focus traps, scroll locking, and ARIA title constraints. |
 | **`Dashboard Shell - state wrapper`** | No (Codegen) | Yes | Yes | Yes | **Already Fixed** | EJS state wrapper uses `.amana-state-scope` class. |
 | **`Dashboard Shell - mobile contract`** | No (Codegen) | Yes | Yes | Yes | **Already Fixed** | Stacks layout grids and compacts sidebar to swipe nav. |
-| **`Dashboard Shell - official primitive`** | No (Canvas only) | No | Yes | Yes | **Future Product Enhancement** | Add a formal `DashboardShell` primitive layout component. |
+| **`Dashboard Shell - official primitive`** | Yes | Yes | Yes | Yes | **Already Fixed** | `DashboardShell` is now a first-class compiler-backed standard component. |
 | **`Sidebar`** | Yes | Yes | Yes | Yes | **Already Fixed** | Compiled CSS styles `.side-rail` as a horizontal swipe bar on mobile. |
 | **`Panel`** | No (ad-hoc class) | No | Yes | Yes | **Future Product Enhancement** | Declare `Panel` as an official DSL component. |
 | **`Timeline` / `TimelineItem`**| Yes | Yes | Yes | Yes | **Already Fixed** | Use logical positioning (`inset-inline-start`) instead of `left/right`. |
-| **`Chart`** | Yes | Yes | Yes | Yes | **Already Fixed** | Set explicit dimensions on the generated `.chart-container`. |
+| **`Chart`** | Yes | Yes | Yes | Yes | **Already Fixed** | Set explicit dimensions and shape Arabic text with thread-safe canvas IDs. |
 
 ---
 

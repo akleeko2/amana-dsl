@@ -1,0 +1,257 @@
+model Lead:
+    title: str required
+    value: int required
+    status: str required
+    customer_id: int foreign_key Customer(id) on_delete CASCADE
+
+seed Lead:
+    row:
+        title: "بوابة دفع إلكتروني"
+        value: 15000
+        status: "new"
+        customer_id: 1
+    row:
+        title: "تطبيق توصيل طلبات"
+        value: 45000
+        status: "in_progress"
+        customer_id: 2
+    row:
+        title: "عقد صيانة سنوي"
+        value: 60000
+        status: "won"
+        customer_id: 3
+    row:
+        title: "تطوير موقع تعريفي"
+        value: 5000
+        status: "lost"
+        customer_id: 4
+    row:
+        title: "نظام إدارة الموارد ERP"
+        value: 120000
+        status: "new"
+        customer_id: 5
+    row:
+        title: "بناء الهوية البصرية"
+        value: 8000
+        status: "in_progress"
+        customer_id: 6
+    row:
+        title: "تطوير تطبيق جوال للأندرويد"
+        value: 30000
+        status: "new"
+        customer_id: 7
+    row:
+        title: "تصميم واجهة متجر"
+        value: 7000
+        status: "in_progress"
+        customer_id: 8
+    row:
+        title: "بوابة عملاء متكاملة"
+        value: 25000
+        status: "won"
+        customer_id: 9
+    row:
+        title: "استشارة قانونية وتوثيق"
+        value: 10000
+        status: "new"
+        customer_id: 10
+    row:
+        title: "تأسيس شبكة داخلية"
+        value: 55000
+        status: "in_progress"
+        customer_id: 11
+    row:
+        title: "تطوير نظام حجز تذاكر"
+        value: 40000
+        status: "new"
+        customer_id: 12
+    row:
+        title: "نظام نقاط البيع POS"
+        value: 18000
+        status: "won"
+        customer_id: 13
+    row:
+        title: "تدريب تقني وتأهيل"
+        value: 12000
+        status: "lost"
+        customer_id: 14
+    row:
+        title: "محفظة رقمية وتطبيقاتها"
+        value: 200000
+        status: "in_progress"
+        customer_id: 15
+    row:
+        title: "تجهيز خوادم سحابية"
+        value: 35000
+        status: "new"
+        customer_id: 16
+    row:
+        title: "عقد توريد مستلزمات"
+        value: 22000
+        status: "won"
+        customer_id: 17
+    row:
+        title: "تسويق الكتروني متكامل"
+        value: 15000
+        status: "in_progress"
+        customer_id: 18
+    row:
+        title: "تركيب نظام تكييف مركزي"
+        value: 110000
+        status: "new"
+        customer_id: 19
+    row:
+        title: "توريد أجهزة كاشير"
+        value: 25000
+        status: "won"
+        customer_id: 20
+    row:
+        title: "تطوير لوحة تحكم داخلية"
+        value: 15000
+        status: "new"
+        customer_id: 1
+    row:
+        title: "تطبيق إدارة مهام للفريق"
+        value: 8000
+        status: "in_progress"
+        customer_id: 2
+    row:
+        title: "تكامل مع نظام ساب SAP"
+        value: 95000
+        status: "won"
+        customer_id: 3
+    row:
+        title: "تصميم موقع تعريفي للشركة"
+        value: 4500
+        status: "lost"
+        customer_id: 4
+    row:
+        title: "أتمتة خط الإنتاج"
+        value: 180000
+        status: "in_progress"
+        customer_id: 5
+    row:
+        title: "تصميم شعار جديد"
+        value: 3500
+        status: "won"
+        customer_id: 6
+    row:
+        title: "تطوير تطبيق iOS"
+        value: 35000
+        status: "new"
+        customer_id: 7
+    row:
+        title: "تحسين محركات البحث SEO"
+        value: 6000
+        status: "in_progress"
+        customer_id: 8
+    row:
+        title: "تطوير بوابة دفع سريعة"
+        value: 14000
+        status: "won"
+        customer_id: 9
+    row:
+        title: "عقد استشارات سنوي"
+        value: 80000
+        status: "new"
+        customer_id: 10
+    row:
+        title: "تأمين وحماية الشبكة"
+        value: 22000
+        status: "in_progress"
+        customer_id: 11
+    row:
+        title: "أتمتة خدمة العملاء"
+        value: 16000
+        status: "new"
+        customer_id: 12
+    row:
+        title: "تركيب نظام كاميرات مراقبة"
+        value: 30000
+        status: "won"
+        customer_id: 13
+    row:
+        title: "دورة تدريبية متخصصة"
+        value: 9000
+        status: "lost"
+        customer_id: 14
+    row:
+        title: "تطوير تطبيق بلوكشين"
+        value: 150000
+        status: "in_progress"
+        customer_id: 15
+    row:
+        title: "عقد استضافة خادم مخصص"
+        value: 18000
+        status: "new"
+        customer_id: 16
+    row:
+        title: "تجهيز غرفة مراكز البيانات"
+        value: 250000
+        status: "won"
+        customer_id: 17
+    row:
+        title: "حملة إعلانات تيك توك"
+        value: 10000
+        status: "in_progress"
+        customer_id: 18
+    row:
+        title: "صيانة لوحات الكهرباء"
+        value: 15000
+        status: "new"
+        customer_id: 19
+    row:
+        title: "تطوير تطبيق مبيعات هجين"
+        value: 40000
+        status: "won"
+        customer_id: 20
+    row:
+        title: "بناء لوحة تحكم للتحليلات"
+        value: 22000
+        status: "new"
+        customer_id: 1
+    row:
+        title: "تعديل قاعدة البيانات"
+        value: 11000
+        status: "in_progress"
+        customer_id: 2
+    row:
+        title: "برمجة شات بوت ذكي"
+        value: 13000
+        status: "won"
+        customer_id: 3
+    row:
+        title: "تطوير واجهة مستخدم جديدة"
+        value: 9500
+        status: "new"
+        customer_id: 4
+    row:
+        title: "تكامل أنظمة المستودعات"
+        value: 85000
+        status: "in_progress"
+        customer_id: 5
+    row:
+        title: "ترجمة وتوطين محتوى الموقع"
+        value: 5000
+        status: "won"
+        customer_id: 6
+    row:
+        title: "نظام إدارة المدارس"
+        value: 65000
+        status: "new"
+        customer_id: 7
+    row:
+        title: "تطوير إضافة لمتجر سلة"
+        value: 7500
+        status: "in_progress"
+        customer_id: 8
+    row:
+        title: "نظام تتبع حافلات التوصيل"
+        value: 32000
+        status: "won"
+        customer_id: 9
+    row:
+        title: "تصميم واجهة لوحة تحكم"
+        value: 8500
+        status: "new"
+        customer_id: 10

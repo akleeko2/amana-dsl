@@ -1,0 +1,50 @@
+theme:
+    preset: stripe
+    radius: soft
+    density: default
+    direction: rtl
+
+route /accessibility -> view accessibility
+
+view accessibility:
+    client:
+        state modalOpen = false
+        state paletteOpen = false
+    render:
+        Container:
+            Section:
+                h2: "اختبار إمكانية الوصول لوحة المفاتيح"
+                
+                # 1. Trigger Buttons
+                Cluster:
+                    Button(label: "فتح المودال", click: "modalOpen = true")
+                    Button(label: "فتح باليت البحث", click: "paletteOpen = true")
+
+                # 2. Accordion
+                Accordion:
+                    panel "القسم الأول":
+                        p: "محتوى القسم الأول هنا"
+                    panel "القسم الثاني":
+                        p: "محتوى القسم الثاني هنا"
+
+                # 3. Tabs
+                Tabs:
+                    tab "التبويب الأول":
+                        p: "محتوى التبويب الأول"
+                    tab "التبويب الثاني":
+                        p: "محتوى التبويب الثاني"
+
+                # 4. Dropdown
+                Dropdown(trigger: "قائمة الإجراءات"):
+                    a(href: "#edit"): "تعديل"
+                    a(href: "#delete"): "حذف"
+
+                # 5. Modal
+                Modal(open: "modalOpen", title: "نافذة تأكيد"):
+                    p: "محتوى نافذة التأكيد"
+                    Button(label: "إغلاق", click: "modalOpen = false")
+
+                # 6. Command Palette
+                CommandPalette(open: "paletteOpen"):
+                    div(class: "amana-cp-item"): "البحث عن المنتجات"
+                    div(class: "amana-cp-item"): "تعديل الملف الشخصي"

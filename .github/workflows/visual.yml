@@ -1,0 +1,61 @@
+name: Visual Regression Tests
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'src/codegen/**'
+      - 'examples/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'scripts/visual-smoke.mjs'
+      - '.github/workflows/visual.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'src/codegen/**'
+      - 'examples/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'scripts/visual-smoke.mjs'
+      - '.github/workflows/visual.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Cache Playwright browsers
+      uses: actions/cache@v4
+      id: playwright-cache
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-playwright-
+
+    - name: Install Playwright Browsers
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      run: npx playwright install --with-deps chromium
+
+    - name: Install Playwright System Dependencies
+      if: steps.playwright-cache.outputs.cache-hit == 'true'
+      run: npx playwright install-deps chromium
+
+    - name: Run Visual Smoke Tests
+      run: npm run test:visual

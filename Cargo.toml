@@ -1,6 +1,6 @@
 [package]
 name = "amana_compiler"
-version = "0.1.0"
+version = "3.0.0"
 edition = "2024"
 default-run = "amana"
 description = "A declarative full-stack DSL compiler. Write .amana, get a production-ready Express/SQLite app."

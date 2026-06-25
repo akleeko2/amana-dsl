@@ -1,0 +1,570 @@
+route / -> view Landing
+route /landing -> view Landing
+
+view Landing:
+    canvas:
+        layout: column
+        density: comfortable
+    client:
+        state activeIndex = null
+    style:
+        .landing-wrapper:
+            background: "radial-gradient(circle at top, rgba(99, 102, 241, 0.12) 0%, #080b11 50%, #06080d 100%)"
+            color: "#f8fafc"
+            min-height: "100vh"
+            display: "flex"
+            flex-direction: "column"
+            font-family: "'Outfit', 'Inter', sans-serif"
+
+        # Navbar styles
+        .custom-navbar:
+            position: "sticky"
+            top: "0"
+            z-index: "50"
+            background: "rgba(8, 11, 17, 0.8)"
+            backdrop-filter: "blur(16px)"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+            padding: "1.25rem 2rem"
+            display: "flex"
+            justify-content: "space-between"
+            align-items: "center"
+        .navbar-brand:
+            font-size: "1.5rem"
+            font-weight: "900"
+            color: "#ffffff"
+            text-decoration: "none"
+            letter-spacing: "-0.025em"
+            background: "linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%)"
+            -webkit-background-clip: "text"
+            -webkit-text-fill-color: "transparent"
+        .navbar-links:
+            display: "flex"
+            align-items: "center"
+            gap: "2rem"
+        .nav-link:
+            color: "#94a3b8"
+            text-decoration: "none"
+            font-weight: "500"
+            font-size: "0.95rem"
+            transition: "color 0.2s ease"
+        .nav-link:hover:
+            color: "#ffffff"
+        .nav-cta:
+            background: "rgba(99, 102, 241, 0.1)"
+            color: "#a5b4fc"
+            border: "1px solid rgba(99, 102, 241, 0.3)"
+            padding: "0.5rem 1.25rem"
+            border-radius: "8px"
+            text-decoration: "none"
+            font-weight: "600"
+            font-size: "0.9rem"
+            transition: "all 0.2s ease"
+        .nav-cta:hover:
+            background: "#6366f1"
+            color: "#ffffff"
+            box-shadow: "0 0 15px rgba(99, 102, 241, 0.4)"
+
+        # Hero section styles
+        .hero-section:
+            padding: "8rem 2rem 6rem 2rem"
+            text-align: "center"
+            max-width: "64rem"
+            margin: "0 auto"
+        .hero-title:
+            font-size: "4rem"
+            font-weight: "900"
+            line-height: "1.15"
+            letter-spacing: "-0.03em"
+            margin-bottom: "1.5rem"
+            background: "linear-gradient(135deg, #ffffff 0%, #c7d2fe 30%, #6366f1 70%, #22d3ee 100%)"
+            -webkit-background-clip: "text"
+            -webkit-text-fill-color: "transparent"
+        .hero-subtitle:
+            font-size: "1.25rem"
+            line-height: "1.6"
+            color: "#94a3b8"
+            max-width: "42rem"
+            margin: "0 auto 3rem auto"
+        .hero-cta:
+            background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)"
+            color: "#ffffff"
+            padding: "1rem 2.5rem"
+            border-radius: "12px"
+            font-weight: "700"
+            font-size: "1.1rem"
+            text-decoration: "none"
+            display: "inline-block"
+            box-shadow: "0 4px 20px rgba(99, 102, 241, 0.4)"
+            transition: "all 0.3s ease"
+        .hero-cta:hover:
+            transform: "translateY(-3px)"
+            box-shadow: "0 8px 30px rgba(99, 102, 241, 0.6)"
+
+        # Section headings
+        .section-container:
+            padding: "6rem 2rem"
+            max-width: "72rem"
+            margin: "0 auto"
+            width: "100%"
+        .section-header:
+            text-align: "center"
+            margin-bottom: "4rem"
+        .section-title:
+            font-size: "2.5rem"
+            font-weight: "800"
+            color: "#ffffff"
+            letter-spacing: "-0.02em"
+            margin-bottom: "1rem"
+        .section-subtitle:
+            color: "#64748b"
+            font-size: "1.1rem"
+            max-width: "32rem"
+            margin: "0 auto"
+
+        # Features grid styles
+        .features-grid:
+            display: "grid"
+            grid-template-columns: "repeat(auto-fit, minmax(280px, 1fr))"
+            gap: "2rem"
+        .feature-card:
+            background: "rgba(255, 255, 255, 0.02)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "16px"
+            padding: "2.5rem 2rem"
+            transition: "all 0.3s ease"
+            text-align: "right"
+        .feature-card:hover:
+            transform: "translateY(-5px)"
+            border-color: "rgba(99, 102, 241, 0.3)"
+            background: "rgba(255, 255, 255, 0.04)"
+            box-shadow: "0 10px 30px -10px rgba(0, 0, 0, 0.5)"
+        .feature-icon:
+            font-size: "2.5rem"
+            margin-bottom: "1.5rem"
+            display: "block"
+        .feature-card h3:
+            font-size: "1.3rem"
+            font-weight: "700"
+            color: "#ffffff"
+            margin-bottom: "0.75rem"
+        .feature-card p:
+            color: "#94a3b8"
+            line-height: "1.6"
+            font-size: "0.95rem"
+
+        # Pricing section styles
+        .pricing-grid:
+            display: "grid"
+            grid-template-columns: "repeat(auto-fit, minmax(280px, 1fr))"
+            gap: "2.5rem"
+            align-items: "stretch"
+        .pricing-card:
+            background: "rgba(255, 255, 255, 0.02)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "20px"
+            padding: "3rem 2rem"
+            display: "flex"
+            flex-direction: "column"
+            transition: "all 0.3s ease"
+            position: "relative"
+        .pricing-card.popular:
+            background: "rgba(99, 102, 241, 0.04)"
+            border: "1px solid rgba(99, 102, 241, 0.4)"
+            box-shadow: "0 0 30px rgba(99, 102, 241, 0.1)"
+        .pricing-card:hover:
+            transform: "translateY(-5px)"
+            box-shadow: "0 15px 35px -10px rgba(0, 0, 0, 0.6)"
+        .popular-badge:
+            position: "absolute"
+            top: "-12px"
+            left: "50%"
+            transform: "translateX(-50%)"
+            background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)"
+            color: "#ffffff"
+            padding: "0.3rem 1rem"
+            border-radius: "50px"
+            font-size: "0.75rem"
+            font-weight: "700"
+            letter-spacing: "0.05em"
+        .pricing-card h3:
+            font-size: "1.4rem"
+            font-weight: "700"
+            margin-bottom: "1rem"
+        .price-container:
+            margin-bottom: "2rem"
+            display: "flex"
+            align-items: "baseline"
+            gap: "0.5rem"
+        .price-value:
+            font-size: "2.5rem"
+            font-weight: "800"
+            color: "#ffffff"
+        .price-period:
+            color: "#64748b"
+            font-size: "0.95rem"
+        .features-list:
+            list-style: "none"
+            padding: "0"
+            margin: "0 0 3rem 0"
+            flex-grow: "1"
+        .features-list li:
+            padding: "0.75rem 0"
+            color: "#94a3b8"
+            font-size: "0.95rem"
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+        .features-list li::before:
+            content: "✓"
+            color: "#22d3ee"
+            font-weight: "bold"
+        .price-btn:
+            background: "rgba(255, 255, 255, 0.05)"
+            color: "#ffffff"
+            text-align: "center"
+            padding: "0.85rem 1.5rem"
+            border-radius: "10px"
+            font-weight: "700"
+            text-decoration: "none"
+            transition: "all 0.2s ease"
+            border: "1px solid rgba(255, 255, 255, 0.08)"
+        .price-btn:hover:
+            background: "#ffffff"
+            color: "#080b11"
+        .popular .price-btn:
+            background: "#6366f1"
+            border-color: "#6366f1"
+        .popular .price-btn:hover:
+            background: "#4f46e5"
+            color: "#ffffff"
+
+        # FAQ interactive accordion styles
+        .faq-wrapper:
+            max-width: "48rem"
+            margin: "0 auto"
+        .faq-item:
+            background: "rgba(255, 255, 255, 0.01)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "12px"
+            margin-bottom: "1rem"
+            overflow: "hidden"
+            transition: "all 0.2s ease"
+        .faq-question:
+            width: "100%"
+            background: "transparent"
+            border: "none"
+            color: "#ffffff"
+            padding: "1.5rem"
+            font-size: "1.1rem"
+            font-weight: "600"
+            text-align: "right"
+            cursor: "pointer"
+            display: "flex"
+            justify-content: "space-between"
+            align-items: "center"
+        .faq-question:hover:
+            background: "rgba(255, 255, 255, 0.02)"
+        .faq-icon:
+            font-size: "1.25rem"
+            color: "#a5b4fc"
+            transition: "transform 0.3s ease"
+        .faq-question.active .faq-icon:
+            transform: "rotate(45deg)"
+        .faq-answer:
+            padding: "0 1.5rem 1.5rem 1.5rem"
+            color: "#94a3b8"
+            line-height: "1.6"
+            font-size: "0.95rem"
+
+        # Testimonials styles
+        .testimonials-grid:
+            display: "grid"
+            grid-template-columns: "repeat(auto-fit, minmax(300px, 1fr))"
+            gap: "2.5rem"
+        .testimonial-card:
+            background: "rgba(255, 255, 255, 0.02)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "16px"
+            padding: "2.5rem"
+            display: "flex"
+            flex-direction: "column"
+            gap: "1.5rem"
+        .testimonial-quote:
+            font-size: "1.1rem"
+            line-height: "1.6"
+            color: "#e2e8f0"
+            font-style: "italic"
+            flex-grow: "1"
+        .author-box:
+            display: "flex"
+            align-items: "center"
+            gap: "1rem"
+        .author-avatar:
+            width: "2.75rem"
+            height: "2.75rem"
+            border-radius: "50%"
+            background: "rgba(99, 102, 241, 0.2)"
+            border: "1px solid rgba(99, 102, 241, 0.4)"
+            color: "#a5b4fc"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-weight: "700"
+            font-size: "1.1rem"
+        .author-details:
+            display: "flex"
+            flex-direction: "column"
+        .author-name:
+            font-weight: "700"
+            color: "#ffffff"
+        .author-role:
+            font-size: "0.85rem"
+            color: "#64748b"
+
+        # Contact form layout
+        .contact-container:
+            display: "flex"
+            flex-wrap: "wrap"
+            gap: "4rem"
+            background: "rgba(255, 255, 255, 0.01)"
+            border: "1px solid rgba(255, 255, 255, 0.04)"
+            border-radius: "24px"
+            padding: "4rem"
+            backdrop-filter: "blur(12px)"
+        .contact-info:
+            flex: "1 1 300px"
+            display: "flex"
+            flex-direction: "column"
+            justify-content: "center"
+        .contact-info h2:
+            font-size: "2.25rem"
+            font-weight: "800"
+            color: "#ffffff"
+            margin-bottom: "1rem"
+        .contact-info p:
+            color: "#94a3b8"
+            line-height: "1.6"
+            margin-bottom: "2rem"
+        .contact-details:
+            display: "flex"
+            flex-direction: "column"
+            gap: "1.25rem"
+        .contact-item:
+            display: "flex"
+            align-items: "center"
+            gap: "1rem"
+            color: "#e2e8f0"
+        .contact-item-icon:
+            color: "#22d3ee"
+            font-size: "1.25rem"
+        .form-card:
+            flex: "1 1 300px"
+            display: "flex"
+            flex-direction: "column"
+            gap: "1.5rem"
+        .form-group:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.5rem"
+        .form-group label:
+            font-size: "0.9rem"
+            font-weight: "600"
+            color: "#e2e8f0"
+        .form-input:
+            background: "rgba(255, 255, 255, 0.03)"
+            border: "1px solid rgba(255, 255, 255, 0.08)"
+            border-radius: "10px"
+            padding: "0.85rem 1rem"
+            color: "#ffffff"
+            font-family: "inherit"
+            font-size: "0.95rem"
+            transition: "all 0.2s ease"
+        .form-input:focus:
+            outline: "none"
+            border-color: "#6366f1"
+            box-shadow: "0 0 12px rgba(99, 102, 241, 0.25)"
+            background: "rgba(255, 255, 255, 0.05)"
+        .form-submit-btn:
+            background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)"
+            color: "#ffffff"
+            border: "none"
+            border-radius: "10px"
+            padding: "1rem 2rem"
+            font-weight: "700"
+            font-size: "1rem"
+            cursor: "pointer"
+            transition: "all 0.3s ease"
+            box-shadow: "0 4px 15px rgba(99, 102, 241, 0.3)"
+            margin-top: "1rem"
+        .form-submit-btn:hover:
+            transform: "translateY(-2px)"
+            box-shadow: "0 6px 20px rgba(99, 102, 241, 0.5)"
+
+        # Footer styles
+        .custom-footer:
+            border-top: "1px solid rgba(255, 255, 255, 0.05)"
+            padding: "3rem 2rem"
+            text-align: "center"
+            margin-top: "auto"
+            background: "#06080d"
+        .footer-text:
+            color: "#475569"
+            font-size: "0.9rem"
+
+    render:
+        div.landing-wrapper:
+            # Custom Navigation Header
+            header.custom-navbar:
+                a.navbar-brand(href: "/landing"): "أمانة بوت"
+                div.navbar-links:
+                    a.nav-link(href: "/landing"): "الرئيسية"
+                    a.nav-link(href: "/login"): "تسجيل الدخول"
+                    a.nav-cta(href: "/signup"): "ابدأ مجاناً"
+
+            # Hero Section
+            section.hero-section:
+                h1.hero-title: "أتمتة خدمة العملاء بالذكاء الاصطناعي"
+                p.hero-subtitle: "قم ببناء مساعد ذكي مخصص لمشروعك في دقائق معدودة، وتجاوب مع عملائك تلقائياً على مدار الساعة بنسبة نجاح تفوق 95%."
+                a.hero-cta(href: "/signup"): "ابدأ التجربة المجانية الآن"
+
+            # Features Grid Section
+            section.section-container:
+                div.section-header:
+                    h2.section-title: "ميزات ذكية متكاملة"
+                    p.section-subtitle: "كل ما تحتاجه لتوفير تجربة دعم عملاء سريعة وذكية لمستخدمي موقعك."
+                div.features-grid:
+                    div.feature-card:
+                        span.feature-icon: "🤖"
+                        h3: "أتمتة كاملة 24/7"
+                        p: "يجيب المساعد الذكي على كافة استفسارات العملاء المتكررة فوراً ودون توقف."
+                    div.feature-card:
+                        span.feature-icon: "💬"
+                        h3: "لوحة تحكم للموظفين"
+                        p: "يمكن للموظفين التدخل في أي وقت لمتابعة المحادثات والرد على الاستفسارات المعقدة."
+                    div.feature-card:
+                        span.feature-icon: "📈"
+                        h3: "تحليلات متقدمة"
+                        p: "تقارير تفصيلية عن حجم التذاكر، سرعة الاستجابة، ورضا العملاء لتحسين الخدمة."
+
+            # Pricing Packages Section
+            section.section-container:
+                div.section-header:
+                    h2.section-title: "خطط اشتراك مرنة"
+                    p.section-subtitle: "اختر الخطة المناسبة لحجم أعمالك مع إمكانية الترقية أو الإلغاء في أي وقت."
+                div.pricing-grid:
+                    div.pricing-card:
+                        h3: "الخطة المجانية"
+                        div.price-container:
+                            span.price-value: "0 ر.س"
+                            span.price-period: "/ شهرياً"
+                        ul.features-list:
+                            li: "مساعد ذكي واحد"
+                            li: "100 محادثة شهرياً"
+                            li: "تحليلات أساسية"
+                        a.price-btn(href: "/signup"): "ابدأ مجاناً"
+                    div.pricing-card.popular:
+                        span.popular-badge: "الأكثر طلباً"
+                        h3: "الخطة الاحترافية"
+                        div.price-container:
+                            span.price-value: "199 ر.س"
+                            span.price-period: "/ شهرياً"
+                        ul.features-list:
+                            li: "3 مساعدين ذكيين"
+                            li: "محادثات غير محدودة"
+                            li: "لوحة تحكم الموظفين"
+                            li: "دعم مخصص 24/7"
+                        a.price-btn(href: "/signup"): "اشترك الآن"
+                    div.pricing-card:
+                        h3: "خطة المؤسسات"
+                        div.price-container:
+                            span.price-value: "499 ر.س"
+                            span.price-period: "/ شهرياً"
+                        ul.features-list:
+                            li: "مساعدين ذكيين غير محدودين"
+                            li: "ربط مخصص عبر API"
+                            li: "تحليلات وتوقعات بالذكاء الاصطناعي"
+                            li: "مدير حساب خاص"
+                        a.price-btn(href: "/signup"): "تواصل معنا"
+
+            # FAQ Section
+            section.section-container:
+                div.section-header:
+                    h2.section-title: "الأسئلة الشائعة"
+                    p.section-subtitle: "إليك إجابات لأبرز الاستفسارات الشائعة حول نظام أمانة بوت وكيفية العمل."
+                div.faq-wrapper:
+                    div.faq-item:
+                        button.faq-question(click: "activeIndex = activeIndex === 0 ? null : 0", class: "activeIndex === 0 ? 'active' : ''"):
+                            span: "هل يدعم الشات بوت اللغة العربية؟"
+                            span.faq-icon: "+"
+                        div.faq-answer(show: "activeIndex === 0"):
+                            p: "نعم! يدعم المساعد الذكي اللغة العربية الفصحى ومختلف اللهجات المحلية بشكل ممتاز وبمراعاة كاملة لاتجاه النصوص RTL."
+                    div.faq-item:
+                        button.faq-question(click: "activeIndex = activeIndex === 1 ? null : 1", class: "activeIndex === 1 ? 'active' : ''"):
+                            span: "كيف يمكنني تثبيت الشات بوت على موقعي؟"
+                            span.faq-icon: "+"
+                        div.faq-answer(show: "activeIndex === 1"):
+                            p: "ببساطة، بعد إنشاء المساعد، ستحصل على كود جافا سكريبت صغير تنسخه وتضعه في وسم HTML الخاص بموقعك."
+                    div.faq-item:
+                        button.faq-question(click: "activeIndex = activeIndex === 2 ? null : 2", class: "activeIndex === 2 ? 'active' : ''"):
+                            span: "هل يمكن للموظف التدخل في المحادثة؟"
+                            span.faq-icon: "+"
+                        div.faq-answer(show: "activeIndex === 2"):
+                            p: "بالتأكيد! توفر لوحة التحكم واجهة محادثات حية تتيح للموظف البشري قراءة المحادثة والتدخل للرد فوراً عند الحاجة."
+
+            # Testimonials Section
+            section.section-container:
+                div.section-header:
+                    h2.section-title: "ماذا يقول عملاؤنا؟"
+                    p.section-subtitle: "آراء شركائنا الذين نجحوا في أتمتة دعم عملائهم وتوفير نفقات التشغيل."
+                div.testimonials-grid:
+                    div.testimonial-card:
+                        p.testimonial-quote: "“ساعدنا أمانة بوت في تقليل وقت الاستجابة لعملائنا من ساعات إلى أجزاء من الثانية! نظام ذكي وسهل الاستخدام جداً.”"
+                        div.author-box:
+                            div.author-avatar: "م"
+                            div.author-details:
+                                span.author-name: "محمد العتيبي"
+                                span.author-role: "مدير شركة تقنية"
+                    div.testimonial-card:
+                        p.testimonial-quote: "“القدرة على دمج الذكاء الاصطناعي مع لوحة الموظفين البشريين أعطتنا مرونة هائلة وأماناً في التعامل مع استفسارات عملائنا.”"
+                        div.author-box:
+                            div.author-avatar: "س"
+                            div.author-details:
+                                span.author-name: "سارة خالد"
+                                span.author-role: "مديرة دعم العملاء"
+
+            # Contact Form Section
+            section.section-container:
+                div.contact-container:
+                    div.contact-info:
+                        h2: "تواصل معنا"
+                        p: "هل لديك أي استفسارات مخصصة؟ راسلنا وسنجيبك في أقرب وقت."
+                        div.contact-details:
+                            div.contact-item:
+                                span.contact-item-icon: "✉"
+                                span: "support@amanabot.com"
+                            div.contact-item:
+                                span.contact-item-icon: "📞"
+                                span: "+966 50 123 4567"
+                    div.form-card:
+                        form [name, email, message]:
+                            connect ContactMessage.create
+                            submit: "إرسال الرسالة"
+                            redirect success -> /landing
+                            field name:
+                                label: "الاسم الكامل"
+                                placeholder: "مثال: عبد الله أحمد"
+                                required: true
+                            field email:
+                                label: "البريد الإلكتروني"
+                                placeholder: "name@example.com"
+                                type: email
+                                required: true
+                            field message:
+                                label: "نص الرسالة"
+                                placeholder: "اكتب رسالتك هنا بالتفصيل..."
+                                type: textarea
+                                required: true
+
+            # Footer
+            footer.custom-footer:
+                p.footer-text: "© 2026 أمانة بوت. جميع الحقوق محفوظة."

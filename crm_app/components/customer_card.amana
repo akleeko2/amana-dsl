@@ -1,0 +1,49 @@
+component CustomerCard(customer):
+    style:
+        .card-custom:
+            background: "rgba(255, 255, 255, 0.03)"
+            border: "1px solid rgba(212, 175, 55, 0.15)"
+            border-radius: "12px"
+            padding: "1.5rem"
+            transition: "all 0.3s ease"
+            color: "#f8fafc"
+        .card-custom:hover:
+            border-color: "#d4af37"
+            transform: "translateY(-4px)"
+            box-shadow: "0 10px 20px rgba(212, 175, 55, 0.1)"
+        .gold-badge:
+            background: "rgba(212, 175, 55, 0.1)"
+            color: "#d4af37"
+            padding: "0.25rem 0.75rem"
+            border-radius: "50px"
+            font-size: "0.85rem"
+            font-weight: "bold"
+        .card-header:
+            layout: row
+            justify-content: space-between
+            align-items: center
+            margin-bottom: "1rem"
+        .card-body:
+            layout: column
+            gap: "0.5rem"
+            font-size: "0.95rem"
+            color: "#94a3b8"
+        .revenue-label:
+            font-size: "0.85rem"
+            color: "#64748b"
+            margin-top: "0.5rem"
+        .revenue-value:
+            font-size: "1.2rem"
+            font-weight: "bold"
+            color: "#10b981"
+    render:
+        div.card-custom:
+            div.card-header:
+                h3: customer.name
+                span.gold-badge: customer.company
+            div.card-body:
+                p: f"البريد: {customer.email}"
+                p: f"الهاتف: {customer.phone}"
+                div:
+                    span.revenue-label: "الإيرادات السنوية: "
+                    span.revenue-value: f"${customer.revenue}"

@@ -1,0 +1,252 @@
+theme:
+    preset: stripe
+    radius: soft
+    density: default
+    direction: rtl
+
+model User:
+    email: email [unique]
+    password: password
+    name: str
+
+route /showcase -> view showcase
+
+view showcase:
+    server:
+        fetch users = User.all()
+    client:
+        state modalOpen = false
+        state toastShow = false
+        state palette_open = false
+        state current_page = 1
+    render:
+        Container:
+            # Navbar
+            Navbar(brand: "عرض المكونات"):
+                a(href: "#"): "الرئيسية"
+                a(href: "#"): "المكونات"
+
+            # Cover & Hero Layout
+            Cover(min: "50vh"):
+                Center:
+                    Hero(title: "لوحة عرض جميع المكونات", subtitle: "فحص تراجعي كامل لكافة مكونات أمانة DSL"):
+                        p: "هذه الصفحة مخصصة لاختبار رندرة كل المكونات دفعة واحدة."
+
+            # Stack Layout
+            Stack(gap: "2rem"):
+                # Alert, Badge, Banner
+                Banner(tone: "success", closable: true):
+                    p: "تم تشغيل نظام التغذية الراجعة وحالات الواجهة بنجاح."
+
+                Alert(title: "تنبيه هام", tone: "info"):
+                    "هذا تنبيه مدمج لاختبار المكونات."
+
+                Cluster:
+                    Badge(text: "نشط", tone: "success")
+                    Badge(text: "تحذير", tone: "warning")
+                    Badge(text: "خطأ", tone: "danger")
+
+                # Icons Showcase
+                Cluster:
+                    Icon(name: "heroicons:check")
+                    Icon(name: "heroicons:x-mark")
+                    Icon(name: "heroicons:user")
+                    Icon(name: "heroicons:cog-6-tooth")
+                    Icon(name: "heroicons:arrow-right")
+
+                # Buttons
+                Cluster:
+                    Button(label: "رئيسي", variant: "primary")
+                    Button(label: "فرعي", variant: "secondary")
+                    Button(label: "إطار", variant: "outline")
+                    Button(label: "شبح", variant: "ghost")
+
+                # Interactive Triggers (Modal & Toast)
+                Cluster:
+                    Button(label: "فتح المودال التجريبي", click: "modalOpen = true")
+                    Button(label: "إظهار التنبيه العائم (Toast)", click: "toastShow = true")
+
+                # Toast & Modal
+                Toast(show: "toastShow", tone: "success", message: "تمت عملية الحفظ بنجاح!", duration: "4000")
+                Modal(open: "modalOpen", title: "نافذة تأكيد المكونات", closable: true):
+                    p: "هذه نافذة منبثقة تفاعلية لاختبار مكون Modal."
+                    Button(label: "إغلاق", click: "modalOpen = false")
+
+                # Sidebar & FilterBar
+                Sidebar(side_width: "20rem", main_min: "60%"):
+                    Card(title: "أدوات التصفية"):
+                        FilterBar:
+                            filter(name: "status", label: "الحالة", options: "الكل,نشط,معلق")
+                            SearchBar(placeholder: "بحث سريع...", shortcut: "k")
+                    
+                    Grid(columns: "2", min: "18rem"):
+                        Card(title: "كرت عادي", subtitle: "كتابة فرعية"):
+                            p: "محتوى الكارت الأساسي."
+                        Card(title: "كرت مرتفع", variant: "elevated"):
+                            p: "كارت بتأثير الظل العائم."
+                        Card(title: "كرت زجاجي", variant: "glass"):
+                            p: "كارت بخلفية بلورية زجاجية."
+                        Card(title: "كرت بإطار", variant: "outlined"):
+                            p: "كارت بإطار خارجي دقيق."
+
+                # FeatureCard & PricingCard Grid
+                Grid(columns: "2"):
+                    FeatureCard(eyebrow: "الميزات", title: "تصميم متجاوب", description: "واجهات مذهلة تعمل على جميع الأجهزة بكفاءة عالية.", action_label: "التفاصيل")
+                    PricingCard(title: "الباقة الاحترافية", price: "299 ر.س", badge: "شائع", action_label: "اشترك الآن"):
+                        p: "باقة كاملة للمؤسسات الكبيرة مع دعم فني متكامل."
+
+                # Split
+                Split(fraction: "1/2"):
+                    Card(title: "تخطيط الانقسام"):
+                        p: "يقسم المساحة لعمودين بنسب محددة."
+                    Card(title: "العمود المقابل"):
+                        p: "نصف المساحة المتبقي."
+
+                # Reel
+                Reel(item_width: "15rem"):
+                    Card(title: "عنصر 1")
+                    Card(title: "عنصر 2")
+                    Card(title: "عنصر 3")
+
+                # Slides Showcase
+                Slides(height: "15rem", autoplay: "false"):
+                    Card(title: "الشريحة الأولى"):
+                        p: "محتوى الشريحة الأولى للتمرير التلقائي أو اليدوي."
+                    Card(title: "الشريحة الثانية"):
+                        p: "محتوى الشريحة الثانية لعرض المكونات المتجاوبة."
+
+                # Masonry
+                Masonry(columns: "3"):
+                    Card(title: "كرت قصير"):
+                        p: "محتوى."
+                    Card(title: "كرت طويل نسبياً"):
+                        p: "هذا كارت بمحتوى أطول لاختبار تخطيط الميسونري الديناميكي وترتيب الأعمدة التلقائي."
+                    Card(title: "كرت متوسط"):
+                        p: "محتوى متوسط الحجم."
+
+                # States
+                Grid(columns: "3"):
+                    Card(title: "حالات التحميل"):
+                        Skeleton(type: "avatar")
+                        Skeleton(type: "text", lines: "3")
+                        Skeleton(type: "card")
+                    
+                    Card(title: "Loading State"):
+                        LoadingState:
+                            "جاري التحميل..."
+                    
+                    Card(title: "Error State"):
+                        ErrorState(code: "404", title: "الصفحة غير موجودة", description: "عذراً، لم نتمكن من العثور على الصفحة المطلوبة.", action_label: "العودة للرئيسية", action_href: "#")
+
+                OfflineState(title: "انقطع الاتصال", description: "أنت تتصفح بدون اتصال بالإنترنت حالياً.")
+
+                # Interactive Primitives
+                Tabs:
+                    tab "الملف الشخصي":
+                        p: "بيانات المستخدم الشخصية هنا."
+                    tab "الأمان":
+                        p: "إعدادات كلمة المرور والمصادقة."
+
+                # Custom Accordion Block
+                Accordion:
+                    panel "عرض التفاصيل الإضافية":
+                        p: "هذا محتوى مخفي يظهر عند فتح الأكورديون."
+
+                EmptyState(title: "لا توجد مشاريع", description: "ابدأ بإنشاء مشروعك الأول الآن."):
+                    Button(label: "إنشاء مشروع")
+
+                # Data Experience
+                Card(title: "جدول البيانات"):
+                    DataTable(items: users, searchable: true, selectable: true):
+                        column(title: "الاسم", name: "name"):
+                            span: "أحمد علي"
+                        column(title: "الدور", name: "role"):
+                            Badge(text: "CTO", tone: "success")
+                    Paginator(page: "current_page", total_pages: "5")
+
+                # Advanced Interaction
+                Grid(columns: "3"):
+                    Card(title: "منتقي الألوان"):
+                        ColorPicker(name: "theme_color", label: "اختر لون الثيم", default: "#6366f1")
+                    Card(title: "تحميل الملفات"):
+                        FileUpload(name: "documents", label: "أرفق ملفاتك", max_size: "5MB", multiple: true)
+                    Card(title: "محرر النصوص"):
+                        RichEditor(name: "post_body", label: "محتوى المنشور")
+
+                # Timeline & Testimonial
+                Timeline:
+                    TimelineItem(title: "إطلاق المنصة", date: "يناير 2026"):
+                        "بدء البث الرسمي."
+
+                LogoCloud(title: "شركاء النجاح"):
+                    p: "عرض شعارات الشركاء."
+
+                TestimonialCard(author: "سلمان الحربي", role: "رائد أعمال", quote: "أمانة DSL وفرت علينا أسابيع من تطوير الواجهات.")
+
+                # Base Section Component
+                Section(eyebrow: "قسم أساسي", title: "مكون Section", description: "هذا هو المكون الأساسي لجميع الأقسام الأخرى."):
+                    p: "محتوى القسم الأساسي."
+
+                # Page / Section Patterns
+                HeroSection(title: "قسم هيرو متكامل", subtitle: "عناوين عريضة مع وسائط مدمجة", cta_label: "ابدأ الآن", image: "/hero.png")
+
+                PricingSection(title: "خطط العضوية الحصرية", billing: "monthly"):
+                    plan(name: "الأساسية", price: "49 ر.س", cta: "اشترك الآن"):
+                        feature: "ميزة 1"
+                    plan(name: "المتقدمة", price: "99 ر.س", highlight: true, cta: "اشترك الآن"):
+                        feature: "ميزة 1"
+                        feature: "ميزة 2"
+
+                StatsSection(title: "إحصائيات المنصة"):
+                    Stat(value: "+10k", label: "مستخدم نشط")
+                    Kpi(value: "99.9%", label: "معدل التشغيل")
+
+                FAQSection(title: "الأسئلة الشائعة"):
+                    Accordion:
+                        panel "كيف يمكنني البدء؟":
+                            p: "يمكنك البدء مباشرة عبر توليد كود أمانة."
+
+                BlogSection(title: "المدونة الرسمية"):
+                    Card(title: "مقال 1", subtitle: "شرح أمانة")
+
+                TestimonialsSection(title: "ماذا يقول شركاؤنا"):
+                    TestimonialCard(author: "ريما", role: "مصممة", quote: "رائعة!")
+
+                ContactSection(title: "تواصل معنا مباشرة", email: "info@amana.dev", phone: "+9665000000")
+
+                SettingsPage(title: "إعدادات الحساب", description: "إدارة إعدادات الأمان والتفضيلات الشخصية"):
+                    section(title: "الملف الشخصي", description: "تحديث معلوماتك الشخصية"):
+                        FormField(label: "الاسم الكامل", name: "name")
+                        FormField(label: "البريد الإلكتروني", name: "email")
+
+                # AuthPage Showcase
+                Card(title: "نموذج صفحة المصادقة (AuthPage)"):
+                    AuthPage(type: "login", title: "تسجيل الدخول للنظام", logo: "/logo.png")
+
+                # DashboardShell Showcase
+                Card(title: "هيكل لوحة التحكم (DashboardShell)"):
+                    DashboardShell(brand: "أمانة المطورين", user: "المدير العام"):
+                        sidebar:
+                            a(href: "#"): "الرئيسية"
+                            a(href: "#"): "التقارير"
+                            a(href: "#"): "إعدادات"
+                        main:
+                            p: "محتوى لوحة التحكم التجريبية المصغرة."
+
+                # Chart Showcase
+                Card(title: "مخطط بياني (Chart)"):
+                    Chart(users, bar, name, email)
+
+                # Navigation elements
+                Breadcrumb:
+                    a(href: "#"): "الرئيسية"
+                    a(href: "#"): "عرض المكونات"
+                
+                Dropdown(trigger: "المزيد من الإجراءات", icon: "ellipsis-horizontal"):
+                    a(href: "#"): "تعديل"
+                    a(href: "#"): "حذف"
+
+                CommandPalette(open: "palette_open", placeholder: "ابحث في المكونات...")
+
+            # Footer
+            Footer(copyright: "جميع الحقوق محفوظة © 2026 أمانة DSL")

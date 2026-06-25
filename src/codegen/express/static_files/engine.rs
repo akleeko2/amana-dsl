@@ -1,7 +1,7 @@
 // src/codegen/express/static_files/engine.rs
 
-pub(crate) fn engine_js() -> &'static str {
-    r#"const express = require('express');
+pub(crate) fn engine_js() -> String {
+    r##"const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const fs = require('fs');
@@ -180,7 +180,10 @@ function colorScale(name, fallback) {
     violet: ['#7c3aed', '#f5f3ff', '#4c1d95'],
     emerald: ['#059669', '#ecfdf5', '#064e3b'],
     rose: ['#e11d48', '#fff1f2', '#881337'],
-    slate: ['#334155', '#f1f5f9', '#0f172a']
+    slate: ['#334155', '#f1f5f9', '#0f172a'],
+    amber: ['#d97706', '#fffbeb', '#78350f'],
+    zinc: ['#71717a', '#fafafa', '#18181b'],
+    pink: ['#db2777', '#fdf2f8', '#831843']
   };
   return scales[name] || scales[fallback] || scales.indigo;
 }
@@ -192,7 +195,10 @@ function namedColorScale(name) {
     violet: ['#7c3aed', '#f5f3ff', '#4c1d95'],
     emerald: ['#059669', '#ecfdf5', '#064e3b'],
     rose: ['#e11d48', '#fff1f2', '#881337'],
-    slate: ['#334155', '#f1f5f9', '#0f172a']
+    slate: ['#334155', '#f1f5f9', '#0f172a'],
+    amber: ['#d97706', '#fffbeb', '#78350f'],
+    zinc: ['#71717a', '#fafafa', '#18181b'],
+    pink: ['#db2777', '#fdf2f8', '#831843']
   };
   return scales[String(name || '').trim()] || null;
 }
@@ -859,7 +865,13 @@ function renderIcon(name, className = 'amana-icon') {
     minus: '-',
     star: '★'
   };
-  return `<span class="${escapeAttr(className)}" aria-hidden="true">${fallback[raw] || iconName}</span>`;
+  if (fallback[raw]) {
+    return `<span class="${escapeAttr(className)}" aria-hidden="true">${fallback[raw]}</span>`;
+  }
+  if (/^[a-z0-9-]+$/i.test(raw)) {
+    return `<iconify-icon class="${escapeAttr(className)}" icon="heroicons:${iconName}" aria-hidden="true"></iconify-icon>`;
+  }
+  return `<span class="${escapeAttr(className)}" aria-hidden="true">${iconName}</span>`;
 }
 
 function renderStandardComponent(tag, classes, attributes, children, clientStates, dataVar) {
@@ -914,13 +926,15 @@ function renderStandardComponent(tag, classes, attributes, children, clientState
   if (tag === 'Grid') {
     const min = getAttr(attributes, 'min', '16rem');
     const columns = getAttr(attributes, 'columns', '');
+    const stretch = getAttr(attributes, 'stretch', 'false');
+    const stretchClass = stretch === 'true' ? ' amana-grid-stretch' : '';
     let colVal = columns;
     if (columns) {
       colVal = /^\d+$/.test(String(columns).trim())
         ? (String(columns).trim() === '1' ? 'minmax(0, 1fr)' : `repeat(${columns}, minmax(0, 1fr))`)
         : columns;
     }
-    const rawAttrs = attrsFor('amana-grid');
+    const rawAttrs = attrsFor(`amana-grid${stretchClass}`);
     const gridVars = `--grid-min:${escapeAttr(min)};${columns ? `--dg-columns:${escapeAttr(colVal)};` : ''}`;
     const gridAttrs = rawAttrs.includes(' style="')
       ? rawAttrs.replace(' style="', ` style="${gridVars}`)
@@ -936,7 +950,16 @@ function renderStandardComponent(tag, classes, attributes, children, clientState
     const sticky = getAttr(attributes, 'sticky', 'false') === 'true';
     const variant = getAttr(attributes, 'variant', 'default');
     const variantClass = (variant && variant !== 'default') ? ` amana-navbar-${variant}` : '';
-    return `<nav${attrsFor(`amana-navbar${sticky ? ' amana-navbar-sticky' : ''}${variantClass}`)}><a class="amana-brand" href="/">${brand}</a><div class="amana-navlinks">${inner}</div></nav>`;
+    return `<nav${attrsFor(`amana-navbar${sticky ? ' amana-navbar-sticky' : ''}${variantClass}`)} x-data="{ open: false }">
+  <a class="amana-brand" href="/">${brand}</a>
+  <button type="button" class="amana-navbar-menu-btn" @click.stop="open = !open" aria-label="Toggle menu">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path :class="open ? 'hidden' : 'inline-flex'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16" />
+      <path :class="open ? 'inline-flex' : 'hidden'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+  <div class="amana-navlinks" :class="open ? 'active' : ''" @click.away="open = false">${inner}</div>
+</nav>`;
   }
   if (tag === 'Slides') {
     const autoplay = getAttr(attributes, 'autoplay', 'false') === 'true';
@@ -990,8 +1013,48 @@ function renderStandardComponent(tag, classes, attributes, children, clientState
     return renderIcon(name, Array.from(new Set(['amana-icon'].concat(classes || []))).join(' '));
   }
   if (tag === 'Modal') {
-    const open = getAttr(attributes, 'open', 'modal_open');
-    return `<div${attrsFor('amana-modal')} x-show="${open}"><div class="amana-modal-panel">${inner}</div></div>`;
+    const openAttr = attributes.find(([key]) => key === 'open');
+    const open = openAttr ? compileExpressionToJs(openAttr[1]) : 'modal_open';
+    const modalIndex = modalCounter++;
+    const titleId = `amana-modal-title-${modalIndex}`;
+    
+    const titleAttr = attributes.find(([key]) => key === 'title');
+    let hasTitle = false;
+    let titleHtml = '';
+    if (titleAttr) {
+      const expr = titleAttr[1];
+      let escaped = '';
+      if (expr.StringLiteral !== undefined) {
+        const s = expr.StringLiteral;
+        if (s.startsWith('f"') && s.endsWith('"')) {
+          const content = s.substring(2, s.length - 1).replace(/{/g, '${');
+          escaped = `<%= \`${content}\` %>`;
+        } else {
+          escaped = `<%= "${s.replace(/"/g, '\\\\"')}" %>`;
+        }
+      } else if (expr.Identifier !== undefined) {
+        escaped = `<%= ${expr.Identifier} %>`;
+      } else {
+        const js = compileExpressionToJs(expr);
+        if (js.startsWith('<%=') && js.endsWith('%>')) {
+          escaped = js;
+        } else {
+          escaped = `<%= ${js} %>`;
+        }
+      }
+      hasTitle = true;
+      titleHtml = `<h3 id="${titleId}" class="amana-modal-title">${escaped}</h3>\n`;
+    }
+    
+    const closableVal = getAttr(attributes, 'closable', 'true');
+    const closable = closableVal !== 'false' && closableVal !== 'no';
+    const closeButton = closable ? `<button type="button" class="amana-modal-close" @click="${open} = false">&times;</button>\n` : '';
+    const ariaLabelledby = hasTitle ? ` aria-labelledby="${titleId}"` : '';
+    
+    const focusTrapJs = `@keydown.tab="let focusables = $el.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex=\\'-1\\'])'); if (focusables.length > 0) { let first = focusables[0]; let last = focusables[focusables.length - 1]; if ($event.shiftKey && $event.target === first) { last.focus(); $event.preventDefault(); } else if (!$event.shiftKey && $event.target === last) { first.focus(); $event.preventDefault(); } }"`;
+    const scrollLockJs = `x-effect="if (${open}) { document.body.style.overflow = 'hidden'; $nextTick(() => { let focusables = $el.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex=\\'-1\\'])'); if (focusables.length > 0) focusables[0].focus(); }); } else { document.body.style.overflow = ''; }"`;
+    
+    return `<div${attrsFor('amana-modal')} x-show="${open}" @keydown.escape.window="${open} = false" @click.self="${open} = false" ${scrollLockJs} ${focusTrapJs} role="dialog" aria-modal="true"${ariaLabelledby}><div class="amana-modal-panel">${closeButton}${titleHtml}${inner}</div></div>`;
   }
   if (tag === 'Tabs') return `<div${attrsFor('amana-tabs')}>${inner}</div>`;
   if (tag === 'Badge') {
@@ -1013,7 +1076,11 @@ function renderStandardComponent(tag, classes, attributes, children, clientState
     const quote = getAttr(attributes, 'quote', '');
     const author = getAttr(attributes, 'author', '');
     const role = getAttr(attributes, 'role', '');
-    return `<figure${attrsFor('amana-testimonial')}>${quote ? `<blockquote>${quote}</blockquote>` : inner}${author || role ? `<figcaption>${author ? `<strong>${author}</strong>` : ''}${role ? `<span>${role}</span>` : ''}</figcaption>` : ''}</figure>`;
+    const firstChar = author ? author.trim().charAt(0) : '';
+    const avatarHtml = author ? `<div class="amana-testimonial-avatar">${escapeAttr(firstChar)}</div>` : '';
+    const infoHtml = `<div class="amana-testimonial-info">${author ? `<strong>${author}</strong>` : ''}${role ? `<span>${role}</span>` : ''}</div>`;
+    const figcaption = (author || role) ? `<figcaption>${avatarHtml}${infoHtml}</figcaption>` : '';
+    return `<figure${attrsFor('amana-testimonial')}>${quote ? `<blockquote>${quote}</blockquote>` : inner}${figcaption}</figure>`;
   }
   if (tag === 'Timeline') return `<ol${attrsFor('amana-timeline')}>${inner}</ol>`;
   if (tag === 'TimelineItem') {
@@ -1026,7 +1093,8 @@ function renderStandardComponent(tag, classes, attributes, children, clientState
     const description = getAttr(attributes, 'description', '');
     const actionLabel = getAttr(attributes, 'action_label', '');
     const actionHref = getAttr(attributes, 'action_href', '#');
-    return `<section${attrsFor('amana-empty-state')}>${title ? `<h2>${title}</h2>` : ''}${description ? `<p>${description}</p>` : ''}${inner}${actionLabel ? `<a class="amana-btn amana-btn-primary" href="${escapeAttr(actionHref)}">${actionLabel}</a>` : ''}</section>`;
+    const iconMarkup = `<iconify-icon icon="heroicons:folder-open" class="amana-empty-state-icon" aria-hidden="true"></iconify-icon>`;
+    return `<section${attrsFor('amana-empty-state')}>${iconMarkup}${title ? `<h2>${title}</h2>` : ''}${description ? `<p>${description}</p>` : ''}${inner}${actionLabel ? `<a class="amana-btn amana-btn-primary" href="${escapeAttr(actionHref)}">${actionLabel}</a>` : ''}</section>`;
   }
   if (tag === 'Split') return `<div${attrsFor('amana-split')}>${inner}</div>`;
   if (tag === 'Cluster') return `<div${attrsFor('amana-cluster')}>${inner}</div>`;
@@ -1034,7 +1102,18 @@ function renderStandardComponent(tag, classes, attributes, children, clientState
   return null;
 }
 
+let modalCounter = 0;
+let isCompilingRoot = false;
 function generateEjs(element, clientStates, dataVar = null) {
+  if (!isCompilingRoot) {
+    isCompilingRoot = true;
+    modalCounter = 0;
+    try {
+      return generateEjs(element, clientStates, dataVar);
+    } finally {
+      isCompilingRoot = false;
+    }
+  }
   if (!element) return '';
   if (element.DesignBlock !== undefined) return '';
   
@@ -1125,17 +1204,18 @@ function generateEjs(element, clientStates, dataVar = null) {
   
   if (element.Chart !== undefined) {
     const { data_expr, chart_type, x_field, y_field } = element.Chart;
-    return `<div class="chart-container mb-4" style="position: relative; width:100%; max-width:100%; height:clamp(18rem, 48vw, 26rem)">\n  <canvas id="chart_${data_expr}" style="width:100%; height:100%"></canvas>\n</div>\n\
+    const unique_id = Math.floor(Math.random() * 1000000);
+    return `<div class="chart-container mb-4" style="position: relative; width:100%; max-width:100%; height:clamp(18rem, 48vw, 26rem)">\n  <canvas id="chart_${data_expr}_${unique_id}" style="width:100%; height:100%"></canvas>\n</div>\n\
 <script>\n\
 document.addEventListener('DOMContentLoaded', () => {\n\
-  const ctx = document.getElementById('chart_${data_expr}').getContext('2d');\n\
-  const rawData = <%- JSON.stringify(${data_expr}) %>;\n\
+  const ctx = document.getElementById('chart_${data_expr}_${unique_id}').getContext('2d');\n\
+  const rawData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(${data_expr})) %>'));\n\
   new Chart(ctx, {\n\
     type: '${chart_type}',\n\
     data: {\n\
-      labels: rawData.map(row => row.${x_field}),\n\
+      labels: rawData.map(row => typeof fixArabicText !== 'undefined' ? fixArabicText(row.${x_field}) : row.${x_field}),\n\
       datasets: [{\n\
-        label: 'بيانات ${data_expr}',\n\
+        label: typeof fixArabicText !== 'undefined' ? fixArabicText('بيانات ${data_expr}') : 'بيانات ${data_expr}',\n\
         data: rawData.map(row => row.${y_field}),\n\
         backgroundColor: 'rgba(99, 102, 241, 0.2)',\n\
         borderColor: 'rgba(99, 102, 241, 1)',\n\
@@ -2158,6 +2238,26 @@ class AmanaEngine {
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
+    app.use('/assets', express.static(path.join(__dirname, '../assets')));
+    
+    // Fallback middleware to prevent 404 for missing images in development/testing
+    app.use((req, res, next) => {
+      const ext = path.extname(req.path).toLowerCase();
+      if (['.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico'].includes(ext)) {
+        const fs = require('fs');
+        const staticPath = req.path.startsWith('/assets')
+          ? path.join(__dirname, '../assets', req.path.replace(/^\/assets/, ''))
+          : path.join(__dirname, '../assets', req.path);
+        if (fs.existsSync(staticPath)) {
+          return res.sendFile(staticPath);
+        }
+        const name = path.basename(req.path);
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%"><rect width="100%" height="100%" fill="#f1f5f9"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" fill="#64748b">${name}</text></svg>`;
+        res.setHeader('Content-Type', 'image/svg+xml');
+        return res.send(svg);
+      }
+      next();
+    });
     app.use(inputSanitizer);
 
     app.use((req, res, next) => {
@@ -2389,909 +2489,7 @@ class AmanaEngine {
       }
     }
     ${themeCss(this.ir.theme)}
-        *, *::before, *::after { box-sizing: border-box; }
-    html { width: 100%; max-width: 100%; overflow-x: hidden; scroll-behavior: smooth; }
-    body { width: 100%; max-width: 100%; min-width: 0; margin: 0; overflow-x: hidden; background-color: var(--bg-secondary); color: var(--text-primary); font: var(--font-body); text-rendering: geometricPrecision; }
-    body.amana-page { display: block; padding: 0 !important; gap: normal !important; }
-    :where(main, section, article, aside, header, footer, nav, div, form) { min-width: 0; }
-    :where(h1, h2, h3, h4, h5, h6, p, span, strong, a, button, label, input, textarea, pre) { max-width: 100%; overflow-wrap: break-word; word-break: normal; letter-spacing: 0; }
-    :where(h1, h2, h3) { text-wrap: balance; }
-    :where(p, li, blockquote) { text-wrap: pretty; }
-    img, svg, video, canvas { max-width: 100%; display: block; }
-    a { color: inherit; }
-    .card { border: none; background-color: var(--surface-elevated); box-shadow: var(--shadow-soft); }
-    .amana-container { width: var(--component-width, min(100% - 2rem, var(--content-width))); max-width: var(--component-max-width, none); margin-inline: auto; }
-    .amana-container-full { width: 100%; max-width: none; }
-    .amana-container-wide { width: min(100% - 2rem, var(--wide-width)); }
-    .amana-container-readable { width: min(100% - 2rem, var(--readable-width)); }
-    .amana-section { position: relative; width: var(--component-width, auto); max-width: var(--component-max-width, none); min-height: var(--component-min-height, auto); height: var(--component-height, auto); padding-block: var(--component-padding-y, var(--component-padding, clamp(3rem, 7vw, 6rem))); padding-inline: var(--component-padding-x, 0); }
-    .amana-section-head { display: grid; gap: var(--space-sm); margin-bottom: clamp(2rem, 5vw, 3.5rem); max-width: 780px; }
-    .amana-section-head:has(.amana-section-copy) { gap: var(--space-md); }
-    .amana-section h2, .amana-section-head h2 { margin: 0; font-size: clamp(2rem, 5vw, 4.2rem); line-height: 1.05; letter-spacing: -0.01em; font-weight: 900; }
-    .amana-section-copy { color: var(--text-secondary); max-width: 68ch; font-size: clamp(1rem, 2vw, 1.2rem); line-height: 1.8; }
-    .amana-grid { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, var(--dg-columns, repeat(auto-fit, minmax(var(--grid-min, 16rem), 1fr))))); gap: var(--component-gap, var(--custom-gap, var(--dg-gap, var(--space-lg)))); }
-    .amana-grid > *, .amana-split > *, .dg-layout-split-diagonal > *, .dg-layout-asymmetric > *, .dg-layout-editorial > *, .dg-layout-dashboard-shell > *, .dg-layout-command-center > *, .dg-layout-showcase-rail > * { min-width: 0; }
-    .amana-stack { display: flex; flex-direction: column; gap: var(--space-md); }
-    .amana-stack-gap-xs { gap: var(--space-xs); }
-    .amana-stack-gap-sm { gap: var(--space-sm); }
-    .amana-stack-gap-lg { gap: var(--space-lg); }
-    .amana-stack-gap-xl { gap: var(--space-xl); }
-    .amana-navbar { width: var(--component-width, min(100% - 2rem, var(--wide-width))); max-width: var(--component-max-width, none); margin-inline: auto; display: flex; align-items: center; justify-content: space-between; gap: var(--component-gap, var(--space-lg)); padding: var(--component-padding, 0.85rem 0); min-height: var(--component-min-height, 4.25rem); }
-    .amana-brand { display: inline-flex; align-items: center; gap: 0.65rem; color: var(--text-primary); font-weight: 900; text-decoration: none; letter-spacing: -0.01em; }
-    .amana-brand::before { content: ""; width: 0.72rem; height: 0.72rem; border-radius: 999px; background: var(--gradient-primary); box-shadow: var(--glow-accent); }
-    .amana-navlinks { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-xs); flex-wrap: wrap; }
-    .amana-navlinks a { text-decoration: none; padding: 0.5rem 0.85rem; border-radius: var(--radius-soft); font-size: var(--text-sm); font-weight: 600; color: var(--text-secondary); transition: var(--transition-fast); }
-    .amana-navlinks a:hover { background: var(--color-primary-soft); color: var(--color-primary); }
-    .amana-navlinks a:focus-visible { outline: 2px solid var(--color-primary); }
-    .amana-hero { position: relative; isolation: isolate; display: grid; grid-template-columns: var(--component-columns, var(--dg-template, var(--dg-columns, minmax(0, 1fr)))); gap: var(--component-gap, var(--custom-gap, var(--dg-gap, clamp(1.5rem, 4vw, 3.5rem)))); align-items: center; width: var(--component-width, auto); max-width: var(--component-max-width, none); min-width: var(--component-min-width, 0); min-height: var(--component-min-height, auto); height: var(--component-height, auto); padding: var(--component-padding, clamp(1.5rem, 4vw, 4rem)); background: var(--custom-bg, var(--custom-gradient, var(--gradient-hero))); border: 1px solid var(--custom-border, var(--border-subtle)); border-radius: var(--custom-radius, var(--radius-2xl)); overflow: hidden; box-shadow: var(--custom-shadow, var(--shadow-floating)); opacity: var(--component-opacity, 1); transform: var(--component-transform, none); transition: var(--component-transition, transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease); }
-    .amana-hero::before { content: ""; position: absolute; inset: -20%; background: radial-gradient(circle at 15% 20%, rgba(34,211,238,0.18), transparent 28%), radial-gradient(circle at 85% 20%, rgba(99,102,241,0.22), transparent 32%); z-index: -1; }
-    .amana-hero-content { display: grid; gap: var(--component-gap, var(--space-md)); max-width: var(--component-copy-width, 780px); min-width: 0; }
-    .amana-hero h1 { margin: 0; font-size: var(--component-title-size, clamp(2.25rem, 5.4vw, 5.4rem)); line-height: var(--component-title-leading, 1.02); max-width: var(--component-title-width, min(100%, 16ch)); letter-spacing: -0.02em; font-weight: var(--dg-type-weight, 900); }
-    .amana-hero-copy { margin: 0; max-width: var(--component-copy-width, 66ch); color: var(--custom-muted, var(--text-secondary)); font-size: var(--component-copy-size, clamp(1rem, 1.8vw, 1.2rem)); line-height: 1.8; }
-    .amana-hero-actions { display: flex; gap: var(--component-gap, var(--space-md)); flex-wrap: wrap; margin-top: var(--space-md); align-items: center; }
-    .amana-hero-proof { color: var(--text-secondary); font-weight: 800; }
-    .amana-hero-media { min-height: clamp(16rem, 34vw, 28rem); border-radius: var(--radius-2xl); background-size: cover; background-position: center; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-floating); }
-    .amana-eyebrow { color: var(--color-accent); font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; font-size: var(--text-sm); }
-    .amana-card { position: relative; display: grid; gap: var(--component-gap, var(--custom-gap, var(--space-md))); width: var(--component-width, auto); max-width: var(--component-max-width, none); min-width: var(--component-min-width, 0); min-height: var(--component-min-height, auto); height: var(--component-height, auto); background: var(--custom-bg, var(--custom-gradient, linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 92%, transparent), color-mix(in srgb, var(--surface-muted) 82%, transparent)))); border: 1px solid var(--custom-border, var(--border-subtle)); border-radius: var(--custom-radius, var(--radius-2xl)); padding: var(--component-padding, var(--custom-padding, clamp(1.1rem, 2.6vw, 1.8rem))); box-shadow: var(--custom-shadow, var(--shadow-soft)); opacity: var(--component-opacity, 1); transform: var(--component-transform, none); overflow: hidden; transition: var(--component-transition, transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease); }
-    .amana-card::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 38%); opacity: 0.75; }
-    .amana-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-floating); border-color: color-mix(in srgb, var(--color-accent) 32%, var(--border-subtle)); }
-    .amana-card > * { position: relative; }
-    .amana-card h3 { margin: 0; font-size: clamp(1.25rem, 2vw, 1.75rem); line-height: 1.15; font-weight: 900; }
-    .amana-feature-card { min-height: 13rem; }
-    .amana-pricing-card { display: flex; flex-direction: column; gap: var(--space-md); border-color: var(--border-subtle); background: var(--surface-elevated); transition: var(--transition-smooth); }
-    .amana-pricing-card.amana-variant-featured, .amana-pricing-card.dg-component-variant-featured { border: 2px solid var(--color-primary); transform: scale(1.02); box-shadow: var(--shadow-xl), var(--glow-primary); }
-    .amana-pricing-card.amana-variant-featured:hover, .amana-pricing-card.dg-component-variant-featured:hover { transform: scale(1.04) translateY(-2px); }
-    .amana-price { font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1; font-weight: 950; }
-    .amana-muted { color: var(--text-secondary); line-height: 1.75; }
-    .amana-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: var(--component-gap, 0.65rem); width: var(--component-width, auto); max-width: var(--component-max-width, 100%); min-width: var(--component-min-width, 0); min-height: var(--component-min-height, 3rem); height: var(--component-height, auto); padding: var(--component-padding, 0.78rem 1.12rem); border-radius: var(--custom-radius, 999px); font-weight: 900; text-decoration: none; border: 1px solid var(--custom-border, transparent); transition: var(--component-transition, transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease); white-space: nowrap; line-height: 1.15; overflow: hidden; opacity: var(--component-opacity, 1); transform: var(--component-transform, none); cursor: pointer; }
-    .amana-btn:hover { transform: translateY(-2px); }
-    .amana-btn:active { transform: translateY(0) scale(0.97); }
-    .amana-btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-accent) 60%, transparent); outline-offset: 3px; }
-    .amana-btn-primary { background: var(--gradient-primary); color: white; box-shadow: var(--glow-primary); }
-    .amana-btn-primary:hover { box-shadow: var(--shadow-floating), var(--glow-primary); }
-    .amana-btn-secondary { color: var(--text-primary); background: color-mix(in srgb, var(--surface-elevated) 82%, transparent); border-color: var(--border-subtle); box-shadow: var(--shadow-soft); }
-    .amana-btn-secondary:hover { background: var(--surface-muted); border-color: var(--color-primary-soft); }
-    .amana-btn-ghost { color: var(--text-primary); background: transparent; border-color: var(--border-subtle); }
-    .amana-btn-sm { min-height: 2.35rem; padding: 0.52rem 0.82rem; font-size: var(--text-sm); }
-    .amana-btn-lg { min-height: 3.45rem; padding: 0.96rem 1.35rem; font-size: var(--text-lg); }
-    .amana-icon, .amana-btn-icon, iconify-icon { display: inline-grid; place-items: center; width: 1.25em; min-width: 1.25em; height: 1.25em; line-height: 1; vertical-align: -0.18em; transition: transform 160ms ease; }
-    .amana-btn:hover .amana-btn-icon { transform: translateX(-2px); }
-    .amana-btn-intent-danger { background: var(--color-danger); color: white; }
-    .amana-btn-intent-success { background: var(--color-success); color: white; }
-    .amana-field { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: var(--space-md); width: 100%; }
-    .amana-field span { color: var(--text-primary); font-weight: 800; font-size: var(--text-sm); }
-    .amana-field input, .amana-form-control { width: 100%; border: 1px solid var(--border-subtle); border-radius: var(--radius-soft); min-height: 3rem; padding: 0.78rem 0.92rem; background: color-mix(in srgb, var(--surface-base) 84%, transparent); color: var(--text-primary); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); font-size: var(--text-sm); transition: all 0.12s ease-in-out; }
-    .amana-field input:focus, .amana-form-control:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-soft); }
-    textarea.amana-form-control { min-height: 7rem; resize: vertical; }
-    .amana-form-card { background: color-mix(in srgb, var(--surface-elevated) 88%, transparent); border: 1px solid var(--border-subtle); border-radius: var(--radius-2xl); padding: clamp(1.25rem, 3vw, 2rem); box-shadow: var(--shadow-floating); }
-    .amana-help { color: var(--text-secondary); font-size: var(--text-sm); }
-    .amana-alert { border-radius: var(--radius-soft); border: 1px solid var(--border-subtle); padding: var(--space-md); background: var(--surface-muted); }
-    .amana-alert-success { border-color: rgba(22,163,74,0.35); }
-    .amana-alert-danger { border-color: rgba(220,38,38,0.35); }
-    .amana-footer { width: min(100% - 2rem, var(--wide-width)); margin: var(--space-3xl) auto 0; padding-block: var(--space-xl); color: var(--text-secondary); border-top: 1px solid var(--border-subtle); }
-    .amana-modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(2,6,23,0.55); padding: var(--space-lg); backdrop-filter: blur(10px); }
-    .amana-modal-panel { width: min(100%, 36rem); background: var(--surface-elevated); border-radius: var(--radius-2xl); padding: var(--space-lg); box-shadow: var(--shadow-strong); }
-    .amana-tabs {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        margin-bottom: 1.5rem;
-        background: var(--surface-elevated);
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-xl);
-        overflow: hidden;
-    }
-    .amana-tabs-header {
-        display: flex;
-        border-bottom: 1px solid var(--border-subtle);
-        background: var(--surface-muted);
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-    }
-    .amana-tabs-header::-webkit-scrollbar {
-        display: none;
-    }
-    .amana-tab-button {
-        flex: 1;
-        text-align: center;
-        padding: 0.85rem 1.25rem;
-        font-weight: 700;
-        font-size: var(--text-sm);
-        color: var(--text-secondary);
-        background: transparent;
-        border: none;
-        border-bottom: 2px solid transparent;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-    .amana-tab-button:hover {
-        color: var(--text-primary);
-        background: rgba(0, 0, 0, 0.02);
-    }
-    .amana-tab-button.active {
-        color: var(--color-primary);
-        border-bottom-color: var(--color-primary);
-        background: var(--surface-elevated);
-    }
-    .amana-tabs-content {
-        padding: 1.25rem;
-        background: var(--surface-elevated);
-        min-height: 0;
-    }
-    .amana-tab-panel {
-        animation: amanaFadeIn 0.2s ease-out;
-    }
-    .amana-accordion {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        width: 100%;
-        margin-bottom: 1.5rem;
-    }
-    .amana-accordion-item {
-        background: var(--surface-elevated);
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        transition: all 0.2s ease;
-    }
-    .amana-accordion-item:focus-within {
-        border-color: var(--color-primary-soft);
-    }
-    .amana-accordion-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        padding: 1rem 1.25rem;
-        background: var(--surface-muted);
-        border: none;
-        color: var(--text-primary);
-        font-weight: 700;
-        font-size: var(--text-sm);
-        cursor: pointer;
-        text-align: right;
-        transition: background 0.2s ease;
-    }
-    .amana-accordion-header:hover {
-        background: color-mix(in srgb, var(--surface-muted) 90%, var(--color-primary-soft));
-    }
-    .amana-accordion-title {
-        flex: 1;
-    }
-    .amana-accordion-chevron {
-        width: 1.25rem;
-        height: 1.25rem;
-        transition: transform 0.2s ease;
-        color: var(--text-secondary);
-        flex-shrink: 0;
-    }
-    .amana-accordion-content {
-        padding: 1.25rem;
-        background: var(--surface-elevated);
-        border-top: 1px solid var(--border-subtle);
-        animation: amanaFadeIn 0.2s ease-out;
-    }
-    .rotate-180 {
-        transform: rotate(180deg);
-    }
-    .amana-collapse-section {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        margin-bottom: 1.5rem;
-        background: var(--surface-elevated);
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-xl);
-        overflow: hidden;
-    }
-    .amana-collapse-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.75rem 1.25rem;
-        background: var(--surface-muted);
-        border-bottom: 1px solid var(--border-subtle);
-        cursor: pointer;
-        user-select: none;
-    }
-    .amana-collapse-header:hover {
-        background: color-mix(in srgb, var(--surface-muted) 90%, var(--color-primary-soft));
-    }
-    .amana-collapse-title-wrapper {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        min-width: 0;
-    }
-    .amana-collapse-title-wrapper > * {
-        margin: 0 !important;
-    }
-    .amana-collapse-chevron {
-        width: 1.25rem;
-        height: 1.25rem;
-        transition: transform 0.2s ease;
-        color: var(--text-secondary);
-        flex-shrink: 0;
-        margin-inline-start: 1rem;
-    }
-    .amana-collapse-body {
-        padding: 1.25rem;
-        background: var(--surface-elevated);
-        animation: amanaFadeIn 0.2s ease-out;
-    }
-    @keyframes amanaFadeIn {
-        from { opacity: 0; transform: translateY(2px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .amana-card-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); margin-bottom: var(--space-xs); }
-    .amana-card-meta { color: var(--text-secondary); font-size: var(--text-sm); }
-    .amana-card-action { color: var(--color-accent); font-weight: 900; text-decoration: none; margin-top: auto; }
-    .amana-card-density-compact { padding: var(--space-md); }
-    .amana-card-density-spacious { padding: var(--space-xl); }
-    .amana-badge { display: inline-flex; align-items: center; width: fit-content; gap: 0.35rem; border: 1px solid var(--border-subtle); border-radius: 999px; padding: 0.38rem 0.78rem; font-size: var(--text-sm); font-weight: 900; background: color-mix(in srgb, var(--surface-muted) 78%, transparent); color: var(--text-primary); box-shadow: var(--shadow-soft); }
-    .amana-badge-success { border-color: rgba(22,163,74,0.35); color: var(--color-success); }
-    .amana-badge-warning { border-color: rgba(202,138,4,0.35); color: var(--color-warning); }
-    .amana-badge-danger { border-color: rgba(220,38,38,0.35); color: var(--color-danger); }
-    .amana-kpi { display: flex; flex-direction: column; gap: 0.35rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); background: linear-gradient(180deg, var(--surface-elevated), var(--surface-muted)); box-shadow: var(--shadow-soft); transition: var(--transition-fast); }
-    .amana-kpi:hover { border-color: color-mix(in srgb, var(--color-primary) 32%, var(--border-subtle)); transform: translateY(-2px); }
-    .amana-kpi-label { order: -1; text-transform: uppercase; font-size: var(--text-xs); font-weight: 800; color: var(--text-secondary); letter-spacing: 0.05em; }
-    .amana-kpi-value { font-size: clamp(2.25rem, 5vw, 4rem); line-height: 1; font-weight: 950; font-feature-settings: "tnum"; color: var(--text-primary); }
-    .amana-kpi-trend { color: var(--color-success); font-weight: 700; }
-    .amana-logo-cloud { display: grid; gap: var(--space-md); padding-block: var(--space-lg); }
-    .amana-logo-row { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: center; color: var(--text-secondary); }
-    .amana-testimonial { margin: 0; display: grid; gap: var(--space-md); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: var(--space-lg); background: var(--surface-elevated); box-shadow: var(--shadow-soft); }
-    .amana-testimonial blockquote { margin: 0; font-size: var(--text-lg); color: var(--text-primary); }
-    .amana-testimonial figcaption { display: grid; gap: 0.1rem; color: var(--text-secondary); }
-    .amana-timeline { display: flex; flex-direction: column; gap: var(--space-lg); border-inline-start: 2px solid var(--border-subtle); list-style: none; margin: 0; padding: 0; padding-inline-start: 2rem; position: relative; }
-    .amana-timeline-item { position: relative; padding: var(--space-lg); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); background: var(--surface-elevated); transition: var(--transition-fast); }
-    .amana-timeline-item::before { content: ""; position: absolute; top: 1.85rem; width: 0.75rem; height: 0.75rem; border-radius: 50%; background: var(--color-primary); border: 2px solid var(--bg-secondary); box-shadow: 0 0 0 3px var(--color-primary-soft); z-index: 2; }
-    [dir="rtl"] .amana-timeline-item::before { right: -2.42rem; }
-    [dir="ltr"] .amana-timeline-item::before { left: -2.42rem; }
-    .amana-empty-state { display: grid; place-items: center; text-align: center; gap: var(--space-md); min-height: 18rem; border: 1px dashed var(--border-subtle); border-radius: var(--radius-xl); padding: var(--space-xl); background: var(--surface-muted); }
-    .amana-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.85fr); gap: var(--space-xl); align-items: center; }
-    .amana-cluster { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: center; }
-    .amana-sidebar { border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); background: var(--surface-elevated); padding: var(--space-lg); box-shadow: var(--shadow-soft); }
-    .amana-navbar-sticky { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--surface-base) 78%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-subtle); }
-    .amana-navbar-glass { background: color-mix(in srgb, var(--surface-base) 60%, transparent) !important; backdrop-filter: blur(14px); border: 1px solid var(--border-subtle) !important; border-radius: 999px; margin-top: 1rem; padding: 0.75rem 2rem !important; box-shadow: var(--shadow-soft); }
-    .amana-navbar-elegant { border-bottom: 2px solid var(--color-primary); padding-block: 1.5rem !important; font-family: var(--font-heading); }
-    .amana-navbar-floating { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); width: min(90%, var(--wide-width)) !important; z-index: 100; background: var(--surface-elevated) !important; border: 1px solid var(--border-subtle) !important; border-radius: 999px; padding: 0.75rem 2.5rem !important; box-shadow: var(--shadow-floating); }
-    .amana-slides { position: relative; overflow: hidden; width: 100%; border-radius: var(--radius-2xl); background: var(--surface-muted); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; justify-content: center; }
-    .amana-slides-inner { position: relative; width: 100%; height: 100%; display: grid; grid-template-columns: 1fr; grid-template-rows: 1fr; }
-    .amana-slides-inner > * { grid-area: 1 / 1 / 2 / 2; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 3rem; }
-    .amana-slides-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.1); color: var(--text-primary); width: 2.75rem; height: 2.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s ease; z-index: 10; font-size: 1.2rem; }
-    .amana-slides-arrow:hover { background: var(--color-primary); color: white; transform: translateY(-50%) scale(1.1); }
-    .amana-slides-arrow.prev { left: 1rem; }
-    .amana-slides-arrow.next { right: 1rem; }
-    .amana-slides-dots { position: absolute; bottom: 1.25rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.5rem; z-index: 10; }
-    .amana-slides-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: rgba(255,255,255,0.3); border: 1px solid rgba(0,0,0,0.1); cursor: pointer; transition: all 0.2s ease; }
-    .amana-slides-dot.active { background: var(--color-primary); width: 1.25rem; border-radius: 999px; }
-    .amana-page { min-height: 100vh; background: var(--bg-secondary); color: var(--text-primary); overflow-x: hidden; }
-    .amana-runtime-shell { display: block; width: 100%; max-width: 100%; min-height: 100vh; margin: 0; padding: 0; overflow-x: hidden; }
-    .amana-runtime-shell > :not(script):not(style):not(.amana-state-scope), .amana-runtime-shell > .amana-state-scope > :not(script):not(style) { max-width: 100%; }
-    .dg-canvas-width-full .amana-container { width: 100%; max-width: none; }
-    .dg-canvas-width-wide .amana-container { width: min(100% - 2rem, var(--wide-width)); }
-    .dg-canvas-width-readable .amana-container { width: min(100% - 2rem, var(--readable-width)); }
-    .dg-layout-split-diagonal,
-    .dg-layout-asymmetric { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(0, 1.1fr) minmax(16rem, 0.85fr))); align-items: center; gap: var(--component-gap, var(--dg-gap, clamp(1.5rem, 5vw, 4rem))); }
-    :where(.dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, .dg-layout-magazine, .dg-layout-bento, .dg-layout-command-center, .dg-layout-showcase-rail) > .amana-container { grid-column: 1 / -1; width: min(100% - 2rem, var(--content-width)); }
-    .dg-layout-centered { text-align: center; justify-items: center; }
-    .dg-layout-editorial { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 0.55fr) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, clamp(2rem, 6vw, 5rem))); align-items: start; }
-    .dg-layout-dashboard-shell,
-    :where(.dg-layout-dashboard-shell) .amana-runtime-shell > :not(script):not(style):not(.amana-state-scope),
-    :where(.dg-layout-dashboard-shell) .amana-runtime-shell > .amana-state-scope > :not(script):not(style) { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 18rem) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); align-items: start; }
-    :where(.dg-layout-dashboard-shell) { height: 100dvh; overflow: hidden; }
-    .amana-state-scope { height: 100%; min-height: 0; width: 100%; max-width: 100%; display: flex; flex-direction: column; }
-    :where(.dg-layout-dashboard-shell) .amana-state-scope { height: 100%; min-height: 0; overflow: hidden; }
-    .amana-state-scope > .app-shell { flex: 1 1 auto; width: 100%; min-height: 0; }
-    :where(.dg-layout-dashboard-shell) .amana-runtime-shell { height: 100%; min-height: 0; overflow: hidden; }
-    :where(.dg-layout-dashboard-shell) .app-shell { height: 100%; min-height: 0; overflow: hidden; }
-    :where(.dg-layout-dashboard-shell) .side-rail { height: 100%; min-height: 0; overflow: auto; }
-    :where(.dg-layout-dashboard-shell) .dashboard-main { height: 100%; min-height: 0; overflow: auto; }
-    :where(.dg-layout-dashboard-shell) .panel { display: flex; flex-direction: column; min-height: 0; }
-    :where(.dg-layout-dashboard-shell) .amana-resource { display: flex; flex-direction: column; min-height: 0; }
-    :where(.dg-layout-dashboard-shell) .dashboard-grid,
-    :where(.dg-layout-dashboard-shell) .customers-container,
-    :where(.dg-layout-dashboard-shell) .tickets-container,
-    :where(.dg-layout-dashboard-shell) .agents-container,
-    :where(.dg-layout-dashboard-shell) .reports-layout,
-    :where(.dg-layout-dashboard-shell) .settings-layout,
-    :where(.dg-layout-dashboard-shell) .ticket-detail-grid { min-height: 0; }
-    :where(.dg-layout-dashboard-shell) .amana-resource-list { max-height: clamp(14rem, 38vh, 22rem); overflow: auto; }
-    :where(.dg-layout-dashboard-shell) .agent-status-list,
-    :where(.dg-layout-dashboard-shell) .urgent-list { max-height: clamp(10rem, 28vh, 18rem); overflow: auto; }
-    .dg-layout-magazine { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, repeat(12, minmax(0, 1fr)))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); }
-    .dg-layout-magazine > * { grid-column: span 6; }
-    .dg-rhythm-compact { gap: var(--space-sm); padding-block: var(--space-md); }
-    .dg-rhythm-balanced { gap: var(--space-lg); }
-    .dg-rhythm-spacious { gap: var(--space-xl); padding-block: var(--space-2xl); }
-    .dg-rhythm-dramatic { gap: clamp(2rem, 7vw, 6rem); padding-block: clamp(4rem, 10vw, 8rem); }
-    .dg-surface-layered,
-    .dg-surface-glass-layered,
-    .dg-visual-surface-layered { position: relative; isolation: isolate; background: var(--surface-elevated); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-floating); }
-    .dg-surface-glass,
-    .dg-visual-surface-glass { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
-    .dg-surface-custom,
-    .dg-visual-surface-custom,
-    .dg-component-variant-custom { background: var(--custom-bg, var(--surface-elevated)); color: var(--custom-text, var(--text-primary)); border-color: var(--custom-border, var(--border-subtle)); border-radius: var(--custom-radius, inherit); box-shadow: var(--custom-shadow, var(--shadow-soft)); }
-    .dg-gradient-custom,
-    .dg-visual-gradient-custom { background: var(--custom-gradient, var(--gradient-primary)); }
-    .dg-mode-light,
-    .dg-visual-mode-light,
-    .dg-mode-day,
-    .dg-visual-mode-day { color-scheme: light; --bg-secondary: #f8fafc; --surface-base: #ffffff; --surface-muted: #f8fafc; --surface-elevated: #ffffff; --text-primary: #0f172a; --text-secondary: #475569; --border-subtle: rgba(15,23,42,0.12); }
-    .dg-mode-dark,
-    .dg-visual-mode-dark,
-    .dg-mode-night,
-    .dg-visual-mode-night { color-scheme: dark; --bg-secondary: #050816; --surface-base: #0b1020; --surface-muted: #111827; --surface-elevated: #151d31; --text-primary: #f8fafc; --text-secondary: #cbd5e1; --border-subtle: rgba(148,163,184,0.18); }
-    .dg-gradient-mesh-aurora,
-    .dg-visual-gradient-mesh-aurora { background: radial-gradient(circle at 12% 18%, rgba(6,182,212,0.28), transparent 32%), radial-gradient(circle at 86% 20%, rgba(79,70,229,0.26), transparent 34%), linear-gradient(135deg, var(--surface-base), var(--surface-muted)); }
-    .dg-gradient-mesh-cyan-indigo,
-    .dg-visual-gradient-mesh-cyan-indigo { background: radial-gradient(circle at top left, rgba(34,211,238,0.30), transparent 35%), radial-gradient(circle at bottom right, rgba(79,70,229,0.28), transparent 38%), var(--surface-base); }
-    .dg-gradient-spotlight,
-    .dg-visual-gradient-spotlight { background: radial-gradient(circle at 50% 0%, var(--color-primary-soft), transparent 42%), var(--surface-base); }
-    .dg-shape-diagonal-cut,
-    .dg-visual-shape-diagonal-cut { clip-path: polygon(0 0, 100% 0, 96% 100%, 0 92%); }
-    .dg-shape-soft-blob,
-    .dg-visual-shape-soft-blob { border-radius: 32px 18px 42px 22px; }
-    .dg-shape-squircle,
-    .dg-visual-shape-squircle,
-    .dg-component-shape-squircle { border-radius: 28% 22% 30% 20%; }
-    .dg-shape-ticket,
-    .dg-visual-shape-ticket,
-    .dg-component-shape-ticket { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1rem), calc(100% - 1rem) 100%, 0 100%); }
-    .dg-component-shape-pill { border-radius: 999px; }
-    .dg-component-density-compact { padding: var(--space-sm); gap: var(--space-sm); }
-    .dg-component-density-spacious { padding: var(--space-xl); gap: var(--space-lg); }
-    .dg-component-chrome-minimal { border-color: transparent; box-shadow: none; background: transparent; }
-    .dg-component-chrome-bold { border-width: 2px; box-shadow: var(--custom-shadow, var(--shadow-floating)); }
-    .dg-visual-border-glow-subtle { border-color: color-mix(in srgb, var(--color-accent) 38%, var(--border-subtle)); box-shadow: var(--shadow-soft), var(--glow-accent); }
-    .dg-flow-sectional > * + * { margin-top: var(--space-2xl); }
-    .dg-flow-immersive { min-height: 100vh; display: grid; align-content: center; }
-    .dg-flow-dashboard { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 18rem) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, var(--space-xl))); }
-    .dg-density-compact { --space-md: 0.75rem; --space-lg: 1rem; --space-xl: 1.35rem; }
-    .dg-density-comfortable { --space-md: 1rem; --space-lg: 1.5rem; --space-xl: 2rem; }
-    .dg-density-spacious { --space-md: 1.25rem; --space-lg: 2rem; --space-xl: 3rem; }
-    .dg-align-start { justify-items: start; text-align: start; }
-    .dg-align-center { justify-items: center; text-align: center; }
-    .dg-align-end { justify-items: end; text-align: end; }
-    .dg-focus-path-z .amana-card:nth-child(2),
-    .dg-focus-path-z > *:nth-child(2) { transform: translateY(1rem); }
-    .dg-focus-path-radial { position: relative; }
-    .dg-focus-path-radial::before { content: ""; position: absolute; inset: 10%; border-radius: 999px; background: radial-gradient(circle, var(--color-primary-soft), transparent 62%); opacity: 0.42; pointer-events: none; z-index: -1; }
-    .dg-layout-bento { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, repeat(6, minmax(0, 1fr)))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); }
-    .dg-layout-bento > * { grid-column: span 2; }
-    .dg-layout-bento > *:first-child { grid-column: span 4; grid-row: span 2; }
-    .dg-layout-command-center { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, 0.9fr 1.2fr 0.9fr)); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); align-items: stretch; }
-    .dg-layout-showcase-rail { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(0, 0.95fr) minmax(16rem, 0.45fr))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); }
-    .dg-layout-masonry { columns: 3 18rem; column-gap: var(--space-lg); }
-    .dg-layout-masonry > * { break-inside: avoid; margin-bottom: var(--space-lg); }
-    .dg-palette-mono-luxe { --color-primary: #111827; --color-accent: #64748b; --color-primary-soft: rgba(100,116,139,0.14); }
-    .dg-palette-neon-lab { --color-primary: #7c3aed; --color-accent: #06b6d4; --color-primary-soft: rgba(124,58,237,0.18); }
-    .dg-palette-earth-tech { --color-primary: #0f766e; --color-accent: #a16207; --color-primary-soft: rgba(15,118,110,0.16); }
-    .dg-colorway-calm-saas { --color-primary: #2563eb; --color-accent: #14b8a6; --color-primary-soft: rgba(37,99,235,0.13); }
-    .dg-colorway-editorial-ink { --color-primary: #18181b; --color-accent: #be123c; --color-primary-soft: rgba(190,18,60,0.12); }
-    .dg-colorway-cyber-cyan { --color-primary: #0891b2; --color-accent: #a78bfa; --color-primary-soft: rgba(8,145,178,0.18); }
-    .dg-art-minimal-editorial { letter-spacing: 0; }
-    .dg-art-cinematic-product { box-shadow: inset 0 0 0 1px var(--border-subtle), var(--shadow-strong); }
-    .dg-art-technical-blueprint { background-image: linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px); background-size: 32px 32px; }
-    .dg-motif-orbit { position: relative; overflow: hidden; }
-    .dg-motif-orbit::after { content: ""; position: absolute; width: 18rem; aspect-ratio: 1; border: 1px solid var(--border-subtle); border-radius: 999px; inset-inline-end: -5rem; top: -5rem; pointer-events: none; }
-    .dg-motif-grid { background-image: linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px); background-size: 28px 28px; }
-    .dg-lighting-rim { box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), var(--shadow-floating); }
-    .dg-lighting-spot { background: radial-gradient(circle at 50% 0%, var(--color-primary-soft), transparent 45%), var(--surface-base); }
-    .dg-texture-noise { position: relative; isolation: isolate; }
-    .dg-texture-noise::before { content: ""; position: absolute; inset: 0; opacity: var(--dg-texture-opacity, 0.06); pointer-events: none; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 4px); z-index: -1; }
-    .dg-texture-paper { background-image: linear-gradient(rgba(255,255,255,0.05), rgba(255,255,255,0.02)); }
-    .dg-frame-device { border-radius: 28px; border: 10px solid color-mix(in srgb, var(--text-primary) 82%, transparent); box-shadow: var(--shadow-strong); }
-    .dg-frame-browser { border-top: 2rem solid color-mix(in srgb, var(--surface-muted) 88%, var(--text-primary)); border-radius: var(--radius-xl); }
-    .dg-brand-voice-premium,
-    .dg-brand-personality-premium { --shadow-soft: 0 18px 45px -28px rgba(2,6,23,0.7); }
-    .dg-brand-voice-playful,
-    .dg-brand-personality-playful { --radius-xl: 28px; --radius-soft: 22px; }
-    .dg-brand-trust-high { border-color: color-mix(in srgb, var(--color-success) 28%, var(--border-subtle)); }
-    .dg-feedback-tactile :is(a, button, .amana-card) { transition: transform 160ms ease, box-shadow 160ms ease; }
-    .dg-feedback-tactile :is(a, button, .amana-card):active { transform: translateY(1px) scale(0.99); }
-    .dg-affordance-obvious :is(a, button) { box-shadow: var(--glow-primary); }
-    .dg-cursor-precise { cursor: crosshair; }
-    [style*="--state-hover-bg"]:hover { background: var(--state-hover-bg) !important; color: var(--state-hover-text, var(--custom-text, var(--text-primary))) !important; box-shadow: var(--state-hover-shadow, var(--custom-shadow, var(--shadow-floating))) !important; }
-    [style*="--state-focus-ring"]:focus-visible,
-    [style*="--state-focus-ring"] :focus-visible { outline: 3px solid var(--state-focus-ring) !important; outline-offset: 3px; }
-    .dg-a11y-contrast-enhanced { --text-secondary: color-mix(in srgb, var(--text-primary) 76%, var(--bg-secondary)); }
-    .dg-focus-visible-strong :focus-visible { outline: max(2px, var(--dg-focus-strength, 3px)) solid var(--color-accent); outline-offset: 3px; }
-    .dg-type-scale-dramatic h1,
-    .dg-type-scale-dramatic h2 { font-size: clamp(3rem, 9vw, 7rem); line-height: 0.95; }
-    .dg-type-scale-editorial h1,
-    .dg-type-scale-editorial h2 { font-size: clamp(2.4rem, 6vw, 5rem); line-height: 1.02; max-width: 10ch; }
-    .dg-type-align-center { text-align: center; }
-    .dg-type-align-start { text-align: start; }
-    .dg-type-contrast-high h1,
-    .dg-type-contrast-high h2 { color: var(--text-primary); }
-    .dg-type-measure-tight { --dg-type-measure: 48ch; }
-    .dg-type-measure-readable { --dg-type-measure: 68ch; }
-    .dg-type-measure-wide { --dg-type-measure: 82ch; }
-    .dg-type-measure-tight p,
-    .dg-type-measure-readable p,
-    .dg-type-measure-wide p { max-width: var(--dg-type-measure); }
-    .dg-type-hierarchy-strong h1,
-    .dg-type-hierarchy-strong h2,
-    .dg-type-hierarchy-strong h3 { font-weight: 850; }
-    .dg-type-tone-technical { font-family: var(--font-mono); }
-    .dg-type-tone-editorial h1,
-    .dg-type-tone-editorial h2 { font-family: Georgia, "Times New Roman", serif; font-weight: 700; }
-    .dg-motion-stagger-up > * { animation: dgFadeUp var(--dg-motion-speed, 560ms) ease both; }
-    .dg-motion-stagger-up > *:nth-child(2) { animation-delay: 90ms; }
-    .dg-motion-stagger-up > *:nth-child(3) { animation-delay: 180ms; }
-    .dg-motion-fade { animation: dgFadeUp var(--dg-motion-speed, 520ms) ease both; }
-    .dg-hover-lift-glow:hover,
-    .dg-hover-lift:hover { transform: translateY(-4px); box-shadow: var(--shadow-floating), var(--glow-primary); }
-    .dg-hover-scale:hover { transform: scale(1.015); }
-    .dg-hover-lift-glow,
-    .dg-hover-lift,
-    .dg-hover-scale { transition: var(--transition-smooth); will-change: transform; }
-    .dg-reveal-blur { animation: dgBlurIn var(--dg-motion-speed, 640ms) ease both; }
-    .dg-reveal-clip { animation: dgClipIn var(--dg-motion-speed, 720ms) ease both; }
-    .dg-rsp-mobile-stacked { --dg-mobile-layout: stacked; }
-    .dg-rsp-mobile-scroll-snap { scroll-snap-type: x mandatory; overflow-x: auto; }
-    .dg-rsp-mobile-scroll-snap > * { scroll-snap-align: start; }
-    .dg-rsp-collapse-stack { --dg-collapse: stack; }
-    .dg-rsp-columns-adaptive { grid-template-columns: repeat(auto-fit, minmax(var(--grid-min, 16rem), 1fr)); }
-    @keyframes dgFadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes dgBlurIn { from { opacity: 0; filter: blur(14px); transform: translateY(12px); } to { opacity: 1; filter: blur(0); transform: translateY(0); } }
-    @keyframes dgClipIn { from { opacity: 0; clip-path: inset(18% 0 0 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
-    @media (min-width: 1201px) {
-      [style*="--bp-desktop-columns"] { --component-columns: var(--bp-desktop-columns) !important; --dg-columns: var(--bp-desktop-columns) !important; grid-template-columns: var(--bp-desktop-columns) !important; }
-      [style*="--bp-desktop-padding"] { --component-padding: var(--bp-desktop-padding) !important; }
-      [style*="--bp-desktop-gap"] { --component-gap: var(--bp-desktop-gap) !important; --dg-gap: var(--bp-desktop-gap) !important; gap: var(--bp-desktop-gap) !important; }
-    }
-    @media (max-width: 1200px) and (min-width: 901px) {
-      [style*="--bp-laptop-columns"] { --component-columns: var(--bp-laptop-columns) !important; --dg-columns: var(--bp-laptop-columns) !important; grid-template-columns: var(--bp-laptop-columns) !important; }
-      [style*="--bp-laptop-padding"] { --component-padding: var(--bp-laptop-padding) !important; }
-      [style*="--bp-laptop-gap"] { --component-gap: var(--bp-laptop-gap) !important; --dg-gap: var(--bp-laptop-gap) !important; gap: var(--bp-laptop-gap) !important; }
-    }
-    @media (max-width: 900px) and (min-width: 641px) {
-      [style*="--bp-tablet-columns"] { --component-columns: var(--bp-tablet-columns) !important; --dg-columns: var(--bp-tablet-columns) !important; grid-template-columns: var(--bp-tablet-columns) !important; }
-      [style*="--bp-tablet-padding"] { --component-padding: var(--bp-tablet-padding) !important; }
-      [style*="--bp-tablet-gap"] { --component-gap: var(--bp-tablet-gap) !important; --dg-gap: var(--bp-tablet-gap) !important; gap: var(--bp-tablet-gap) !important; }
-    }
-    @media (max-width: 640px) {
-      [style*="--bp-mobile-columns"] { --component-columns: var(--bp-mobile-columns) !important; --dg-columns: var(--bp-mobile-columns) !important; grid-template-columns: var(--bp-mobile-columns) !important; }
-      [style*="--bp-mobile-padding"] { --component-padding: var(--bp-mobile-padding) !important; }
-      [style*="--bp-mobile-gap"] { --component-gap: var(--bp-mobile-gap) !important; --dg-gap: var(--bp-mobile-gap) !important; gap: var(--bp-mobile-gap) !important; }
-    }
-    @media (max-width: 720px) {
-      .amana-navbar { align-items: flex-start; flex-direction: column; gap: var(--space-md); }
-      .amana-navlinks { justify-content: flex-start; width: 100%; gap: var(--space-xs); }
-      .amana-navlinks a { padding: 0.38rem 0.68rem; font-size: var(--text-xs); }
-      .amana-hero { padding: var(--space-lg); }
-      .amana-hero h1 { font-size: 2.25rem; }
-      .amana-card { padding: var(--space-md); }
-      .amana-timeline { padding-inline-start: 1.5rem; }
-      [dir="rtl"] .amana-timeline-item::before { right: -1.92rem; }
-      [dir="ltr"] .amana-timeline-item::before { left: -1.92rem; }
-      .amana-split,
-      .dg-flow-dashboard,
-      .dg-layout-split-diagonal,
-      .dg-layout-asymmetric,
-      .dg-layout-editorial,
-      .dg-layout-dashboard-shell,
-      :where(.dg-layout-dashboard-shell) .amana-runtime-shell > :not(script):not(style):not(.amana-state-scope),
-      :where(.dg-layout-dashboard-shell) .amana-runtime-shell > .amana-state-scope > :not(script):not(style),
-      .dg-layout-magazine,
-      .dg-layout-bento,
-      .dg-layout-command-center,
-      .dg-layout-showcase-rail { grid-template-columns: 1fr; }
-      .dg-layout-magazine > *,
-      .dg-layout-bento > *,
-      .dg-layout-bento > *:first-child { grid-column: auto; grid-row: auto; }
-      /* Mobile Content Density & Section Compaction */
-      :where(.dg-layout-dashboard-shell) .reports-container {
-        padding: 1.05rem !important;
-        gap: 1rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .dashboard-grid,
-      :where(.dg-layout-dashboard-shell) .settings-layout,
-      :where(.dg-layout-dashboard-shell) .ticket-detail-grid,
-      :where(.dg-layout-dashboard-shell) .reports-grid,
-      :where(.dg-layout-dashboard-shell) .reports-secondary {
-        gap: 0.85rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .dashboard-main-col,
-      :where(.dg-layout-dashboard-shell) .dashboard-side-col {
-        gap: 0.85rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .panel {
-        padding: 1rem !important;
-        border-radius: 12px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .panel-header {
-        margin-bottom: 0.85rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kpi-row {
-        padding: 1rem !important;
-        gap: 0.75rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .dash-header {
-        padding: 1rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .amana-kpi {
-        padding: 0.85rem !important;
-        border-radius: 10px !important;
-        gap: 0.25rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .amana-kpi-value {
-        font-size: 1.8rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kpi-wide {
-        padding: 0.75rem 0.85rem !important;
-        border-radius: 10px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kpi-wide-value {
-        font-size: 1.35rem !important;
-        margin-bottom: 0.15rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kpi-wide-label {
-        font-size: 0.65rem !important;
-        margin-bottom: 0.2rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .performance-table {
-        max-height: 280px !important;
-        overflow-y: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kb-list {
-        max-height: 280px !important;
-        overflow-y: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .csat-list {
-        max-height: 280px !important;
-        overflow-y: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .agent-status-list {
-        max-height: 240px !important;
-        overflow-y: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .urgent-list {
-        max-height: 240px !important;
-        overflow-y: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .agent-status-row {
-        padding: 0.4rem 0.5rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kb-row {
-        padding: 0.5rem 0.25rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .perf-row {
-        padding: 0.4rem 0.25rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .csat-row {
-        padding: 0.6rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .amana-resource-item {
-        padding: 0.65rem !important;
-        gap: 0.4rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .amana-resource-list {
-        gap: 0.5rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .report-panel-header {
-        margin-bottom: 0.85rem !important;
-        padding-bottom: 0.6rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .report-panel-title {
-        font-size: 0.88rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .volume-chart {
-        height: 130px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .chart-bars-large {
-        height: 110px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .bar-wrap-lg {
-        height: 80px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .chart-wrap {
-        min-height: 140px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .chart-bars {
-        height: 100px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .bar-wrap {
-        height: 70px !important;
-      }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .dg-reduce-motion-auto *,
-      .dg-reduce-motion-strict *,
-      .dg-motion-stagger-up > *,
-      .dg-motion-fade,
-      .dg-reveal-blur,
-      .dg-reveal-clip { animation: none !important; transition: none !important; }
-    }
-    :where(.amana-runtime-shell, .amana-page, .page) { width: 100%; max-width: 100%; overflow-x: hidden; }
-    :where(.amana-runtime-shell, .amana-page, .page) :where(section, header, main, footer, div, article, aside, form) { min-width: 0; }
-    :where(.amana-runtime-shell, .amana-page, .page) :where(h1, h2, h3, p, a, button, span, strong, label, input, textarea, pre) { max-width: 100%; overflow-wrap: anywhere; }
-    :where(.dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, .dg-layout-magazine, .dg-layout-bento, .dg-layout-command-center, .dg-layout-showcase-rail) > .amana-container { grid-column: 1 / -1; }
-    @media (max-width: 1200px) {
-      :where(.hero-title, .section-title, .auth-card h1, .cta-box h2, .amana-hero h1, h1) { font-size: clamp(2.15rem, 8vw, 4.4rem) !important; line-height: 1.08 !important; max-width: 100% !important; }
-      :where(.hero-lead, .section-lead, .amana-hero-copy, p) { font-size: clamp(1rem, 2.4vw, 1.2rem); }
-      :where(.hero-shell, .section-space, .workflow, .pricing-section, .testimonials, .cta-section, .auth-shell) { padding-inline: clamp(1rem, 4vw, 2rem) !important; }
-      :where(.hero-grid, .split, .workflow-grid, .pricing-grid, .testimonial-grid, .cta-box, .amana-split, .dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, .dg-layout-command-center, .dg-layout-showcase-rail):not([style*="--bp-laptop-columns"]):not([style*="--bp-tablet-columns"]):not([style*="--bp-mobile-columns"]) { grid-template-columns: minmax(0, 1fr) !important; }
-    }
-    @media (max-width: 720px) {
-      :where(.hero-title, .section-title, .auth-card h1, .cta-box h2, .amana-hero h1, h1) { font-size: clamp(2rem, 11vw, 3.4rem) !important; }
-      :where(.hero-panel, .workflow-box, .visual-card, .price-card, .testimonial-card, .cta-box, .auth-card, .contact-card, .amana-card) { padding: clamp(1rem, 5vw, 1.5rem) !important; border-radius: min(var(--radius-2xl), 22px) !important; }
-      :where(.hero-actions, .trust-strip, .badge-row, .token-list, .logo-row, .amana-hero-actions, .amana-cluster) { align-items: stretch; }
-      :where(.amana-btn, .plan-button, button) { white-space: normal; text-align: center; }
-      :where(.dg-layout-dashboard-shell) {
-        height: auto !important;
-        min-height: 100vh !important;
-        overflow: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .amana-runtime-shell {
-        height: auto !important;
-        min-height: 100vh !important;
-        overflow: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .amana-state-scope {
-        height: auto !important;
-        min-height: 100vh !important;
-        overflow: visible !important;
-      }
-      .app-shell {
-        display: flex !important;
-        flex-direction: column !important;
-        height: auto !important;
-        min-height: 100vh !important;
-        overflow: visible !important;
-        padding: 0.5rem !important;
-        gap: 1rem !important;
-        width: 100% !important;
-        max-width: 100% !important;
-      }
-      .side-rail {
-        position: static !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        min-height: 0 !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        padding: 0.75rem 1rem !important;
-        gap: 0.75rem !important;
-        border-right: none !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-      }
-      .side-rail > [class*="brand"],
-      .side-brand {
-        width: auto !important;
-        border-bottom: none !important;
-        padding: 0 !important;
-        flex-shrink: 0 !important;
-      }
-      .side-rail > [class*="nav"],
-      .side-nav {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none !important;
-        gap: 0.5rem !important;
-        width: auto !important;
-        padding: 0 !important;
-        flex: 1 !important;
-        justify-content: flex-end !important;
-      }
-      .side-rail > [class*="nav"]::-webkit-scrollbar,
-      .side-nav::-webkit-scrollbar {
-        display: none !important;
-      }
-      .side-rail > [class*="nav"] a,
-      .side-rail a[class*="link"],
-      .side-nav a {
-        flex: 0 0 auto !important;
-        font-size: 0.8rem !important;
-        padding: 0.35rem 0.65rem !important;
-        border-radius: 8px !important;
-        white-space: nowrap !important;
-      }
-      .side-rail > [class*="footer"],
-      .side-footer {
-        display: none !important;
-      }
-      .dashboard-main {
-        flex: 1 1 auto !important;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow: visible !important;
-        width: 100% !important;
-        max-width: 100% !important;
-      }
-      .workspace {
-        padding: 0 !important;
-      }
-      :where(.dg-layout-dashboard-shell) .dashboard-main > :not(script):not(style) {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-      }
-      .dash-header {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        flex-wrap: wrap !important;
-        gap: 1rem !important;
-      }
-      .dashboard-grid,
-      .settings-layout,
-      .ticket-detail-grid,
-      .reports-grid,
-      .reports-secondary {
-        grid-template-columns: 1fr !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        gap: 1.25rem !important;
-      }
-      .reports-kpis {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.75rem !important;
-      }
-      .settings-nav {
-        position: static !important;
-        flex-direction: row !important;
-        overflow-x: auto !important;
-        flex-wrap: nowrap !important;
-        scrollbar-width: none !important;
-        width: 100% !important;
-        padding: 0.25rem !important;
-      }
-      .settings-nav::-webkit-scrollbar {
-        display: none !important;
-      }
-      .settings-nav-item {
-        white-space: nowrap !important;
-      }
-      .inbox-split-pane {
-        grid-template-columns: 1fr !important;
-        min-height: auto !important;
-      }
-      .inbox-list-pane {
-        border-right: none !important;
-        padding-right: 0 !important;
-        border-bottom: 1px solid rgba(17, 24, 39, 0.06) !important;
-        padding-bottom: 1.25rem !important;
-      }
-      .inbox-detail-pane {
-        padding-left: 0 !important;
-      }
-      .table-row {
-        grid-template-columns: 1fr !important;
-        gap: 0.5rem !important;
-        align-items: flex-start !important;
-      }
-      .dg-rsp-mobile-stacked, .dg-responsive-mobile-stacked {
-        grid-template-columns: minmax(0, 1fr) !important;
-      }
-      .dg-rsp-mobile-stacked > *, .dg-responsive-mobile-stacked > * {
-        grid-column: span 1 / auto !important;
-      }
-      /* Mobile Content Density & Section Compaction */
-      :where(.dg-layout-dashboard-shell) .reports-container {
-        padding: 1.05rem !important;
-        gap: 1rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .dashboard-grid,
-      :where(.dg-layout-dashboard-shell) .settings-layout,
-      :where(.dg-layout-dashboard-shell) .ticket-detail-grid,
-      :where(.dg-layout-dashboard-shell) .reports-grid,
-      :where(.dg-layout-dashboard-shell) .reports-secondary {
-        gap: 0.85rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .dashboard-main-col,
-      :where(.dg-layout-dashboard-shell) .dashboard-side-col {
-        gap: 0.85rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .panel {
-        padding: 1rem !important;
-        border-radius: 12px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .panel-header {
-        margin-bottom: 0.85rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kpi-row {
-        padding: 1rem !important;
-        gap: 0.75rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .dash-header {
-        padding: 1rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .amana-kpi {
-        padding: 0.85rem !important;
-        border-radius: 10px !important;
-        gap: 0.25rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .amana-kpi-value {
-        font-size: 1.8rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kpi-wide {
-        padding: 0.75rem 0.85rem !important;
-        border-radius: 10px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kpi-wide-value {
-        font-size: 1.35rem !important;
-        margin-bottom: 0.15rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kpi-wide-label {
-        font-size: 0.65rem !important;
-        margin-bottom: 0.2rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .performance-table {
-        max-height: 280px !important;
-        overflow-y: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kb-list {
-        max-height: 280px !important;
-        overflow-y: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .csat-list {
-        max-height: 280px !important;
-        overflow-y: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .agent-status-list {
-        max-height: 240px !important;
-        overflow-y: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .urgent-list {
-        max-height: 240px !important;
-        overflow-y: auto !important;
-      }
-      :where(.dg-layout-dashboard-shell) .agent-status-row {
-        padding: 0.4rem 0.5rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .kb-row {
-        padding: 0.5rem 0.25rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .perf-row {
-        padding: 0.4rem 0.25rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .csat-row {
-        padding: 0.6rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .amana-resource-item {
-        padding: 0.65rem !important;
-        gap: 0.4rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .amana-resource-list {
-        gap: 0.5rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .report-panel-header {
-        margin-bottom: 0.85rem !important;
-        padding-bottom: 0.6rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .report-panel-title {
-        font-size: 0.88rem !important;
-      }
-      :where(.dg-layout-dashboard-shell) .volume-chart {
-        height: 130px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .chart-bars-large {
-        height: 110px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .bar-wrap-lg {
-        height: 80px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .chart-wrap {
-        min-height: 140px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .chart-bars {
-        height: 100px !important;
-      }
-      :where(.dg-layout-dashboard-shell) .bar-wrap {
-        height: 70px !important;
-      }
-    }
+    __AMANA_BASE_CSS__
   </style>
   <%- typeof styles !== 'undefined' && styles ? '<style>' + styles + '</style>' : '' %>
 </head>
@@ -3624,5 +2822,7 @@ class AmanaEngine {
 }
 
 module.exports = AmanaEngine;
-"#
+"##
+    .to_string()
+    .replace("__AMANA_BASE_CSS__", crate::codegen::express::base_css::BASE_CSS)
 }

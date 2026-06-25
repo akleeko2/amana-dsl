@@ -1,0 +1,4 @@
+model User:
+    email: email unique required
+    password: password required min 8
+    role: str default "member"

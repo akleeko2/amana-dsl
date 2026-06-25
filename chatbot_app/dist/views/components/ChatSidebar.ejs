@@ -1,0 +1,5 @@
+<a class="session-item" href="<%= `/chat?id=${session.id}` %>"><div class="session-avatar">👤</div><div class="session-info"><div class="session-meta-row"><span class="session-name"><%= session.customer_name %></span><% if ((session.status == "active")) { %>
+<span class="badge-active">نشط</span><% } %>
+<% if ((session.status == "resolved")) { %>
+<span class="badge-resolved">محلول</span><% } %>
+</div><span class="session-email"><%= session.customer_email %></span></div></a>

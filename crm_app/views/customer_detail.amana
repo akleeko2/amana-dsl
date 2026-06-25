@@ -1,0 +1,34 @@
+route /customer_detail -> view CustomerDetail
+
+view CustomerDetail:
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+    canvas:
+        layout: column
+        density: comfortable
+    server:
+        fetch customer_list = Customer.filter(id: query.id)
+        fetch leads = Lead.filter(customer_id: query.id)
+    render:
+        DashboardShell(brand: "نظام إدارة العملاء", user: "المدير العام"):
+            sidebar:
+                a(href: "/dashboard"): "الرئيسية"
+                a(href: "/customers"): "عرض العملاء"
+                a(href: "/leads"): "عرض الـ Leads"
+                a(href: "/reports"): "التقارير والإحصائيات"
+                a(href: "/logout"): "تسجيل الخروج"
+            main:
+                Container:
+                    Section(title: "تفاصيل العميل والـ Leads المرتبطة", subtitle: "عرض تفاصيل الملف الشخصي للعميل والفرص البيعية الحالية"):
+                        ResourceGrid(customer_list):
+                            item CustomerCard(customer)
+                            empty:
+                                p: "لم يتم العثور على هذا العميل."
+                        
+                        Section(title: "الفرص البيعية (Leads)", subtitle: "قائمة الفرص البيعية التابعة لهذا العميل"):
+                            ResourceGrid(leads):
+                                item LeadCard(lead)
+                                empty:
+                                    p: "لا توجد فرص بيعية نشطة لهذا العميل."

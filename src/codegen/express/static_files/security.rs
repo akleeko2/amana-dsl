@@ -1,4 +1,5 @@
 // src/codegen/express/static_files/security.rs
+#![allow(dead_code)]
 
 pub(crate) fn security_js() -> &'static str {
     r#"const rateLimit = require('express-rate-limit');
@@ -30,14 +31,27 @@ const apiLimiter = rateLimit({
   message: { error: 'API rate limit exceeded. Please retry later.' }
 });
 
+const getCookie = (req, name) => {
+  const cookies = req.headers.cookie;
+  if (!cookies) return null;
+  const match = cookies.match(new RegExp('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : null;
+};
+
 const csrfProtection = (req, res, next) => {
-  if (!req.session.csrfToken) {
-    req.session.csrfToken = crypto.randomBytes(32).toString('hex');
+  let cookieToken = getCookie(req, 'csrfToken');
+  if (!cookieToken) {
+    cookieToken = crypto.randomBytes(32).toString('hex');
+    res.cookie('csrfToken', cookieToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
+  }
+
+  if (req.session) {
+    req.session.csrfToken = cookieToken;
   }
   
   if (req.method === 'POST') {
     const token = req.body._csrf || req.headers['x-csrf-token'];
-    if (!token || token !== req.session.csrfToken) {
+    if (!token || token !== cookieToken) {
       return res.status(403).send('CSRF validation failed. Unauthorized request.');
     }
   }

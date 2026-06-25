@@ -186,7 +186,7 @@ Log in with `demo@example.com` / `password123`.
 | Understand security, sessions, REST | [node-runtime-security.md](node-runtime-security.md) |
 | Multi-file projects and editor support | [multi-file-lsp.md](multi-file-lsp.md) |
 | Avoid common design mistakes | [design-anti-patterns.md](design-anti-patterns.md) |
-| Run a complete real app | the `apps/` directory, e.g. `apps/02-customer-care-hub/` |
+| Run a complete real app | the application directories: `crm_app/` or `chatbot_app/` |
 | See what works vs. known bugs | [language-runtime-trust-plan.md → Known Issues](language-runtime-trust-plan.md) |
 
 ## Troubleshooting / استكشاف الأخطاء
@@ -197,7 +197,7 @@ Log in with `demo@example.com` / `password123`.
 
 **`ReferenceError` in the browser** — You probably used a client-state variable inside an EJS tag. See [design-anti-patterns.md → Alpine inside EJS](design-anti-patterns.md#3-alpine-js-variables-inside-ejs-tags--enforced--مُلزَم).
 
-**Page looks broken on mobile** — Add `responsive: mobile.columns: 1` to your grids. See [design-anti-patterns.md → Mobile Responsive](design-anti-patterns.md#2-missing-mobile-responsive-rules--active-risk--خطر-نشط).
+**Page looks broken on mobile** — Add `responsive: mobile: columns: 1` nested block to your grids. See [design-anti-patterns.md → Mobile Responsive](design-anti-patterns.md#2-missing-mobile-responsive-rules--active-risk--خطر-نشط).
 
 **A component behaves wrong** — Check whether it is a documented Known Issue in [language-runtime-trust-plan.md](language-runtime-trust-plan.md) before assuming it is your code.
 

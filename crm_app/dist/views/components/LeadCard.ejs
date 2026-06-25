@@ -1,0 +1,9 @@
+<div class="lead-card-custom"><div class="lead-header"><h4><%= lead.title %></h4><% if ((lead.status == "new")) { %>
+<span class="status-new">جديد</span><% } %>
+<% if ((lead.status == "in_progress")) { %>
+<span class="status-in_progress">قيد التواصل</span><% } %>
+<% if ((lead.status == "won")) { %>
+<span class="status-won">مكتسب</span><% } %>
+<% if ((lead.status == "lost")) { %>
+<span class="status-lost">خاسر</span><% } %>
+</div><div><p>القيمة المتوقعة: </p><span class="lead-value"><%= `$${lead.value}` %></span></div></div>

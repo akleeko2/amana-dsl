@@ -1,0 +1,22 @@
+{
+  "name": "amana-visual-smoke-tests",
+  "version": "1.0.0",
+  "description": "Visual smoke regression tests for Amana DSL components",
+  "main": "scripts/visual-smoke.mjs",
+  "type": "module",
+  "scripts": {
+    "test:visual": "node scripts/visual-smoke.mjs"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-session": "^1.18.2",
+    "sqlite3": "^6.0.1",
+    "ejs": "^3.1.10",
+    "argon2": "^0.41.1",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}

@@ -643,24 +643,29 @@ slot actions optional
 
 ## Built-In Components
 
-The current EJS codegen recognizes:
+The current EJS codegen recognizes 58 built-in components:
 
 ```text
 Button, Card, FeatureCard, PricingCard, Container, Section, Grid, Stack,
 FormField, Navbar, Hero, Alert, Footer, Icon, Modal, Tabs, Badge, Kpi,
 Stat, LogoCloud, TestimonialCard, Timeline, TimelineItem, EmptyState,
-Split, Cluster, Sidebar, Slides
+Split, Cluster, Sidebar, Slides, Center, Cover, Reel, Masonry, Skeleton,
+LoadingState, ErrorState, OfflineState, Toast, Banner, DashboardShell,
+AuthPage, PricingSection, Breadcrumb, Dropdown, CommandPalette, SearchBar,
+FilterBar, Paginator, DataTable, FileUpload, RichEditor, ColorPicker,
+HeroSection, SettingsPage, StatsSection, FAQSection, BlogSection,
+TestimonialsSection, ContactSection
 ```
 
 > [!IMPORTANT]
-> Not every listed component is fully production-safe yet. Some standard components have documented active bugs (e.g. `Modal` lacks overlay/backdrop/scroll-lock; `Grid` cards stretch to the tallest column on desktop). See [Known Issues](language-runtime-trust-plan.md) in the trust plan before relying on a component in a critical flow.
+> The standard component library is warning-free and verified against visual E2E regression tests. For any future active bugs or feature gap checklists, see the [Known Issues](language-runtime-trust-plan.md) section of the trust plan.
 
 Attributes are component-specific and mostly optional. See [html-components-forms.md](html-components-forms.md) for the focused component reference.
 
 ### Grid Numeric Columns Behavior
 - `Grid(columns: "3")` compiles to `--dg-columns:repeat(3, minmax(0, 1fr))`
 - `Grid(columns: "1")` compiles to `--dg-columns:minmax(0, 1fr)`
-- Responsive mobile column configurations such as `responsive.mobile.columns: 1` compile to `--bp-mobile-columns:minmax(0, 1fr)`.
+- Responsive mobile column configurations such as `responsive: mobile: columns: 1` nested block compile to `--bp-mobile-columns:minmax(0, 1fr)`.
 - No raw numeric columns reach the compiled output (e.g. `--bp-mobile-columns:1` is never output, preventing CSS display issues).
 
 ## Alpine/Event Attributes
@@ -726,7 +731,8 @@ section.hero:
     brand:
         voice: technical
     responsive:
-        mobile.columns: 1
+        mobile:
+            columns: 1
 ```
 
 Allowed design blocks:

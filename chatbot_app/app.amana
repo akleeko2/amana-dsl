@@ -1,0 +1,23 @@
+app ChatbotApp:
+    title: "أمانة بوت"
+    db_path: "chatbot.db"
+    auth_model: User
+    capabilities:
+        - auth
+        - time
+
+import "./theme.amana"
+
+# Models
+import "./models/user.amana"
+import "./models/bot.amana"
+import "./models/session.amana"
+import "./models/message.amana"
+import "./models/volume.amana"
+
+# Views
+import "./views/landing.amana"
+import "./views/auth.amana"
+import "./views/dashboard.amana"
+import "./views/chat.amana"
+import "./views/settings.amana"

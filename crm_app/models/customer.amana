@@ -1,0 +1,128 @@
+model Customer:
+    name: str required max 100
+    email: email unique required
+    phone: str required
+    company: str required
+    revenue: int default 0
+
+seed Customer:
+    row:
+        name: "عبد الرحمن التميمي"
+        email: "tamimi@riyadhcorp.sa"
+        phone: "+966501112233"
+        company: "شركة الرياض القابضة"
+        revenue: 250000
+    row:
+        name: "سارة القحطاني"
+        email: "sara@qtech.com"
+        phone: "+966502223344"
+        company: "التقنيات السريعة"
+        revenue: 180000
+    row:
+        name: "خالد الحربي"
+        email: "khalid@harbi-trading.com"
+        phone: "+966503334455"
+        company: "الحربي للمقاولات"
+        revenue: 500000
+    row:
+        name: "نورة الدوسري"
+        email: "noura@dossary-logistics.sa"
+        phone: "+966504445566"
+        company: "الدوسري للخدمات اللوجستية"
+        revenue: 90000
+    row:
+        name: "فهد العتيبي"
+        email: "fahad@otaibi-group.com"
+        phone: "+966505556677"
+        company: "مجموعة العتيبي الاستثمارية"
+        revenue: 1200000
+    row:
+        name: "مريم المطيري"
+        email: "maryam@mutairi-consulting.sa"
+        phone: "+966506667788"
+        company: "المطيري للاستشارات"
+        revenue: 75000
+    row:
+        name: "سلطان الشمري"
+        email: "sultan@shammari-industries.com"
+        phone: "+966507778899"
+        company: "الشمري للصناعات الغذائية"
+        revenue: 350000
+    row:
+        name: "ريم الغامدي"
+        email: "reem@ghamdi-designs.com"
+        phone: "+966508889900"
+        company: "استوديو الغامدي للتصميم"
+        revenue: 150000
+    row:
+        name: "فيصل الزهراني"
+        email: "faisal@zahrani-tech.sa"
+        phone: "+966509990011"
+        company: "الزهراني للحلول البرمجية"
+        revenue: 400000
+    row:
+        name: "ياسمين المالكي"
+        email: "yasmin@malki-law.com"
+        phone: "+966501113355"
+        company: "المالكي للمحاماة والاستشارات"
+        revenue: 300000
+    row:
+        name: "أحمد بن علي"
+        email: "ahmed@ali-constructions.com"
+        phone: "+966502224466"
+        company: "علي للمقاولات والتطوير"
+        revenue: 650000
+    row:
+        name: "فاطمة الشريف"
+        email: "fatima@sharif-luxury.sa"
+        phone: "+966503335577"
+        company: "الشريف للفنادق والضيافة"
+        revenue: 850000
+    row:
+        name: "عبد العزيز الرويلي"
+        email: "aziz@ruwaili-trading.com"
+        phone: "+966504446688"
+        company: "الرويلي للاستيراد والتصدير"
+        revenue: 200000
+    row:
+        name: "منى السديري"
+        email: "mona@sudairy-edu.com"
+        phone: "+966505557799"
+        company: "مؤسسة السديري للتعليم"
+        revenue: 120000
+    row:
+        name: "بدر العيسى"
+        email: "badr@issa-capital.sa"
+        phone: "+966506668800"
+        company: "العيسى للاستثمار المالي"
+        revenue: 1500000
+    row:
+        name: "أمل الحازمي"
+        email: "amal@hazmi-medical.com"
+        phone: "+966507779911"
+        company: "مجموعة الحازمي الطبية"
+        revenue: 450000
+    row:
+        name: "تركي السبيعي"
+        email: "turki@subaie-farms.sa"
+        phone: "+966508880022"
+        company: "مزارع السبيعي النموذجية"
+        revenue: 280000
+    row:
+        name: "هند الرشيد"
+        email: "hind@rashid-events.com"
+        phone: "+966509991133"
+        company: "الرشيد لتنظيم الفعاليات"
+        revenue: 130000
+    row:
+        name: "سعد الشهري"
+        email: "saad@shehri-energy.sa"
+        phone: "+966501114477"
+        company: "الشهري لخدمات الطاقة"
+        revenue: 950000
+    row:
+        name: "العنود السهلي"
+        email: "anoud@sahli-retail.com"
+        phone: "+966502225588"
+        company: "السهلي لتجارة التجزئة"
+        revenue: 220000

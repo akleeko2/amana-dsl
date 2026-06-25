@@ -1,0 +1,182 @@
+route /login -> view Login
+route /signup -> view Signup
+
+view Login:
+    canvas:
+        layout: center
+        flow: immersive
+        density: comfortable
+    style:
+        .auth-container:
+            background: "radial-gradient(circle at center, rgba(99, 102, 241, 0.12) 0%, #080b11 60%, #06080d 100%)"
+            min-height: "100vh"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            padding: "2rem"
+            width: "100%"
+            font-family: "'Outfit', 'Inter', sans-serif"
+
+        .auth-card:
+            background: "rgba(255, 255, 255, 0.02)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "24px"
+            padding: "3.5rem 3rem"
+            width: "100%"
+            max-width: "28rem"
+            backdrop-filter: "blur(20px)"
+            box-shadow: "0 20px 40px -15px rgba(0, 0, 0, 0.7)"
+            display: "flex"
+            flex-direction: "column"
+            gap: "2rem"
+            text-align: "center"
+
+        .auth-logo-box:
+            width: "3.5rem"
+            height: "3.5rem"
+            border-radius: "12px"
+            background: "linear-gradient(135deg, #6366f1 0%, #22d3ee 100%)"
+            color: "#ffffff"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-size: "1.75rem"
+            margin: "0 auto"
+            box-shadow: "0 0 20px rgba(99, 102, 241, 0.3)"
+
+        .auth-title:
+            font-size: "1.75rem"
+            font-weight: "800"
+            color: "#ffffff"
+            margin: "0"
+
+        .auth-subtitle:
+            font-size: "0.95rem"
+            color: "#64748b"
+            margin: "0.5rem 0 0 0"
+
+        .custom-link:
+            color: "#a5b4fc"
+            text-decoration: "none"
+            margin-top: "1.5rem"
+            display: "inline-block"
+            font-size: "0.9rem"
+            font-weight: "600"
+            transition: "color 0.2s ease"
+        .custom-link:hover:
+            color: "#ffffff"
+            text-decoration: "underline"
+
+    render:
+        div.auth-container:
+            div.auth-card:
+                div:
+                    div.auth-logo-box: "🤖"
+                    h2.auth-title: "تسجيل الدخول إلى أمانة بوت"
+                    p.auth-subtitle: "أدخل البريد الإلكتروني وكلمة المرور للمتابعة للوحة التحكم"
+
+                div.form-wrapper:
+                    form [email, password]:
+                        connect User.login
+                        redirect success -> /dashboard
+                        field email:
+                            label: "البريد الإلكتروني"
+                            placeholder: "name@example.com"
+                            required: true
+                        field password:
+                            label: "كلمة المرور"
+                            placeholder: "••••••••"
+                            required: true
+
+                div.text-center:
+                    a.custom-link(href: "/signup"): "لا تملك حساباً؟ أنشئ حساباً جديداً"
+
+view Signup:
+    canvas:
+        layout: center
+        flow: immersive
+        density: comfortable
+    style:
+        .auth-container:
+            background: "radial-gradient(circle at center, rgba(99, 102, 241, 0.12) 0%, #080b11 60%, #06080d 100%)"
+            min-height: "100vh"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            padding: "2rem"
+            width: "100%"
+            font-family: "'Outfit', 'Inter', sans-serif"
+
+        .auth-card:
+            background: "rgba(255, 255, 255, 0.02)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "24px"
+            padding: "3.5rem 3rem"
+            width: "100%"
+            max-width: "28rem"
+            backdrop-filter: "blur(20px)"
+            box-shadow: "0 20px 40px -15px rgba(0, 0, 0, 0.7)"
+            display: "flex"
+            flex-direction: "column"
+            gap: "2rem"
+            text-align: "center"
+
+        .auth-logo-box:
+            width: "3.5rem"
+            height: "3.5rem"
+            border-radius: "12px"
+            background: "linear-gradient(135deg, #6366f1 0%, #22d3ee 100%)"
+            color: "#ffffff"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-size: "1.75rem"
+            margin: "0 auto"
+            box-shadow: "0 0 20px rgba(99, 102, 241, 0.3)"
+
+        .auth-title:
+            font-size: "1.75rem"
+            font-weight: "800"
+            color: "#ffffff"
+            margin: "0"
+
+        .auth-subtitle:
+            font-size: "0.95rem"
+            color: "#64748b"
+            margin: "0.5rem 0 0 0"
+
+        .custom-link:
+            color: "#a5b4fc"
+            text-decoration: "none"
+            margin-top: "1.5rem"
+            display: "inline-block"
+            font-size: "0.9rem"
+            font-weight: "600"
+            transition: "color 0.2s ease"
+        .custom-link:hover:
+            color: "#ffffff"
+            text-decoration: "underline"
+
+    render:
+        div.auth-container:
+            div.auth-card:
+                div:
+                    div.auth-logo-box: "🤖"
+                    h2.auth-title: "إنشاء حساب جديد"
+                    p.auth-subtitle: "ابدأ أتمتة دعم عملائك بالذكاء الاصطناعي مجاناً اليوم"
+
+                div.form-wrapper:
+                    form [email, password]:
+                        connect User.register
+                        redirect success -> /login
+                        field email:
+                            label: "البريد الإلكتروني"
+                            placeholder: "name@example.com"
+                            required: true
+                        field password:
+                            label: "كلمة المرور (8 رموز على الأقل)"
+                            placeholder: "••••••••"
+                            required: true
+
+                div.text-center:
+                    a.custom-link(href: "/login"): "تملك حساباً بالفعل؟ سجل دخولك"

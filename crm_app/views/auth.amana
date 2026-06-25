@@ -1,0 +1,20 @@
+route /login -> view Auth
+
+view Auth:
+    canvas:
+        layout: center
+        flow: immersive
+        density: comfortable
+    render:
+        Container:
+            AuthPage(type: "login", title: "تسجيل الدخول للنظام", logo: "/logo.png"):
+                form [email, password]:
+                    connect User.login
+                    redirect success -> /dashboard
+                    field email:
+                        label: "البريد الإلكتروني"
+                        placeholder: "name@example.com"
+                        required: true
+                    field password:
+                        label: "كلمة المرور"
+                        required: true

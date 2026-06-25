@@ -14,7 +14,7 @@ The following examples exist in [`examples/`](../examples/) and are the only can
 | 2 | [examples/royal_deck.amana](../examples/royal_deck.amana) | A daytime luxury console: standard elements with native HTML fallbacks, premium aesthetics, animations, responsive column rules, interactive Alpine bindings, Unsplash media. | `cargo run -- build examples/royal_deck.amana royal_deck_dist` |
 | 3 | [examples/test_ternary.amana](../examples/test_ternary.amana) | A minimal test fixture exercising the ternary expression syntax (`cond ? a : b`). Not a full app; used as a language-feature smoke test. | `cargo run -- check examples/test_ternary.amana --json` |
 
-> The multi-file `apps/` directory (e.g. `apps/02-customer-care-hub/`, `apps/03-ai-chat-workspace/`) contains larger integrated applications structured per [AMANA_DEVELOPMENT_STANDARDS.md](../AMANA_DEVELOPMENT_STANDARDS.md). These are real apps, not minimal examples — see their per-app `README.md` files.
+> The multi-file application directories: [crm_app/](file:///C:/Users/Lenovo/Downloads/مشروع%20لغة%20برمجة/crm_app) (Customer Relationship Management) and [chatbot_app/](file:///C:/Users/Lenovo/Downloads/مشروع%20لغة%20برمجة/chatbot_app) (AI Chatbot with support agent console and analytics) contain larger integrated applications structured per [AMANA_DEVELOPMENT_STANDARDS.md](../AMANA_DEVELOPMENT_STANDARDS.md). These are real production-grade apps, built using local modular models, views, and components.
 
 ## Example Acceptance Checklist
 
@@ -109,7 +109,8 @@ section.hero:
         surface: glass
         gradient: hero
     responsive:
-        mobile.columns: 1
+        mobile:
+            columns: 1
     Hero(title: "Launch", subtitle: "Build with Amana"):
         Button(label: "Start", href: "/projects")
 ```

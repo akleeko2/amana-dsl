@@ -38,12 +38,17 @@ parser -> AST -> semantic -> IR -> codegen -> runtime/docs/tests
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `tokens:` | implemented | yes | yes | yes | yes | yes | yes | yes | n/a | n/a | yes | Emits CSS variables such as `--color-brand`, `--space-tight`, `--radius-panel`, `--shadow-card`. |
 | `permit` | implemented | yes | yes | yes | yes | yes | yes | yes | yes | yes | yes | Enforces role/action/resource, row `where`, read field masking, and write `fields`; covered by multi-session REST/form integration tests. |
-| `Chart` | implemented | yes | yes | yes | yes | yes | yes | yes | n/a | n/a | yes | Parser supports `Chart(data, type, x, y)` with identifier arguments. |
+| `Chart` | implemented | yes | yes | yes | yes | yes | yes | yes | n/a | n/a | yes | Parser supports `Chart(data, type, x, y)` with identifier arguments. Fully shapes Arabic text with RTL flow. |
 | ternary | implemented | yes | yes | yes | yes | yes | yes | yes | n/a | n/a | yes | Parser supports `cond ? then : else`. |
 | `persist` | implemented | yes | yes | yes | yes | yes | yes | yes | n/a | n/a | yes | `memory/local/session/cookie` emit browser persistence behavior. |
 | Resources loading/error/filter/sort | implemented | yes | yes | yes | yes | yes | yes | yes | n/a | n/a | yes | Generated EJS includes lifecycle state, filters, and sort over server-fetched rows. |
 | `auth_model` | implemented | yes | yes | yes | yes | yes | yes | yes | yes | yes | yes | Runtime uses `<auth_model>.current`; `User.current` remains compatible when `auth_model: User`. |
 | variants | implemented | yes | yes | yes | yes | yes | yes | yes | n/a | n/a | yes | Global and component-local variants emit target-specific CSS for base, hover, slots, and responsive rules. |
+| Layout Components | implemented | yes | yes | yes | yes | yes | yes | yes | n/a | n/a | yes | Emits Center, Cover, Reel, and Masonry markup and styling rules. |
+| State & Feedback Systems | implemented | yes | yes | yes | yes | yes | yes | yes | n/a | n/a | yes | Emits Skeleton shimmer, LoadingState, ErrorState, OfflineState, Toast, and Banner components. |
+| Navigation Palette & Dropdown | implemented | yes | yes | yes | yes | yes | yes | yes | n/a | n/a | yes | Emits Breadcrumb, Dropdown menu, and CommandPalette with focus traps. |
+| Advanced Forms Interaction | implemented | yes | yes | yes | yes | yes | yes | yes | n/a | yes | FileUpload drag-and-drop, RichEditor editor, and ColorPicker inputs. |
+
 
 ### توضيح خلايا `n/a` في المصفوفة
 
@@ -64,13 +69,10 @@ parser -> AST -> semantic -> IR -> codegen -> runtime/docs/tests
 
 ### مشاكل بصرية/تخطيطية نشطة موثقة
 
-| component / area | bug | impact | severity | workaround |
+لا توجد مشاكل تخطيطية نشطة معروفة حالياً. تم حل كافة المشكلات السابقة (تمدد البطاقات، دعم النوافذ المنبثقة Modals، التوافق مع الهواتف والأجهزة اللوحية، مشاكل اتجاه النصوص العربية في الرسومات وعناوين المكونات المتكررة).
+
+| component / area | bug | impact | severity | workaround / status |
 | --- | --- | --- | --- | --- |
-| `Grid` | Grid cards stretch to fill the tallest grid column on desktop (layout alignment defaults to `stretch`). | Empty vertical space, uneven card heights. | medium | Use `.amana-grid:has(> .dashboard-main-col): align-items: start` in a `style:` block. |
-| App shells / sidebars | Fixed-width desktop sidebars cause horizontal scrollbars on laptop screens (1280px) due to missing `min-width: 0` on content wrappers. | Horizontal scrollbar on laptops. | medium | Add `min-width: 0` to content wrappers via `style:`. |
-| Multi-column layouts | Lack of mid-range breakpoints (1024px/900px) causes three-column layouts to squeeze excessively on tablets before stacking at 720px. | Squeezed, unreadable tablet layouts. | medium | Declare explicit `responsive.tablet.*` rules or reduce column count. |
-| `FormField` (`type: textarea`) | Textareas lack height/overflow constraints, causing visual breaking in modal dialogs. | Textarea overflow inside modals. | low | Set explicit `max-height` on the textarea via `style:`. |
-| `Modal` | Modals compile to raw `div`s and lack overlays, backdrop filters, or scroll locking. | No dimmed overlay, background still scrollable, no focus trap. | high | Wrap modal trigger manually or avoid `Modal` for production-critical flows until fixed. |
 
 ### أنماط CSS خطرة مسموح بها حاليًا (compiler does not block)
 

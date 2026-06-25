@@ -988,12 +988,6 @@ impl Parser {
                 };
 
                 if has_newline && !has_block {
-                    if is_pascal_case_name(&tag) && has_call_parens {
-                        return Err(format!(
-                            "Component calls without children can be written as {}(). at line {}:{}",
-                            tag, element_line, element_column
-                        ));
-                    }
                     self.consume_newlines();
                     Ok(ViewElement::Element {
                         tag,
@@ -1022,9 +1016,10 @@ impl Parser {
                             children: vec![],
                         })
                     } else {
+                        // الابن المُضمّن في نفس السطر: يمكن أن يكون نصاً أو تعبيراً أو عنصراً كاملاً
                         let next_token = self
                             .peek_kind()
-                            .ok_or_else(|| format!("Expected text at line {}", self.peek_line()))?;
+                            .ok_or_else(|| format!("Expected child element at line {}", self.peek_line()))?;
                         match next_token {
                             TokenKind::StringLiteral(s) => {
                                 self.advance();
@@ -1033,6 +1028,16 @@ impl Parser {
                                     classes,
                                     attributes,
                                     children: vec![ViewElement::Text(s)],
+                                })
+                            }
+                            // عنصر HTML عادي كـ p: أو span: أو مكون PascalCase كـ Card:
+                            TokenKind::Identifier(_) | TokenKind::If | TokenKind::For => {
+                                let child = self.parse_view_element()?;
+                                Ok(ViewElement::Element {
+                                    tag,
+                                    classes,
+                                    attributes,
+                                    children: vec![child],
                                 })
                             }
                             _ => {

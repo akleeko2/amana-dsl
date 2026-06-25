@@ -1,4 +1,5 @@
 // src/codegen/express/static_files/hooks_worker.rs
+#![allow(dead_code)]
 
 pub(crate) fn hooks_worker_js() -> &'static str {
     r#"const fs = require('fs');

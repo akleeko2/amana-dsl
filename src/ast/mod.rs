@@ -53,11 +53,13 @@ pub struct DesignBlock {
 }
 
 /// Represents an access control permission rule (e.g. `permit Admin read Todo`).
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct PermissionRule {
     pub role: String,
     pub action: String,
     pub resource: String,
+    pub where_expr: Option<Expression>,
+    pub fields: Vec<String>,
 }
 
 /// Represents a database model declaration.
@@ -177,6 +179,12 @@ pub enum ViewElement {
         error_element: Option<Vec<ViewElement>>,
         filter_fields: Vec<String>,
         sort_fields: Vec<String>,
+    },
+    Tabs {
+        tabs: Vec<(String, Vec<ViewElement>)>,
+    },
+    Accordion {
+        panels: Vec<(String, Vec<ViewElement>)>,
     },
 }
 

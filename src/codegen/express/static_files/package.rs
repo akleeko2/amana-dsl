@@ -1,4 +1,5 @@
 // src/codegen/express/static_files/package.rs
+#![allow(dead_code)]
 
 pub(crate) fn package_json() -> &'static str {
     r#"{

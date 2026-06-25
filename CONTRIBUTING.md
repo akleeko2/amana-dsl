@@ -241,6 +241,23 @@ fn test_example_compiles() {
 }
 ```
 
+### Running Visual Smoke Tests
+
+We use Playwright to run visual smoke and regression tests asserting correct layout, CSS alignment, and component interactivity (such as focus traps and scroll locking on Modals).
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   npx playwright install chromium
+   ```
+
+2. **Run tests**:
+   ```bash
+   npm run test:visual
+   ```
+
+This command compiles the test Amana application (`examples/test_modal_grid.amana`), spawns the Express server, and runs Playwright assertions.
+
 ---
 
 ## Adding New Layout Engines

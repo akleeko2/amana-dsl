@@ -1035,6 +1035,20 @@ impl SemanticAnalyzer {
                     }
                 }
             }
+            ViewElement::Tabs { tabs } => {
+                for (_, tab_body) in tabs {
+                    for node in tab_body {
+                        self.validate_view_element(node)?;
+                    }
+                }
+            }
+            ViewElement::Accordion { panels } => {
+                for (_, panel_body) in panels {
+                    for node in panel_body {
+                        self.validate_view_element(node)?;
+                    }
+                }
+            }
         }
         Ok(())
     }
@@ -1211,8 +1225,24 @@ impl SemanticAnalyzer {
     /// Validates global and local variants, and applies CSS sanitization.
     pub fn validate_variant(&self, var: &VariantDecl) -> Result<(), String> {
         let standard_components = [
-            "Button", "Card", "FeatureCard", "PricingCard", "Container",
-            "Split", "Sidebar", "Timeline", "Grid", "Cluster", "Navbar", "Footer"
+            // Layer 1: Layout
+            "Container", "Section", "Stack", "Grid", "Split", "Cluster", "Sidebar",
+            "Center", "Cover", "Reel", "Masonry",
+            // Layer 2: Primitives
+            "Button", "Card", "FeatureCard", "PricingCard", "FormField",
+            "Modal", "Alert", "Badge", "Kpi", "Stat", "Icon", "Accordion",
+            "EmptyState", "Tabs", "Skeleton", "LoadingState", "ErrorState", "OfflineState",
+            "Toast", "Banner",
+            // Layer 3: Application
+            "Navbar", "Hero", "Footer", "Timeline", "TimelineItem",
+            "LogoCloud", "TestimonialCard", "Slides",
+            // Layer 4: Patterns (Core Shells & Sections)
+            "DashboardShell", "AuthPage", "PricingSection",
+            // Phase 2B/3A: Navigation & Data
+            "Breadcrumb", "Dropdown", "CommandPalette", "SearchBar", "FilterBar", "Paginator", "DataTable",
+            // Phase 3B/3C: Advanced Interaction & Pages
+            "FileUpload", "RichEditor", "ColorPicker", "HeroSection", "SettingsPage", "StatsSection",
+            "FAQSection", "BlogSection", "TestimonialsSection", "ContactSection"
         ];
         if !standard_components.contains(&var.target.as_str()) && !self.components.contains_key(&var.target) {
             return Err(format!(
@@ -1322,7 +1352,13 @@ impl SemanticAnalyzer {
             || matches!(
                 (expected, actual),
                 (
-                    DataType::Email | DataType::Password | DataType::DateTime,
+                    DataType::Int
+                        | DataType::Float
+                        | DataType::Bool
+                        | DataType::Money
+                        | DataType::Email
+                        | DataType::Password
+                        | DataType::DateTime,
                     DataType::Str
                 )
             )

@@ -39,6 +39,14 @@ For the product and compiler governance plan that turns non-production/internal 
 | Mobile DashboardShell Contract | Implemented. Formats mobile sidebars as swipeable nav elements and stacks layout grids. |
 | Mobile Density Contract | Implemented. Compacts spacing, gaps, and pads secondary long tables via max-height auto-scroll in mobile layouts. |
 | Interactive DSL Layout Primitives | Implemented. Native compiler-supported `Tabs`, `Accordion`, and collapsible elements (`[collapsible: true]`). |
+| Production-ready Modal Component | Implemented. Monotonic title IDs, pure JS focus trapping, scroll lock, overlay backdrop, and secure EJS title escaping. |
+| Grid Container Default Alignment | Implemented. Defaults to top-alignment (`align-items: start`) with opt-in stretching via `Grid(stretch: true)`. |
+| Mid-range breakpoints | Implemented. Media queries at 1200px and 720px automatically stack layouts and grids on tablets. |
+| Laptop content overflow prevention | Implemented. Applied horizontal scrollbar prevention via `max-width: 100%` and `min-width: 0` constraints. |
+| FormField textarea in modals constraints | Implemented. Fully constrained modal form fields with proper padding, flex spacing, and responsive transitions. |
+| Arabic Canvas Ligatures & RTL Flow | Implemented. Built-in `arabic-reshaper` logic and word segmenter to shape and order Arabic text on canvases correctly. |
+| Unique Chart Element IDs | Implemented. Monotonic thread-local counter and random suffixes prevent chart DOM identifier collisions. |
+| Luxury Modal Input Styling | Implemented. Overrides for Luxury modal inputs with gold/amber borders and hover/focus transition glows. |
 
 ## Remaining Work
 
@@ -46,20 +54,14 @@ For the product and compiler governance plan that turns non-production/internal 
 | --- | --- | --- |
 | Configurable auth model current-user mapping | Generalized in semantic/codegen/runtime for the main generated Express path and covered by non-`User` `auth_model` runtime integration tests. | Extend coverage if new auth actions or alternate principal fields are added. |
 | LSP | Diagnostics, formatting, semantic completion, hover, and go-to-definition are implemented. | Add references and rename. |
-| `Modal` component | Compiles to raw `div` without overlay/backdrop/scroll-lock/focus-trap. | Rewrite EJS template to inject a real modal overlay (tracked as **high severity** Known Issue). |
-| `Grid` vertical alignment | Cards stretch to tallest column on desktop. | Make `align-items: start` the default in grid containers. |
-| Mid-range breakpoints | Three-column layouts squeeze on tablets (1024px) before stacking at 720px. | Add tablet breakpoint to the responsive contract. |
-| Laptop content overflow | Fixed sidebars cause horizontal scrollbar at 1280px. | Add `min-width: 0` to content wrappers. |
-| `FormField` textarea in modals | No height/overflow constraints. | Constrain generated textarea size. |
 
 ## Near-Term Priorities
 
-1. Fix the **high-severity** `Modal` overlay/backdrop bug (the only Known Issue blocking a component from production-safe use).
-2. Add references and rename support to the LSP.
-3. Extend semantic completion beyond current-principal fields to arbitrary model fields where the syntax context identifies the owning model.
-4. Add certified examples that run in CI and do not become the source of truth.
-5. Keep `doc/language-inventory.generated.md` current in CI.
-6. Add compiler warnings for dangerous CSS patterns (`100vh` in `dashboard-shell`, pixel `grid-template-columns`) — currently the compiler silently accepts them.
+1. Add references and rename support to the LSP.
+2. Extend semantic completion beyond current-principal fields to arbitrary model fields where the syntax context identifies the owning model.
+3. Add certified examples that run in CI and do not become the source of truth.
+4. Keep `doc/language-inventory.generated.md` current in CI.
+5. Add compiler warnings for dangerous CSS patterns (`100vh` in `dashboard-shell`, pixel `grid-template-columns`) — currently the compiler silently accepts them.
 
 ## Documentation Maintenance Rule
 

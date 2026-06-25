@@ -220,6 +220,37 @@ impl Lexer {
                 continue;
             }
 
+            // دعم التعليقات الكتلية /* ... */ (متعددة الأسطر)
+            if curr == '/'
+                && self.position + 1 < self.source.len()
+                && self.source[self.position + 1] == '*'
+            {
+                self.advance(); // skip '/'
+                self.advance(); // skip '*'
+                loop {
+                    if self.position >= self.source.len() {
+                        break; // unterminated block comment — ignore gracefully
+                    }
+                    if self.source[self.position] == '\n' {
+                        self.line += 1;
+                        self.column = 1;
+                        self.advance();
+                        is_at_line_start = true;
+                        continue;
+                    }
+                    if self.source[self.position] == '*'
+                        && self.position + 1 < self.source.len()
+                        && self.source[self.position + 1] == '/'
+                    {
+                        self.advance(); // skip '*'
+                        self.advance(); // skip '/'
+                        break;
+                    }
+                    self.advance();
+                }
+                continue;
+            }
+
             // التعليقات الملحقة في نهاية السطر أو الألوان بنظام hex
             if curr == '#' {
                 let is_color_or_ident = if self.position + 1 < self.source.len() {
@@ -323,15 +354,40 @@ impl Lexer {
         let start_col = self.column;
         self.advance(); // skip quote
         let mut s = String::new();
-        while self.position < self.source.len() && self.source[self.position] != '"' {
+        while self.position < self.source.len() {
             let c = self.source[self.position];
+            if c == '"' {
+                break;
+            }
             if c == '\n' {
                 return Err(format!(
                     "Unterminated string literal at line {}:{}",
                     start_line, start_col
                 ));
             }
-            s.push(c);
+            if c == '\\' {
+                self.advance();
+                if self.position >= self.source.len() {
+                    return Err(format!(
+                        "Unterminated string literal starting at line {}:{}",
+                        start_line, start_col
+                    ));
+                }
+                let next_c = self.source[self.position];
+                match next_c {
+                    'n' => s.push('\n'),
+                    'r' => s.push('\r'),
+                    't' => s.push('\t'),
+                    '\\' => s.push('\\'),
+                    '"' => s.push('"'),
+                    _ => {
+                        s.push('\\');
+                        s.push(next_c);
+                    }
+                }
+            } else {
+                s.push(c);
+            }
             self.advance();
         }
         if self.position >= self.source.len() {

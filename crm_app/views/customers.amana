@@ -1,0 +1,108 @@
+route /customers -> view Customers
+
+view Customers:
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+    canvas:
+        layout: column
+        density: comfortable
+    client:
+        state show_create_modal = false
+        state show_edit_modal = false
+        state show_delete_modal = false
+    server:
+        fetch customers = Customer.all(limit: 100)
+        fetch customer = Customer.find(1)
+    render:
+        DashboardShell(brand: "نظام إدارة العملاء", user: "المدير العام"):
+            sidebar:
+                a(href: "/dashboard"): "الرئيسية"
+                a(href: "/customers"): "عرض العملاء"
+                a(href: "/leads"): "عرض الـ Leads"
+                a(href: "/reports"): "التقارير والإحصائيات"
+                a(href: "/logout"): "تسجيل الخروج"
+            main:
+                Container:
+                    Section(title: "إدارة العملاء", subtitle: "عرض وتعديل وإضافة العملاء الجدد في النظام"):
+                        Cluster:
+                            Button(label: "إضافة عميل جديد", variant: "primary", click: "show_create_modal = true")
+                        
+                        DataTable(data: customers):
+                            column(title: "الاسم"):
+                                a(href: f"/customer_detail?id={customer.id}"): customer.name
+                            column(title: "البريد الإلكتروني"):
+                                p: customer.email
+                            column(title: "الهاتف"):
+                                p: customer.phone
+                            column(title: "الشركة"):
+                                p: customer.company
+                            column(title: "الإيرادات"):
+                                p: f"${customer.revenue}"
+                            column(title: "الإجراءات"):
+                                Cluster:
+                                    button(class: "amana-btn amana-btn-outline amana-btn-md amana-btn-intent-default", type: "button", data_id: customer.id, data_name: customer.name, data_email: customer.email, data_phone: customer.phone, data_company: customer.company, data_revenue: customer.revenue, click: "document.querySelector('.edit-modal-wrapper input[name=id]').value = $el.getAttribute('data_id'); document.querySelector('.edit-modal-wrapper input[name=name]').value = $el.getAttribute('data_name'); document.querySelector('.edit-modal-wrapper input[name=email]').value = $el.getAttribute('data_email'); document.querySelector('.edit-modal-wrapper input[name=phone]').value = $el.getAttribute('data_phone'); document.querySelector('.edit-modal-wrapper input[name=company]').value = $el.getAttribute('data_company'); document.querySelector('.edit-modal-wrapper input[name=revenue]').value = $el.getAttribute('data_revenue'); show_edit_modal = true"): "تعديل"
+                                    button(class: "amana-btn amana-btn-ghost amana-btn-md amana-btn-intent-default", type: "button", data_id: customer.id, click: "document.querySelector('.delete-modal-wrapper input[name=id]').value = $el.getAttribute('data_id'); show_delete_modal = true"): "حذف"
+                        
+                        # Create Customer Modal
+                        Modal(title: "إضافة عميل جديد", open: "show_create_modal"):
+                            form [name, email, phone, company, revenue]:
+                                connect Customer.create
+                                redirect success -> /customers
+                                field name:
+                                    label: "اسم العميل"
+                                    placeholder: "مثال: عبد الله أحمد"
+                                    required: true
+                                field email:
+                                    label: "البريد الإلكتروني"
+                                    placeholder: "name@example.com"
+                                    required: true
+                                field phone:
+                                    label: "رقم الهاتف"
+                                    placeholder: "+966500000000"
+                                    required: true
+                                field company:
+                                    label: "الشركة"
+                                    placeholder: "اسم الشركة"
+                                    required: true
+                                field revenue:
+                                    label: "الإيرادات السنوية"
+                                    placeholder: "150000"
+                                    type: number
+                                    required: true
+                        
+                        # Update Customer Modal (Scoped)
+                        div.edit-modal-wrapper:
+                            Modal(title: "تعديل بيانات العميل", open: "show_edit_modal"):
+                                form [id, name, email, phone, company, revenue]:
+                                    connect Customer.update
+                                    redirect success -> /customers
+                                    field id:
+                                        type: hidden
+                                    field name:
+                                        label: "اسم العميل"
+                                        required: true
+                                    field email:
+                                        label: "البريد الإلكتروني"
+                                        required: true
+                                    field phone:
+                                        label: "رقم الهاتف"
+                                        required: true
+                                    field company:
+                                        label: "الشركة"
+                                        required: true
+                                    field revenue:
+                                        label: "الإيرادات السنوية"
+                                        type: number
+                                        required: true
+                        
+                        # Delete Customer Modal (Scoped)
+                        div.delete-modal-wrapper:
+                            Modal(title: "تأكيد حذف العميل", open: "show_delete_modal"):
+                                p: "هل أنت متأكد من رغبتك في حذف هذا العميل وجميع البيانات والطلبات المرتبطة به؟"
+                                form [id]:
+                                    connect Customer.delete
+                                    redirect success -> /customers
+                                    field id:
+                                        type: hidden

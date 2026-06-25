@@ -1,0 +1,51 @@
+theme:
+    preset: stripe
+    radius: soft
+    density: default
+    direction: rtl
+
+route /variants_stress -> view variants_stress
+
+view variants_stress:
+    render:
+        Container:
+            # 1. Cards Variants Stress
+            Section:
+                h2: "بطاقات بمختلف الهياكل"
+                Grid(columns: "4"):
+                    Card(title: "كارت مسطح", variant: "flat"):
+                        p: "محتوى الكارت المسطح"
+                    Card(title: "كارت مرتفع", variant: "elevated"):
+                        p: "محتوى الكارت المرتفع"
+                    Card(title: "كارت مؤطر", variant: "outlined"):
+                        p: "محتوى الكارت المؤطر"
+                    Card(title: "كارت زجاجي", variant: "glass"):
+                        p: "محتوى الكارت الزجاجي"
+
+            # 2. Buttons Variants Stress
+            Section:
+                h2: "أزرار بمختلف الأشكال"
+                Cluster:
+                    Button(label: "رئيسي", variant: "primary")
+                    Button(label: "فرعي", variant: "secondary")
+                    Button(label: "إطار", variant: "outline")
+                    Button(label: "شبح", variant: "ghost")
+                    Button(label: "رابط", variant: "link")
+
+            # 3. AuthPage inside a stress container
+            Section:
+                h2: "نموذج صفحة المصادقة"
+                Card(variant: "outlined"):
+                    div(class: "amana-auth-page"):
+                        div(class: "amana-auth-card"):
+                            div(class: "amana-auth-header"):
+                                h2: "تسجيل الدخول للنظام"
+                            div(class: "amana-auth-body"):
+                                form(class: "amana-auth-form"):
+                                    div(class: "amana-field"):
+                                        label(class: "amana-label"): "البريد الإلكتروني"
+                                        input(class: "amana-input", type: "email", required: "true")
+                                    div(class: "amana-field"):
+                                        label(class: "amana-label"): "كلمة المرور"
+                                        input(class: "amana-input", type: "password", required: "true")
+                                    Button(label: "دخول", variant: "primary")

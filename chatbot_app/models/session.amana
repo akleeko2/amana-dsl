@@ -1,0 +1,22 @@
+model ChatSession:
+    customer_name: str required
+    customer_email: email required
+    status: str default "active"
+    bot_id: int foreign_key Bot(id) on_delete CASCADE
+
+seed ChatSession:
+    row:
+        customer_name: "سلطان العتيبي"
+        customer_email: "sultan@client.com"
+        status: "active"
+        bot_id: 1
+    row:
+        customer_name: "سارة الأحمد"
+        customer_email: "sara@client.com"
+        status: "active"
+        bot_id: 1
+    row:
+        customer_name: "خالد الحربي"
+        customer_email: "khalid@client.com"
+        status: "resolved"
+        bot_id: 1

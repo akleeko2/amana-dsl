@@ -1,0 +1,51 @@
+model ChatMessage:
+    sender: str required
+    content: str required
+    session_id: int foreign_key ChatSession(id) on_delete CASCADE
+
+seed ChatMessage:
+    row:
+        sender: "bot"
+        content: "مرحباً سلطان! كيف يمكنني مساعدتك اليوم؟"
+        session_id: 1
+    row:
+        sender: "customer"
+        content: "أريد معرفة أسعار خطط الاشتراك لديكم"
+        session_id: 1
+    row:
+        sender: "bot"
+        content: "لدينا ثلاث خطط: المجانية، والاحترافية بسعر 99 ريال، والمؤسسات. يمكنك الاطلاع عليها في صفحة الأسعار."
+        session_id: 1
+    row:
+        sender: "bot"
+        content: "مرحباً سارة! كيف يمكنني مساعدتك اليوم؟"
+        session_id: 2
+    row:
+        sender: "customer"
+        content: "كيف يمكنني ربط الشات بوت بموقعي الإلكتروني؟"
+        session_id: 2
+    row:
+        sender: "bot"
+        content: "يمكنك ذلك بنسخ كود الودجت الصغير المتاح في صفحة الإعدادات ووضعه في وسم head لموقعك."
+        session_id: 2
+    row:
+        sender: "bot"
+        content: "مرحباً خالد! كيف يمكنني مساعدتك اليوم؟"
+        session_id: 3
+    row:
+        sender: "customer"
+        content: "هل تدعمون اللغة العربية بالكامل؟"
+        session_id: 3
+    row:
+        sender: "bot"
+        content: "نعم! ندعم اللغة العربية الفصحى بشكل كامل وبتنسيق محاذاة RTL ممتاز."
+        session_id: 3
+    row:
+        sender: "customer"
+        content: "شكراً لك، هذا رائع جداً!"
+        session_id: 3
+
+model ContactMessage:
+    name: str required
+    email: email required
+    message: str required

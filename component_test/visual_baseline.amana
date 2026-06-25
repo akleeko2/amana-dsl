@@ -1,0 +1,26 @@
+theme:
+    preset: stripe
+    radius: soft
+    density: default
+    direction: ltr
+
+route / -> view home
+
+view home:
+    client:
+        state modalOpen = false
+    render:
+        Container:
+            h1: "Visual Smoke Baseline"
+            Grid(columns: "2", stretch: "true"):
+                Card(title: "Stretched Grid Item 1")
+                Card(title: "Stretched Grid Item 2")
+            Grid(columns: "2"):
+                Card(title: "Grid Item 1")
+                Card(title: "Grid Item 2")
+            
+            Button(label: "Open Modal", click: "modalOpen = true")
+            
+            Modal(open: "modalOpen", title: "Test Modal"):
+                p: "Modal content here"
+                Button(label: "Close Modal", click: "modalOpen = false")

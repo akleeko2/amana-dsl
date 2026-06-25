@@ -1,0 +1,61 @@
+component LeadCard(lead):
+    style:
+        .lead-card-custom:
+            background: "rgba(255, 255, 255, 0.02)"
+            border: "1px solid rgba(255, 255, 255, 0.08)"
+            border-radius: "12px"
+            padding: "1.5rem"
+            transition: "all 0.3s ease"
+            color: "#f8fafc"
+        .lead-card-custom:hover:
+            border-color: "#d4af37"
+            transform: "translateY(-4px)"
+            box-shadow: "0 10px 20px rgba(212, 175, 55, 0.05)"
+        .status-new:
+            background: "rgba(59, 130, 246, 0.15)"
+            color: "#3b82f6"
+            padding: "0.25rem 0.5rem"
+            border-radius: "4px"
+            font-size: "0.8rem"
+        .status-in_progress:
+            background: "rgba(245, 158, 11, 0.15)"
+            color: "#f59e0b"
+            padding: "0.25rem 0.5rem"
+            border-radius: "4px"
+            font-size: "0.8rem"
+        .status-won:
+            background: "rgba(16, 185, 129, 0.15)"
+            color: "#10b981"
+            padding: "0.25rem 0.5rem"
+            border-radius: "4px"
+            font-size: "0.8rem"
+        .status-lost:
+            background: "rgba(239, 68, 68, 0.15)"
+            color: "#ef4444"
+            padding: "0.25rem 0.5rem"
+            border-radius: "4px"
+            font-size: "0.8rem"
+        .lead-header:
+            layout: row
+            justify-content: space-between
+            align-items: center
+            margin-bottom: "1rem"
+        .lead-value:
+            font-size: "1.1rem"
+            font-weight: "bold"
+            color: "#d4af37"
+    render:
+        div.lead-card-custom:
+            div.lead-header:
+                h4: lead.title
+                if lead.status == "new":
+                    span.status-new: "جديد"
+                if lead.status == "in_progress":
+                    span.status-in_progress: "قيد التواصل"
+                if lead.status == "won":
+                    span.status-won: "مكتسب"
+                if lead.status == "lost":
+                    span.status-lost: "خاسر"
+            div:
+                p: "القيمة المتوقعة: "
+                span.lead-value: f"${lead.value}"

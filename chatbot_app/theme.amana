@@ -1,0 +1,5 @@
+theme:
+    preset: linear
+    radius: soft
+    density: comfortable
+    direction: rtl

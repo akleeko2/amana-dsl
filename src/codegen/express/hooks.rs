@@ -1,4 +1,5 @@
 // src/codegen/express/hooks.rs
+#![allow(dead_code)]
 
 // Validates developer-provided custom hook modules before code generation.
 fn clean_comments(content: &str) -> String {

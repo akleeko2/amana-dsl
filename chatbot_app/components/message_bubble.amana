@@ -1,0 +1,71 @@
+component MessageBubble(message):
+    style:
+        .message-row-customer:
+            display: "flex"
+            justify-content: "flex-start"
+            margin-bottom: "1.25rem"
+            width: "100%"
+        .message-row-other:
+            display: "flex"
+            justify-content: "flex-end"
+            margin-bottom: "1.25rem"
+            width: "100%"
+        
+        .bubble-base:
+            padding: "0.85rem 1.25rem"
+            font-size: "0.95rem"
+            line-height: "1.5"
+            position: "relative"
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.35rem"
+            max-width: "65%"
+            box-shadow: "0 4px 15px rgba(0, 0, 0, 0.1)"
+        
+        .bubble-customer:
+            background: "linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(79, 70, 229, 0.15) 100%)"
+            border: "1px solid rgba(99, 102, 241, 0.3)"
+            border-radius: "16px 16px 0px 16px"
+            color: "#ffffff"
+        .bubble-bot:
+            background: "linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)"
+            border: "1px solid rgba(255, 255, 255, 0.08)"
+            border-radius: "16px 16px 16px 0px"
+            color: "#e2e8f0"
+        .bubble-agent:
+            background: "linear-gradient(135deg, rgba(34, 211, 238, 0.15) 0%, rgba(14, 165, 233, 0.15) 100%)"
+            border: "1px solid rgba(34, 211, 238, 0.3)"
+            border-radius: "16px 16px 16px 0px"
+            color: "#ffffff"
+        
+        .meta-text:
+            font-size: "0.7rem"
+            font-weight: "700"
+            letter-spacing: "0.02em"
+            text-transform: "uppercase"
+            margin-top: "0.2rem"
+            display: "block"
+        .meta-customer:
+            color: "#a5b4fc"
+        .meta-bot:
+            color: "#64748b"
+        .meta-agent:
+            color: "#22d3ee"
+
+    render:
+        div:
+            if message.sender == "customer":
+                div.message-row-customer:
+                    div.bubble-base.bubble-customer:
+                        p: message.content
+                        span.meta-text.meta-customer: "العميل"
+            if message.sender == "bot":
+                div.message-row-other:
+                    div.bubble-base.bubble-bot:
+                        p: message.content
+                        span.meta-text.meta-bot: "مساعد الذكاء الاصطناعي"
+            if message.sender == "agent":
+                div.message-row-other:
+                    div.bubble-base.bubble-agent:
+                        p: message.content
+                        span.meta-text.meta-agent: "الموظف البشري"

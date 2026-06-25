@@ -1,0 +1,10 @@
+model User:
+    email: email unique required
+    password: password required min 8
+    role: str default "agent"
+
+seed User:
+    row:
+        email: "admin@chatbot.com"
+        password: "password123"
+        role: "admin"

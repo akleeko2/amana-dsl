@@ -107,6 +107,29 @@ The report includes:
 - AI/design control strings
 - structured warnings
 
+### `generate`
+
+```powershell
+amana generate <page|component> <name> [--pattern <pattern>] [--model <model>]
+amana g <page|component> <name> [--pattern <pattern>] [--model <model>]
+```
+
+Generates boilerplate `.amana` files for views, components, and pages.
+
+- `element_type`: Either `page` or `component`.
+- `name`: Symbol and filename for the generated boilerplate.
+- `--pattern`: Pre-configured layout pattern for `page` generation. Supported values: `PricingSection`, `DashboardShell`, `AuthPage`, `SettingsPage`.
+- `--model`: (For custom components) Optional model name to bind.
+
+Examples:
+```powershell
+# Generate a Settings page using the SettingsPage layout pattern:
+amana generate page user_settings --pattern SettingsPage
+
+# Generate a custom TaskCard component:
+amana generate component task_card --model Task
+```
+
 ### `lsp`
 
 ```powershell

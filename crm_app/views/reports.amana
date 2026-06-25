@@ -1,0 +1,30 @@
+route /reports -> view Reports
+
+view Reports:
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+    canvas:
+        layout: column
+        density: comfortable
+    server:
+        fetch won_leads = Lead.filter(status: "won")
+        fetch in_progress_leads = Lead.filter(status: "in_progress")
+        fetch all_leads = Lead.all(limit: 100)
+    render:
+        DashboardShell(brand: "نظام إدارة العملاء", user: "المدير العام"):
+            sidebar:
+                a(href: "/dashboard"): "الرئيسية"
+                a(href: "/customers"): "عرض العملاء"
+                a(href: "/leads"): "عرض الـ Leads"
+                a(href: "/reports"): "التقارير والإحصائيات"
+                a(href: "/logout"): "تسجيل الخروج"
+            main:
+                Container:
+                    Section(title: "تقارير المبيعات والـ Leads", subtitle: "رسومات بيانية وتحليلات تفصيلية للفرص البيعية"):
+                        Grid(columns: "2"):
+                            Card(title: "توزيع الفرص البيعية", variant: "outlined"):
+                                Chart(all_leads, bar, title, value)
+                            Card(title: "أداء المبيعات", variant: "outlined"):
+                                Chart(all_leads, line, title, value)

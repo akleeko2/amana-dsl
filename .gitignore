@@ -5,6 +5,10 @@ cargo-info.json
 
 # Node / JS / Web
 node_modules/
+
+# Playwright test artifacts
+playwright-report/
+test-results/
 jspm_packages/
 .npm
 .eslintcache

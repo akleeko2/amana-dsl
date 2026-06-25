@@ -351,6 +351,7 @@ fn test_codegen_determinism() {
         routes: vec![],
         views: vec![],
         seeds: vec![],
+        components: vec![],
     };
 
     let temp_dir = "./temp_test_dist";
@@ -2226,4 +2227,40 @@ fn test_all_standard_components_rendered() {
             rendered
         );
     }
+}
+
+#[test]
+fn test_modal_production_features_and_grid_stretch() {
+    use crate::ast::{Expression, ViewElement};
+    use crate::codegen::html::generate_ejs;
+
+    // 1. Test Grid stretch options
+    let grid_stretched = ViewElement::Element {
+        tag: "Grid".to_string(),
+        classes: vec![],
+        attributes: vec![("stretch".to_string(), Expression::Boolean(true))],
+        children: vec![],
+    };
+    let grid_rendered = generate_ejs(&grid_stretched, &[]);
+    assert!(grid_rendered.contains("amana-grid-stretch"), "Stretched grid should contain amana-grid-stretch class");
+
+    // 2. Test Modal production features (escaped titles, monotonic title IDs, focus trap, scroll lock, ARIA tags, overlay click, ESC key)
+    let modal = ViewElement::Element {
+        tag: "Modal".to_string(),
+        classes: vec![],
+        attributes: vec![
+            ("open".to_string(), Expression::Identifier("modal_open".to_string())),
+            ("title".to_string(), Expression::StringLiteral("My Cool Title".to_string())),
+            ("closable".to_string(), Expression::Boolean(true)),
+        ],
+        children: vec![],
+    };
+    let modal_rendered = generate_ejs(&modal, &[]);
+    assert!(modal_rendered.contains("role=\"dialog\""), "Modal should have dialog role");
+    assert!(modal_rendered.contains("aria-modal=\"true\""), "Modal should have aria-modal");
+    assert!(modal_rendered.contains("aria-labelledby=\"amana-modal-title-"), "Modal should have monotonic aria-labelledby ID");
+    assert!(modal_rendered.contains("My Cool Title"), "Modal should render title");
+    assert!(modal_rendered.contains("@keydown.escape.window=\"modal_open = false\""), "Modal should close on ESC");
+    assert!(modal_rendered.contains("@keydown.tab="), "Modal should have keyboard focus trap");
+    assert!(modal_rendered.contains("if (modal_open)"), "Modal should lock page scroll");
 }

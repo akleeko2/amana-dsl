@@ -31,14 +31,26 @@ script iframe object embed applet link meta base style noscript
 
 ## Standard Components
 
-The current codegen recognizes these built-in components:
+The current codegen recognizes 58 built-in components:
 
-```text
-Button, Card, FeatureCard, PricingCard, Container, Section, Grid, Stack,
-FormField, Navbar, Hero, Alert, Footer, Icon, Modal, Tabs, Badge, Kpi,
-Stat, LogoCloud, TestimonialCard, Timeline, TimelineItem, EmptyState,
-Split, Cluster, Sidebar, Slides
-```
+### Layer 1: Layout Primitives
+`Container`, `Section`, `Stack`, `Grid`, `Split`, `Cluster`, `Sidebar`, `Center`, `Cover`, `Reel`, `Masonry`
+
+### Layer 2: Basic UI & Interaction Primitives
+`Button`, `Card`, `FeatureCard`, `PricingCard`, `FormField`, `Modal`, `Alert`, `Badge`, `Kpi`, `Stat`, `Icon`, `Accordion`, `EmptyState`, `Tabs`, `Skeleton`, `LoadingState`, `ErrorState`, `OfflineState`, `Toast`, `Banner`
+
+### Layer 3: Application Blocks
+`Navbar`, `Hero`, `Footer`, `Timeline`, `TimelineItem`, `LogoCloud`, `TestimonialCard`, `Slides`
+
+### Layer 4: Patterns (Core Shells & Pages)
+`DashboardShell`, `AuthPage`, `PricingSection`
+
+### Navigation & Data Experience
+`Breadcrumb`, `Dropdown`, `CommandPalette`, `SearchBar`, `FilterBar`, `Paginator`, `DataTable`
+
+### Advanced Interaction & Pages
+`FileUpload`, `RichEditor`, `ColorPicker`, `HeroSection`, `SettingsPage`, `StatsSection`, `FAQSection`, `BlogSection`, `TestimonialsSection`, `ContactSection`
+
 
 ### Component Attributes
 
@@ -70,7 +82,7 @@ Split, Cluster, Sidebar, Slides
 `Grid`
 
 - `min`: CSS variable `--grid-min`; default `16rem`.
-- `columns`: compiles to `--dg-columns`. If specified as a raw number (e.g., `"3"`), it compiles to `repeat(3, minmax(0, 1fr))`. If specified as `"1"`, it compiles to `minmax(0, 1fr)`. Responsive columns (e.g. `responsive.mobile.columns: 1`) behave similarly, compiling to `--bp-mobile-columns:minmax(0, 1fr)`. No raw numeric columns reach the compiled output.
+- `columns`: compiles to `--dg-columns`. If specified as a raw number (e.g., `"3"`), it compiles to `repeat(3, minmax(0, 1fr))`. If specified as `"1"`, it compiles to `minmax(0, 1fr)`. Responsive columns (e.g. `responsive: mobile: columns: 1` nested block) behave similarly, compiling to `--bp-mobile-columns:minmax(0, 1fr)`. No raw numeric columns reach the compiled output.
 
 `Stack`
 
@@ -109,6 +121,8 @@ Split, Cluster, Sidebar, Slides
 `Modal`
 
 - `open`: Alpine expression controlling `x-show`; default `modal_open`.
+- `title`: Optional title text.
+- `closable`: Optional boolean (default `true`) to render a close button.
 
 `Badge`
 
@@ -149,6 +163,42 @@ These styles are compiled as baseline CSS overrides rather than a new theme syst
 - `autoplay`: `true` enables interval rotation.
 - `height`: default `400px`.
 - `effect`: `fade` or slide-style transition.
+
+### New Components (v3.0)
+
+#### Layout Components
+- **`Center`**: Vertically and horizontally centers content. Takes `max_width` (e.g. `60rem`).
+- **`Cover`**: Renders full-height blocks (default `min_height: 100vh`).
+- **`Reel`**: Horizontal scrolling container for list items. Takes `gap` (default `1.5rem`).
+- **`Masonry`**: Renders dynamic staggered columns. Takes `columns` (default `3`) and `gap` (default `1.5rem`).
+
+#### State & Feedback Systems
+- **`Skeleton`**: Loading shimmers. Takes `type` (`text`, `avatar`, `card`) and `lines` (for text, default `1`).
+- **`LoadingState`**: General data loading placeholder with spinner. Takes `rows` of skeleton lines.
+- **`ErrorState`**: Error message block with try-again action button. Takes `code`, `title`, `description`, `action_label`, and `action_href`.
+- **`OfflineState`**: Connection status indicator using Alpine.js. Takes `title`, `description`, and `force`.
+- **`Toast`**: Client-side auto-dismiss toast alerts. Takes `message`, `tone` (`success`, `info`, `warning`, `danger`), `show` variable, and `duration` (default `3000`).
+- **`Banner`**: Inline persistent warning banner. Takes `tone` (`success`, `info`, `warning`, `danger`) and `closable` (boolean).
+
+#### Core Page Shells & Sections
+- **`DashboardShell`**: Layout shell for administrative portals. Takes `brand`, `user`, `logo`, with slots `sidebar:` and `main:`.
+- **`AuthPage`**: Pre-configured login/signup card template. Takes `type` (`login` or `signup`), `title`, and `logo`.
+- **`PricingSection`**: Pricing comparison section. Takes `title` and `billing` default toggle ("monthly" or "yearly"), and supports child `plan` tags.
+
+#### Navigation & Data Experience
+- **`Breadcrumb`**: Breadcrumb history navigation path.
+- **`Dropdown`**: Simple toggle dropdown panel.
+- **`CommandPalette`**: Triggerable modal command/search box with keyboard traps.
+- **`SearchBar`**: Text search bar with debounce query bindings.
+- **`FilterBar`**: Responsive layout for aligning dropdown/list filters in one line.
+- **`Paginator`**: Pagination toolbar for tables.
+- **`DataTable`**: Interactive client-side sorted table with select-all rows checkboxes.
+
+#### Advanced Forms & Page Sections
+- **`FileUpload`**: Drag-and-drop file upload with preview.
+- **`RichEditor`**: Simple formatting rich text box editor.
+- **`ColorPicker`**: Custom palette color chooser.
+- **`HeroSection`, `SettingsPage`, `StatsSection`, `FAQSection`, `BlogSection`, `TestimonialsSection`, `ContactSection`**: Production-ready content sections.
 
 ## Custom Components
 

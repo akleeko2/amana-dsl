@@ -1,0 +1,5 @@
+theme:
+    preset: luxury
+    radius: soft
+    density: default
+    direction: rtl

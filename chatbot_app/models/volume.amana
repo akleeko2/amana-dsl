@@ -1,0 +1,26 @@
+model ChatVolume:
+    day: str required
+    count: int required
+
+seed ChatVolume:
+    row:
+        day: "الأحد"
+        count: 45
+    row:
+        day: "الاثنين"
+        count: 70
+    row:
+        day: "الثلاثاء"
+        count: 85
+    row:
+        day: "الأربعاء"
+        count: 65
+    row:
+        day: "الخميس"
+        count: 90
+    row:
+        day: "الجمعة"
+        count: 30
+    row:
+        day: "السبت"
+        count: 25

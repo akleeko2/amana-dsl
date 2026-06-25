@@ -1,0 +1,7 @@
+<div><% if ((message.sender == "customer")) { %>
+<div class="message-row-customer"><div class="bubble-base bubble-customer"><p><%= message.content %></p><span class="meta-text meta-customer">العميل</span></div></div><% } %>
+<% if ((message.sender == "bot")) { %>
+<div class="message-row-other"><div class="bubble-base bubble-bot"><p><%= message.content %></p><span class="meta-text meta-bot">مساعد الذكاء الاصطناعي</span></div></div><% } %>
+<% if ((message.sender == "agent")) { %>
+<div class="message-row-other"><div class="bubble-base bubble-agent"><p><%= message.content %></p><span class="meta-text meta-agent">الموظف البشري</span></div></div><% } %>
+</div>

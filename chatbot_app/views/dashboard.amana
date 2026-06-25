@@ -1,0 +1,409 @@
+route /dashboard -> view Dashboard
+
+view Dashboard:
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+    canvas:
+        layout: column
+        density: comfortable
+    style:
+        .dashboard-shell:
+            display: "grid"
+            grid-template-columns: "260px 1fr"
+            min-height: "100vh"
+            background: "#080b11"
+            color: "#f8fafc"
+            font-family: "'Outfit', 'Inter', sans-serif"
+            direction: "rtl"
+
+        # Responsive Layout Classes
+        .mobile-layout:
+            grid-template-columns: "1fr"
+
+        .sidebar-backdrop:
+            position: "fixed"
+            top: "0"
+            left: "0"
+            width: "100vw"
+            height: "100vh"
+            background: "rgba(0, 0, 0, 0.6)"
+            z-index: "90"
+            backdrop-filter: "blur(4px)"
+
+        .sidebar-brand-row:
+            display: "flex"
+            justify-content: "space-between"
+            align-items: "center"
+            width: "100%"
+
+        .sidebar-close-btn:
+            background: "transparent"
+            border: "none"
+            color: "#64748b"
+            font-size: "1.5rem"
+            cursor: "pointer"
+            padding: "0.25rem"
+            line-height: "1"
+        .sidebar-close-btn:hover:
+            color: "#ffffff"
+
+        .sidebar-toggle-btn:
+            background: "rgba(255, 255, 255, 0.03)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            color: "#ffffff"
+            font-size: "1.25rem"
+            border-radius: "8px"
+            width: "2.5rem"
+            height: "2.5rem"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            cursor: "pointer"
+            transition: "all 0.2s ease"
+            line-height: "1"
+        .sidebar-toggle-btn:hover:
+            background: "rgba(99, 102, 241, 0.15)"
+            border-color: "rgba(99, 102, 241, 0.3)"
+
+        # Sidebar Styles
+        .custom-sidebar:
+            background: "rgba(12, 15, 23, 0.6)"
+            border-left: "1px solid rgba(255, 255, 255, 0.05)"
+            padding: "2rem 1.5rem"
+            display: "flex"
+            flex-direction: "column"
+            gap: "2.5rem"
+            backdrop-filter: "blur(12px)"
+
+        .mobile-layout .custom-sidebar:
+            position: "fixed"
+            top: "0"
+            right: "0"
+            height: "100vh"
+            width: "280px"
+            z-index: "100"
+            background: "#0c0f17"
+            transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+            box-shadow: "-10px 0 30px rgba(0, 0, 0, 0.5)"
+            border-left: "none"
+
+        .sidebar-brand:
+            font-size: "1.3rem"
+            font-weight: "900"
+            background: "linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%)"
+            -webkit-background-clip: "text"
+            -webkit-text-fill-color: "transparent"
+            letter-spacing: "-0.02em"
+            padding-right: "0.5rem"
+        .sidebar-menu:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.5rem"
+            flex-grow: "1"
+        .menu-item:
+            display: "flex"
+            align-items: "center"
+            padding: "0.85rem 1rem"
+            color: "#94a3b8"
+            text-decoration: "none"
+            font-weight: "600"
+            font-size: "0.95rem"
+            border-radius: "10px"
+            transition: "all 0.2s ease"
+        .menu-item:hover:
+            background: "rgba(255, 255, 255, 0.02)"
+            color: "#ffffff"
+        .menu-item.active:
+            background: "rgba(99, 102, 241, 0.1)"
+            color: "#a5b4fc"
+            border: "1px solid rgba(99, 102, 241, 0.15)"
+        .logout-item:
+            color: "#f87171"
+        .logout-item:hover:
+            background: "rgba(248, 113, 113, 0.08)"
+            color: "#ef4444"
+        .sidebar-user:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+            padding-top: "1.5rem"
+            border-top: "1px solid rgba(255, 255, 255, 0.05)"
+        .user-avatar:
+            width: "2.5rem"
+            height: "2.5rem"
+            border-radius: "50%"
+            background: "rgba(99, 102, 241, 0.15)"
+            color: "#a5b4fc"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-weight: "700"
+        .user-details:
+            display: "flex"
+            flex-direction: "column"
+        .user-name:
+            font-weight: "700"
+            font-size: "0.9rem"
+            color: "#ffffff"
+        .user-role:
+            font-size: "0.75rem"
+            color: "#64748b"
+
+        # Main Panel Styles
+        .dashboard-main:
+            display: "flex"
+            flex-direction: "column"
+            height: "100vh"
+            overflow-y: "auto"
+        .dashboard-header:
+            padding: "1.5rem 3rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+            display: "flex"
+            justify-content: "space-between"
+            align-items: "center"
+            gap: "1.5rem"
+        .breadcrumb:
+            font-size: "0.85rem"
+            color: "#64748b"
+            font-weight: "600"
+        .dashboard-content:
+            padding: "3rem"
+            display: "flex"
+            flex-direction: "column"
+            gap: "2.5rem"
+
+        # Metrics Grid Styles
+        .metrics-grid:
+            display: "grid"
+            grid-template-columns: "repeat(auto-fit, minmax(240px, 1fr))"
+            gap: "2rem"
+        .metric-card:
+            background: "rgba(255, 255, 255, 0.02)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "16px"
+            padding: "1.75rem"
+            display: "flex"
+            justify-content: "space-between"
+            align-items: "center"
+            transition: "all 0.3s ease"
+        .metric-card:hover:
+            transform: "translateY(-4px)"
+            border-color: "rgba(99, 102, 241, 0.3)"
+            box-shadow: "0 10px 25px -10px rgba(0, 0, 0, 0.5)"
+        .metric-info:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.5rem"
+        .metric-label:
+            font-size: "0.9rem"
+            color: "#64748b"
+            font-weight: "700"
+        .metric-number:
+            font-size: "2.5rem"
+            font-weight: "800"
+            color: "#ffffff"
+            line-height: "1"
+        .metric-icon-box:
+            width: "3.25rem"
+            height: "3.25rem"
+            border-radius: "12px"
+            background: "rgba(255, 255, 255, 0.03)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-size: "1.5rem"
+
+        # Charts Area Styles
+        .charts-grid:
+            display: "grid"
+            grid-template-columns: "repeat(auto-fit, minmax(320px, 1fr))"
+            gap: "2.5rem"
+        .chart-card:
+            background: "rgba(255, 255, 255, 0.02)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "20px"
+            padding: "2rem"
+        .chart-title:
+            font-size: "1.1rem"
+            font-weight: "700"
+            color: "#ffffff"
+            margin: "0 0 1.5rem 0"
+
+        # Custom Table Styles
+        .custom-table-card:
+            background: "rgba(255, 255, 255, 0.01)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "20px"
+            padding: "2.5rem"
+            display: "flex"
+            flex-direction: "column"
+            gap: "1.5rem"
+        .table-card-header h3:
+            font-size: "1.3rem"
+            font-weight: "700"
+            color: "#ffffff"
+            margin: "0 0 0.5rem 0"
+        .table-card-header p:
+            font-size: "0.9rem"
+            color: "#64748b"
+            margin: "0"
+        .table-responsive:
+            overflow-x: "auto"
+            width: "100%"
+        .custom-table:
+            width: "100%"
+            border-collapse: "collapse"
+            text-align: "right"
+        .custom-table th:
+            padding: "1rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.08)"
+            color: "#64748b"
+            font-size: "0.85rem"
+            font-weight: "700"
+        .custom-table td:
+            padding: "1.25rem 1rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.04)"
+            font-size: "0.95rem"
+            color: "#e2e8f0"
+        .custom-table tr:hover td:
+            background: "rgba(255, 255, 255, 0.01)"
+        .table-client:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+        .client-avatar:
+            width: "2.25rem"
+            height: "2.25rem"
+            border-radius: "50%"
+            background: "rgba(255, 255, 255, 0.03)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            color: "#94a3b8"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-weight: "700"
+        .badge-active:
+            background: "rgba(16, 185, 129, 0.15)"
+            color: "#10b981"
+            padding: "0.25rem 0.75rem"
+            border-radius: "50px"
+            font-size: "0.8rem"
+            font-weight: "700"
+            display: "inline-block"
+        .badge-resolved:
+            background: "rgba(148, 163, 184, 0.15)"
+            color: "#94a3b8"
+            padding: "0.25rem 0.75rem"
+            border-radius: "50px"
+            font-size: "0.8rem"
+            font-weight: "700"
+            display: "inline-block"
+        .table-action-btn:
+            background: "rgba(99, 102, 241, 0.1)"
+            color: "#a5b4fc"
+            border: "1px solid rgba(99, 102, 241, 0.2)"
+            padding: "0.45rem 1rem"
+            border-radius: "8px"
+            text-decoration: "none"
+            font-size: "0.85rem"
+            font-weight: "700"
+            transition: "all 0.2s ease"
+            display: "inline-block"
+        .table-action-btn:hover:
+            background: "#6366f1"
+            color: "#ffffff"
+            box-shadow: "0 0 10px rgba(99, 102, 241, 0.3)"
+
+    server:
+        fetch session_count = ChatSession.count()
+        fetch message_count = ChatMessage.count()
+        fetch bot_count = Bot.count()
+        fetch recent_sessions = ChatSession.all(limit: 5)
+        fetch daily_volume = ChatVolume.all(limit: 7)
+
+    render:
+        div.dashboard-shell(x_data: "{ sidebarOpen: false, isMobile: window.innerWidth < 1024 }", init: "window.addEventListener('resize', () => { isMobile = window.innerWidth < 1024 })", class: "isMobile ? 'mobile-layout' : ''"):
+            # Mobile Backdrop
+            div.sidebar-backdrop(show: "isMobile && sidebarOpen", click: "sidebarOpen = false"): ""
+
+            # Custom Sidebar Navigation
+            aside.custom-sidebar(style: "isMobile ? (sidebarOpen ? 'transform: translateX(0)' : 'transform: translateX(100%)') : ''"):
+                div.sidebar-brand-row:
+                    div.sidebar-brand: "لوحة تحكم بوت"
+                    button.sidebar-close-btn(show: "isMobile", click: "sidebarOpen = false"): "✕"
+                nav.sidebar-menu:
+                    a.menu-item.active(href: "/dashboard"): "الرئيسية"
+                    a.menu-item(href: "/chat"): "المحادثات الحية"
+                    a.menu-item(href: "/settings"): "إعدادات البوت"
+                    a.menu-item.logout-item(href: "/logout"): "تسجيل الخروج"
+                div.sidebar-user:
+                    div.user-avatar: "👤"
+                    div.user-details:
+                        span.user-name: "المشرف"
+                        span.user-role: "المدير العام"
+
+            # Main Dashboard Page Content
+            main.dashboard-main:
+                header.dashboard-header:
+                    button.sidebar-toggle-btn(show: "isMobile", click: "sidebarOpen = true"): "⋮"
+                    span.breadcrumb: "الرئيسية / الإحصائيات العامة"
+
+                div.dashboard-content:
+                    # Metrics Grid
+                    div.metrics-grid:
+                        div.metric-card:
+                            div.metric-info:
+                                span.metric-label: "إجمالي جلسات الدردشة"
+                                span.metric-number: f"{session_count}"
+                            div.metric-icon-box: "💬"
+                        div.metric-card:
+                            div.metric-info:
+                                span.metric-label: "إجمالي الرسائل المرسلة"
+                                span.metric-number: f"{message_count}"
+                            div.metric-icon-box: "✉"
+                        div.metric-card:
+                            div.metric-info:
+                                span.metric-label: "المساعدين الذكيين النشطين"
+                                span.metric-number: f"{bot_count}"
+                            div.metric-icon-box: "🤖"
+
+                    # Charts Section
+                    div.charts-grid:
+                        div.chart-card:
+                            h3.chart-title: "حجم المحادثات الأسبوعي (شات)"
+                            Chart(daily_volume, line, day, count)
+                        div.chart-card:
+                            h3.chart-title: "أداء وسرعة الاستجابة"
+                            Chart(daily_volume, bar, day, count)
+
+                    # Custom HTML Table for Recent Sessions
+                    div.custom-table-card:
+                        div.table-card-header:
+                            h3: "أحدث جلسات الدردشة النشطة"
+                            p: "متابعة فورية للمحادثات الجارية مع إمكانية التدخل البشري"
+                        div.table-responsive:
+                            table.custom-table:
+                                thead:
+                                    tr:
+                                        th: "اسم العميل"
+                                        th: "البريد الإلكتروني"
+                                        th: "الحالة"
+                                        th: "الإجراء"
+                                tbody:
+                                    for sess in recent_sessions:
+                                        tr:
+                                            td:
+                                                div.table-client:
+                                                    div.client-avatar: "👤"
+                                                    span: sess.customer_name
+                                            td: sess.customer_email
+                                            td:
+                                                if sess.status == "active":
+                                                    span.badge-active: "نشط"
+                                                if sess.status == "resolved":
+                                                    span.badge-resolved: "محلول"
+                                            td:
+                                                a.table-action-btn(href: f"/chat?id={sess.id}"): "عرض المحادثة"

@@ -1,0 +1,43 @@
+route /dashboard -> view Dashboard
+route / -> view Dashboard
+
+view Dashboard:
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+    canvas:
+        layout: column
+        density: comfortable
+    server:
+        fetch customer_count = Customer.count()
+        fetch lead_count = Lead.count()
+        fetch leads = Lead.all(limit: 10)
+        fetch lead = Lead.find(1)
+    render:
+        DashboardShell(brand: "نظام إدارة العملاء", user: "المدير العام"):
+            sidebar:
+                a(href: "/dashboard"): "الرئيسية"
+                a(href: "/customers"): "عرض العملاء"
+                a(href: "/leads"): "عرض الـ Leads"
+                a(href: "/reports"): "التقارير والإحصائيات"
+                a(href: "/logout"): "تسجيل الخروج"
+            main:
+                Container:
+                    Section(title: "لوحة التحكم", subtitle: "نظرة عامة على نشاط النظام والمبيعات"):
+                        Grid(columns: "3"):
+                            Card(title: "إجمالي العملاء", variant: "metric"):
+                                h2: f"{customer_count}"
+                            Card(title: "إجمالي الـ Leads", variant: "metric"):
+                                h2: f"{lead_count}"
+                            Card(title: "العمليات النشطة", variant: "metric"):
+                                h2: "50"
+                        
+                        Card(title: "أحدث الـ Leads المضافة", variant: "outlined"):
+                            DataTable(data: leads):
+                                column(title: "عنوان الطلب"):
+                                    p: lead.title
+                                column(title: "القيمة المتوقعة"):
+                                    p: f"${lead.value}"
+                                column(title: "الحالة"):
+                                    p: lead.status

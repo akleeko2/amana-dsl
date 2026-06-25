@@ -1,0 +1,26 @@
+app CrmApp:
+    title: "أمانة CRM"
+    db_path: "crm.db"
+    auth_model: User
+    capabilities:
+        - auth
+        - time
+
+import "./theme.amana"
+
+# Models
+import "./models/user.amana"
+import "./models/customer.amana"
+import "./models/lead.amana"
+
+# Components
+import "./components/customer_card.amana"
+import "./components/lead_card.amana"
+
+# Views
+import "./views/auth.amana"
+import "./views/dashboard.amana"
+import "./views/customers.amana"
+import "./views/customer_detail.amana"
+import "./views/leads.amana"
+import "./views/reports.amana"

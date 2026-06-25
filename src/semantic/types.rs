@@ -318,7 +318,13 @@ impl SemanticAnalyzer {
             || matches!(
                 (expected, actual),
                 (
-                    DataType::Email | DataType::Password | DataType::DateTime,
+                    DataType::Int
+                        | DataType::Float
+                        | DataType::Bool
+                        | DataType::Money
+                        | DataType::Email
+                        | DataType::Password
+                        | DataType::DateTime,
                     DataType::Str
                 )
             )

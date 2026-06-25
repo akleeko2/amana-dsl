@@ -1,5 +1,5 @@
 // src/semantic/ir.rs
-use crate::ast::{DataType, DesignBlock, Expression, StateDecl, ViewElement};
+use crate::ast::{DataType, DesignBlock, Expression, StateDecl, ViewElement, ComponentDecl};
 use serde::{Deserialize, Serialize};
 
 /// Represents a field in the database Model inside the Amana IR.
@@ -167,4 +167,6 @@ pub struct AmanaIR {
     pub views: Vec<ViewIR>,
     /// Seed data rows.
     pub seeds: Vec<SeedIR>,
+    /// Compiled reusable components.
+    pub components: Vec<ComponentDecl>,
 }

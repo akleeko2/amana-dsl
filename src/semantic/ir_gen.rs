@@ -178,6 +178,13 @@ pub fn generate_ir(
         }
     }
 
+    let mut components = Vec::new();
+    for node in nodes {
+        if let AmanaNode::Component(comp) = node {
+            components.push(comp.clone());
+        }
+    }
+
     Ok(AmanaIR {
         ir_version: IRVersion {
             major: 1,
@@ -196,6 +203,7 @@ pub fn generate_ir(
         routes,
         views,
         seeds,
+        components,
     })
 }
 
@@ -424,6 +432,23 @@ fn substitute_params(
     }
 }
 
+fn stringify_expression(expr: &Expression) -> String {
+    match expr {
+        Expression::Identifier(name) => name.clone(),
+        Expression::Number(n) => n.to_string(),
+        Expression::StringLiteral(s) => s.clone(),
+        Expression::Boolean(b) => b.to_string(),
+        Expression::Null => "null".to_string(),
+        Expression::MemberAccess { object, property } => {
+            format!("{}.{}", stringify_expression(object), property)
+        }
+        Expression::Binary { left, op, right } => {
+            format!("{} {} {}", stringify_expression(left), op, stringify_expression(right))
+        }
+        _ => "".to_string(),
+    }
+}
+
 fn substitute_expr_params(
     expr: &Expression,
     param_map: &std::collections::BTreeMap<String, Expression>,
@@ -468,6 +493,60 @@ fn substitute_expr_params(
             object: Box::new(substitute_expr_params(object, param_map)),
             property: property.clone(),
         },
+        Expression::StringLiteral(s) => {
+            if s.starts_with("f\"") && s.ends_with("\"") {
+                let content = &s[2..s.len() - 1];
+                let mut result = String::new();
+                let mut in_placeholder = false;
+                let mut placeholder_content = String::new();
+                
+                let mut chars = content.chars().peekable();
+                while let Some(c) = chars.next() {
+                    if c == '{' {
+                        in_placeholder = true;
+                        placeholder_content.clear();
+                    } else if c == '}' && in_placeholder {
+                        in_placeholder = false;
+                        
+                        let mut replaced_placeholder = String::new();
+                        let mut current_word = String::new();
+                        for pc in placeholder_content.chars() {
+                            if pc.is_alphanumeric() || pc == '_' {
+                                current_word.push(pc);
+                            } else {
+                                if !current_word.is_empty() {
+                                    if let Some(target_expr) = param_map.get(&current_word) {
+                                        replaced_placeholder.push_str(&stringify_expression(target_expr));
+                                    } else {
+                                        replaced_placeholder.push_str(&current_word);
+                                    }
+                                    current_word.clear();
+                                }
+                                replaced_placeholder.push(pc);
+                            }
+                        }
+                        if !current_word.is_empty() {
+                            if let Some(target_expr) = param_map.get(&current_word) {
+                                replaced_placeholder.push_str(&stringify_expression(target_expr));
+                            } else {
+                                replaced_placeholder.push_str(&current_word);
+                            }
+                        }
+                        
+                        result.push('{');
+                        result.push_str(&replaced_placeholder);
+                        result.push('}');
+                    } else if in_placeholder {
+                        placeholder_content.push(c);
+                    } else {
+                        result.push(c);
+                    }
+                }
+                Expression::StringLiteral(format!("f\"{}\"", result))
+            } else {
+                expr.clone()
+            }
+        }
         _ => expr.clone(),
     }
 }

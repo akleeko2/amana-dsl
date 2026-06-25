@@ -5,15 +5,17 @@ This file is generated from compiler implementation files, excluding tests. Do n
 ## Scanned Source Files
 
 - `src/ast/mod.rs`
+- `src/codegen/express/base_css.rs`
 - `src/codegen/express/hooks.rs`
 - `src/codegen/express/static_files/app.rs`
 - `src/codegen/express/static_files/default_hooks.rs`
 - `src/codegen/express/static_files/engine.rs`
 - `src/codegen/express/static_files/hooks_worker.rs`
+- `src/codegen/express/static_files/mod.rs`
 - `src/codegen/express/static_files/package.rs`
 - `src/codegen/express/static_files/security.rs`
-- `src/codegen/express/static_files.rs`
 - `src/codegen/express/theme.rs`
+- `src/codegen/express/tokens.rs`
 - `src/codegen/express/views.rs`
 - `src/codegen/express.rs`
 - `src/codegen/html.rs`
@@ -41,9 +43,9 @@ This file is generated from compiler implementation files, excluding tests. Do n
 
 ## CLI Surface
 
-- Commands: `check`, `build`, `fmt`, `inspect-design`, `dev`, `lsp`
+- Commands: `check`, `build`, `fmt`, `inspect-design`, `dev`, `generate`, `lsp`
 
-- Aliases: `--help`, `help`, `inspect-design`, `design-report`, `lsp`, `language-server`
+- Aliases: `--help`, `help`, `inspect-design`, `design-report`, `generate`, `g`, `lsp`, `language-server`
 
 ## Top-Level Language Nodes
 
@@ -91,51 +93,7 @@ This file is generated from compiler implementation files, excluding tests. Do n
 
 ## Theme Keys
 
-- `primary`
-- `accent`
-- `mode`
-- `direction`
-- `language`
-- `radius`
-- `density`
-- `surface`
-- `canvas`
-- `background`
-- `bg`
-- `base`
-- `surface_base`
-- `muted_surface`
-- `surface_muted`
-- `elevated`
-- `surface_elevated`
-- `text`
-- `ink`
-- `muted`
-- `subtle`
-- `border`
-- `glass`
-- `glass_bg`
-- `glass_border`
-- `gradient_primary`
-- `gradient`
-- `gradient_accent`
-- `gradient_hero`
-- `radius_2xl`
-- `font_provider`
-- `font_family`
-- `body_font`
-- `font`
-- `heading_font_family`
-- `heading_font`
-- `display_font`
-- `arabic_font_family`
-- `arabic_font`
-- `success`
-- `warning`
-- `danger`
-- `gradient_mesh`
-- `gradient_aurora`
-- `gradient_spotlight`
+- None detected.
 
 ### Closed Theme Values
 
@@ -151,63 +109,9 @@ This file is generated from compiler implementation files, excluding tests. Do n
 
 ## Design Grammar
 
-### `a11y`
-
-`contrast`, `reduce-motion`, `focus`, `reduce_motion`, `screenreader`
-
-### `art`
-
-`texture-opacity`, `direction`, `motif`, `lighting`, `texture`
-
-### `brand`
-
-`voice`, `personality`, `trust`, `colorway`
-
-### `canvas`
-
-`layout`, `composition`, `surface`, `density`, `rhythm`, `mode`, `palette`, `content-width`, `wide-width`, `readable-width`, `responsive-mobile`, `responsive-tablet`, `responsive-laptop`, `responsive-desktop`, `responsive.mobile`, `responsive.tablet`, `responsive.laptop`, `responsive.desktop`, `width`, `flow`, `content_width`, `responsive`
-
-### `component`
-
-`variant`, `chrome`, `shape`, `density`
-
-### `compose`
-
-`layout`, `columns`, `rows`, `gap`, `auto_place`, `responsive`, `rhythm`, `focus_path`, `density`, `ratio`, `align`, `visual_position`, `image_ratio`, `dominant`, `overlap`, `headline_span`, `aside_span`, `pull_quote`, `sidebar_width`, `sidebar_position`, `sticky_sidebar`, `axis`, `marker`, `alternate`, `sidebar`, `topbar`, `content_width`, `focal`, `balance`
-
-### `creative`
-
-`freedom`, `uniqueness`, `signature`, `avoid_repetition`, `reference`, `avoid-repetition`
-
-### `interaction`
-
-`focus-strength`, `feedback`, `affordance`, `focus_strength`, `cursor`
-
-### `motion`
-
-`speed`, `transition`, `transform`, `opacity`, `entrance`, `hover`
-
-### `responsive`
-
-`columns`, `desktop.columns`, `laptop.columns`, `tablet.columns`, `mobile.columns`, `desktop.padding`, `laptop.padding`, `tablet.padding`, `mobile.padding`, `desktop.gap`, `laptop.gap`, `tablet.gap`, `mobile.gap`, `mobile`, `collapse`
-
-### `states`
-
-`hover`, `focus`, `active`
-
-### `tokens`
-
-`colors`, `spacing`, `radius`, `shadows`
-
-### `type`
-
-`measure`, `weight`, `size`, `font-size`, `leading`, `line-height`, `tracking`, `letter-spacing`, `scale`, `align`, `contrast`
-
-### `visual`
-
-`depth`, `visual-weight`, `texture-opacity`, `glow-strength`, `primary`, `color.primary`, `brand.primary`, `accent`, `color.accent`, `brand.accent`, `background`, `bg`, `surface.bg`, `color.background`, `text`, `ink`, `color.text`, `muted`, `subtle`, `color.muted`, `border`, `border.color`, `stroke`, `outline`, `gradient.value`, `gradient-value`, `custom-gradient`, `radius`, `shape.radius`, `shadow`, `shadow.value`, `padding`, `space.padding`, `space.gap`, `gap`, `surface`, `palette`, `texture`, `frame`, `gradient`, `shape`
-
 ### Closed Design Values
+
+- `blocked_html_tags`: `script`, `iframe`, `object`, `embed`, `applet`, `link`, `meta`, `base`, `style`, `noscript`
 
 - `density`: `compact`, `comfortable`, `spacious`
 
@@ -253,7 +157,7 @@ This file is generated from compiler implementation files, excluding tests. Do n
 
 - Backend: `express-node`
 
-- Standard components: `Button`, `Card`, `FeatureCard`, `PricingCard`, `Container`, `Section`, `Grid`, `Stack`, `FormField`, `Navbar`, `Hero`, `Alert`, `Footer`, `Icon`, `Modal`, `Tabs`, `Badge`, `Kpi`, `Stat`, `LogoCloud`, `TestimonialCard`, `Timeline`, `TimelineItem`, `EmptyState`, `Split`, `Cluster`, `Sidebar`, `Slides`
+- Standard components: `Button`, `Card`, `FeatureCard`, `PricingCard`, `Container`, `Center`, `Cover`, `Reel`, `Masonry`, `Skeleton`, `LoadingState`, `ErrorState`, `OfflineState`, `Toast`, `success`, `info`, `warning`, `danger`, `Banner`, `DashboardShell`, `AuthPage`, `PricingSection`, `Breadcrumb`, `Dropdown`, `CommandPalette`, `SearchBar`, `FilterBar`, `Paginator`, `DataTable`, `FileUpload`, `RichEditor`, `ColorPicker`, `Section`, `HeroSection`, `SettingsPage`, `StatsSection`, `FAQSection`, `BlogSection`, `TestimonialsSection`, `ContactSection`, `Grid`, `Stack`, `FormField`, `Navbar`, `Hero`, `Alert`, `Footer`, `Icon`, `Modal`, `Tabs`, `Badge`, `Kpi`, `Stat`, `LogoCloud`, `TestimonialCard`, `Timeline`, `TimelineItem`, `EmptyState`, `Split`, `Cluster`, `Slides`, `Sidebar`
 
 - Alpine/event attributes: `click`, `submit`, `change`, `input`, `keydown`, `keyup`, `focus`, `blur`, `mouseenter`, `mouseleave`
 

@@ -1,4 +1,5 @@
 // src/codegen/express/static_files/app.rs
+#![allow(dead_code)]
 
 pub(crate) fn app_js() -> &'static str {
     r#"const AmanaEngine = require('./runtime/engine');

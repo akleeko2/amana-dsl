@@ -1,0 +1,3804 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= typeof title !== 'undefined' ? title : 'Amana Application' %></title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/arabic-reshaper@1.1.0/index.js"></script>
+  <script>
+    function fixArabicText(str) {
+      if (!str) return str;
+      if (typeof str !== 'string') str = String(str);
+      if (typeof ArabicReshaper !== 'undefined') {
+        str = ArabicReshaper.convertArabic(str);
+      }
+      const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+      let words = str.split(/(\s+)/);
+      let processed = words.map(word => {
+        if (arabicRegex.test(word)) {
+          return word.split('').reverse().join('');
+        }
+        return word;
+      });
+      return processed.reverse().join('');
+    }
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;600;700;800;900&display=swap');
+
+    :root {
+      --color-primary: #d97706;
+      --color-primary-soft: #fffbeb;
+      --color-accent: #71717a;
+      --amana-direction: rtl;
+      --amana-start: right;
+      --amana-end: left;
+      --bg-primary: #0e0e11;
+      --bg-secondary: #050507;
+      --text-primary: #f4f4f5;
+      --text-secondary: #a1a1aa;
+      --surface-base: #0e0e11;
+      --surface-muted: #a1a1aa;
+      --surface-elevated: #16161b;
+      --border-subtle: rgba(234,179,8,0.12);
+      --glass-bg: rgba(15,23,42,0.66);
+      --glass-border: rgba(148,163,184,0.20);
+      --glass-blur: blur(16px);
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+      --radius-xl: 28px;
+      --radius-2xl: 36px;
+      --radius-small: var(--radius-sm);
+      --radius-medium: var(--radius-md);
+      --radius-large: var(--radius-lg);
+      --radius-soft: var(--radius-md);
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.25rem;
+      --space-2xl: 3rem;
+      --space-3xl: 4.5rem;
+      --space-4xl: 6rem;
+      --text-xs: 0.75rem;
+      --text-sm: 0.875rem;
+      --text-md: 1rem;
+      --text-lg: 1.125rem;
+      --text-xl: 1.35rem;
+      --text-2xl: 1.75rem;
+      --text-3xl: 2.4rem;
+      --shadow-sm: 0 1px 3px rgba(15,23,42,0.08);
+      --shadow-md: 0 4px 6px -1px rgba(15,23,42,0.10);
+      --shadow-lg: 0 10px 24px -8px rgba(15,23,42,0.18);
+      --shadow-xl: 0 20px 40px -12px rgba(15,23,42,0.28);
+      --transition-fast: all 0.12s ease-in-out;
+      --color-success: #16a34a;
+      --color-warning: #ca8a04;
+      --color-danger: #dc2626;
+      --border-color: var(--border-subtle);
+      --content-width: 1120px;
+      --wide-width: 1360px;
+      --readable-width: 72ch;
+      --gradient-primary: linear-gradient(135deg, #d97706, #71717a);
+      --gradient-accent: linear-gradient(135deg, #71717a, #d97706);
+      --gradient-hero: radial-gradient(circle at top right, #fffbeb, transparent 30%), linear-gradient(135deg, #0f172a, #fafafa);
+      --gradient-mesh: radial-gradient(circle at 10% 20%, #fffbeb, transparent 34%), radial-gradient(circle at 80% 0%, #fafafa, transparent 38%), #0e0e11;
+      --gradient-aurora: radial-gradient(circle at 15% 20%, #fffbeb, transparent 30%), radial-gradient(circle at 80% 20%, #fafafa, transparent 35%), #050507;
+      --gradient-spotlight: radial-gradient(circle at 50% 0%, #fffbeb, transparent 48%), #0e0e11;
+      --shadow-soft: 0 10px 24px -18px rgba(15,23,42,0.35);
+      --shadow-floating: 0 24px 55px -28px rgba(15,23,42,0.45);
+      --shadow-strong: 0 30px 70px -30px rgba(2,6,23,0.62);
+      --elevation-1: 0 1px 2px rgba(15,23,42,0.08);
+      --elevation-2: 0 8px 18px -14px rgba(15,23,42,0.35);
+      --elevation-3: 0 18px 36px -22px rgba(15,23,42,0.45);
+      --elevation-4: 0 28px 55px -30px rgba(15,23,42,0.55);
+      --elevation-5: 0 35px 80px -35px rgba(15,23,42,0.68);
+      --layer-base: 0;
+      --layer-raised: 10;
+      --layer-sticky: 30;
+      --layer-dropdown: 60;
+      --layer-overlay: 80;
+      --layer-modal: 100;
+      --layer-toast: 120;
+      --glow-primary: 0 4px 12px color-mix(in srgb, #d97706 30%, transparent);
+      --glow-accent: 0 4px 12px color-mix(in srgb, #71717a 30%, transparent);
+      --font-body: 400 1rem/1.6 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-heading: 800 1.75rem/1.2 'Outfit', 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --color-primary-dark: #78350f;
+      --radius-pill: 9999px;
+      --radius-none: 0px;
+      --space-2xs: 0.125rem;
+      --font-weight-body: 400;
+      --font-weight-heading: 800;
+      --font-weight-display: 900;
+      --transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      --transition-spring: 600ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-reveal: 560ms cubic-bezier(0.16, 1, 0.3, 1);
+      --blur-sm: blur(4px);
+      --blur-md: blur(8px);
+      --blur-lg: blur(16px);
+      --blur-xl: blur(24px);
+    }
+    html { direction: rtl; }
+    body { direction: rtl; color-scheme: dark; background-color: var(--bg-secondary); color: var(--text-primary); font: var(--font-body); }
+    :where(h1, h2, h3, h4, h5, h6) { font: var(--font-heading); }
+
+/* Luxury theme modal input overrides */
+.amana-modal-panel .amana-form-control,
+.amana-modal-panel .amana-input,
+.amana-modal-panel .amana-form-field-input {
+  background-color: color-mix(in srgb, var(--surface-elevated) 90%, #ffffff 4%) !important;
+  border-color: rgba(234, 179, 8, 0.25) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(234, 179, 8, 0.05) !important;
+  color: var(--text-primary) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+}
+.amana-modal-panel .amana-form-control:hover,
+.amana-modal-panel .amana-input:hover,
+.amana-modal-panel .amana-form-field-input:hover {
+  background-color: color-mix(in srgb, var(--surface-elevated) 88%, #ffffff 6%) !important;
+  border-color: rgba(234, 179, 8, 0.45) !important;
+}
+.amana-modal-panel .amana-form-control:focus,
+.amana-modal-panel .amana-input:focus,
+.amana-modal-panel .amana-form-field-input:focus {
+  background-color: color-mix(in srgb, var(--surface-elevated) 85%, #ffffff 8%) !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.22), inset 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  outline: none !important;
+}
+.amana-modal-panel .amana-form-control::placeholder,
+.amana-modal-panel .amana-input::placeholder,
+.amana-modal-panel .amana-form-field-input::placeholder {
+  color: rgba(161, 161, 170, 0.45) !important;
+}
+.amana-modal-panel .amana-form-group,
+.amana-modal-panel .amana-form-field {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  margin-bottom: 1.25rem !important;
+}
+.amana-modal-panel .amana-label,
+.amana-modal-panel .amana-form-field-label {
+  font-weight: 600 !important;
+  color: rgba(244, 244, 245, 0.9) !important;
+  letter-spacing: 0.025em !important;
+}
+
+
+    :root {
+        --font-body: 'Tajawal', 'Outfit', system-ui, -apple-system, sans-serif;
+        --font-heading: 'Tajawal', 'Outfit', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+        --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-smooth: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        --transition-spring: 600ms cubic-bezier(0.22, 1, 0.36, 1);
+        --transition-reveal: 560ms cubic-bezier(0.16, 1, 0.3, 1);
+        --shadow-premium: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 20px 25px -5px rgba(0, 0, 0, 0.04);
+        --glass-bg: rgba(255, 255, 255, 0.45);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --glass-blur: blur(16px);
+        --glow-primary: 0 0 15px 2px color-mix(in srgb, var(--color-primary) 35%, transparent);
+        --glow-accent: 0 0 15px 2px color-mix(in srgb, var(--color-accent) 35%, transparent);
+        --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-accent) 25%, transparent);
+        --z-base: 0; --z-raised: 10; --z-sticky: 30;
+        --z-dropdown: 60; --z-overlay: 80; --z-modal: 100; --z-toast: 120;
+        --content-width: 1120px;
+        --wide-width: 1360px;
+        --readable-width: 72ch;
+        --narrow-width: 840px;
+        --blur-sm: blur(4px);
+        --blur-md: blur(8px);
+        --blur-lg: blur(16px);
+        --blur-xl: blur(24px);
+    }
+    @media (prefers-color-scheme: dark) {
+        :root.dg-mode-auto {
+            --glass-bg: rgba(15, 23, 42, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+    }
+
+    /* === Reset === */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { width: 100%; max-width: 100%; overflow-x: hidden; scroll-behavior: smooth; }
+    body {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        margin: 0;
+        overflow-x: hidden;
+        background-color: var(--bg-secondary);
+        background-image:
+            radial-gradient(circle at 10% 15%, color-mix(in srgb, var(--color-primary) 8%, transparent) 0%, transparent 35%),
+            radial-gradient(circle at 90% 45%, color-mix(in srgb, var(--color-accent) 6%, transparent) 0%, transparent 35%),
+            radial-gradient(circle at 30% 75%, color-mix(in srgb, var(--color-primary) 5%, transparent) 0%, transparent 40%);
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+        color: var(--text-primary);
+        font: var(--font-body);
+        text-rendering: geometricPrecision;
+        -webkit-font-smoothing: antialiased;
+    }
+    body.amana-page { display: block; padding: 0 !important; gap: normal !important; }
+    :where(main, section, article, aside, header, footer, nav, div, form) { min-width: 0; }
+    :where(h1, h2, h3, h4, h5, h6, p, span, strong, a, button, label, input, textarea, pre) { max-width: 100%; overflow-wrap: break-word; word-break: normal; letter-spacing: 0; }
+    :where(h1, h2, h3) { text-wrap: balance; }
+    :where(p, li, blockquote) { text-wrap: pretty; }
+    img, svg, video, canvas { max-width: 100%; display: block; }
+    a { color: inherit; }
+
+    /* === Shell === */
+    .card { border: none; background-color: var(--surface-elevated); box-shadow: var(--shadow-soft); }
+    .amana-page { min-height: 100vh; background: var(--bg-secondary); color: var(--text-primary); overflow-x: hidden; }
+    .amana-runtime-shell { display: block; width: 100%; max-width: 100%; min-height: 100vh; margin: 0; padding: 0; overflow-x: hidden; }
+    .amana-runtime-shell > :not(script):not(style):not(.amana-state-scope),
+    .amana-runtime-shell > .amana-state-scope > :not(script):not(style) { max-width: 100%; }
+    .amana-state-scope { height: 100%; min-height: 0; width: 100%; max-width: 100%; display: flex; flex-direction: column; }
+
+    /* === Containers === */
+    .amana-container { width: var(--component-width, min(100% - 2rem, var(--content-width))); max-width: var(--component-max-width, none); margin-inline: auto; }
+    .amana-container-full { width: 100%; max-width: none; }
+    .amana-container-wide { width: min(100% - 2rem, var(--wide-width)); }
+    .amana-container-readable { width: min(100% - 2rem, var(--readable-width)); }
+    .dg-canvas-width-full .amana-container { width: 100%; max-width: none; }
+    .dg-canvas-width-wide .amana-container { width: min(100% - 2rem, var(--wide-width)); }
+    .dg-canvas-width-readable .amana-container { width: min(100% - 2rem, var(--readable-width)); }
+
+    /* === Section === */
+    .amana-section { position: relative; width: var(--component-width, auto); max-width: var(--component-max-width, none); min-height: var(--component-min-height, auto); height: var(--component-height, auto); padding-block: var(--component-padding-y, var(--component-padding, clamp(3rem, 7vw, 6rem))); padding-inline: var(--component-padding-x, 0); }
+    .amana-section-head { display: grid; gap: var(--space-sm); margin-bottom: clamp(2rem, 5vw, 3.5rem); max-width: 780px; }
+    .amana-section-head:has(.amana-section-copy) { gap: var(--space-md); }
+    .amana-section h2, .amana-section-head h2 { margin: 0; font-size: clamp(2rem, 5vw, 4.2rem); line-height: 1.05; letter-spacing: -0.01em; font-weight: 900; }
+    .amana-section-copy { color: var(--text-secondary); max-width: 68ch; font-size: clamp(1rem, 2vw, 1.2rem); line-height: 1.8; }
+
+    /* === Grid === */
+    .amana-grid {
+        display: grid;
+        grid-template-columns: var(--component-columns, var(--dg-template, var(--dg-columns, repeat(auto-fit, minmax(var(--grid-min, 16rem), 1fr)))));
+        gap: var(--component-gap, var(--custom-gap, var(--dg-gap, var(--space-lg))));
+        padding: var(--space-xl);
+        border: 1px solid color-mix(in srgb, var(--border-subtle) 40%, transparent);
+        border-radius: var(--radius-3xl);
+        background: radial-gradient(circle at top left, color-mix(in srgb, var(--color-primary) 6%, transparent), transparent 70%),
+                    linear-gradient(135deg, color-mix(in srgb, var(--surface-elevated) 45%, transparent), color-mix(in srgb, var(--surface-base) 20%, transparent));
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: var(--shadow-soft), inset 0 1px 0 0 color-mix(in srgb, var(--text-primary) 6%, transparent);
+        position: relative;
+        transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth), transform var(--transition-smooth);
+    }
+    .amana-grid:hover {
+        border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+        box-shadow: var(--shadow-medium), 0 0 30px -5px color-mix(in srgb, var(--color-primary) 8%, transparent);
+    }
+    .amana-grid::before, .amana-grid::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--color-primary);
+        pointer-events: none;
+        transition: all var(--transition-smooth);
+        opacity: 0.6;
+    }
+    .amana-grid::before {
+        top: -1px;
+        right: -1px;
+        border-bottom: none;
+        border-left: none;
+        border-top-right-radius: var(--radius-3xl);
+    }
+    .amana-grid::after {
+        bottom: -1px;
+        left: -1px;
+        border-top: none;
+        border-right: none;
+        border-bottom-left-radius: var(--radius-3xl);
+    }
+    .amana-grid:hover::before, .amana-grid:hover::after {
+        opacity: 1;
+        width: 24px;
+        height: 24px;
+        border-color: var(--color-accent);
+    }
+    .amana-grid:has(> .amana-card), .amana-grid:has(> .amana-feature-card), .amana-grid:has(> .amana-pricing-card), .amana-grid:has(> .card) { align-items: start; }
+    .amana-grid.amana-grid-stretch { align-items: stretch !important; }
+    .amana-grid > *, .amana-split > *, .dg-layout-split-diagonal > *, .dg-layout-asymmetric > *, .dg-layout-editorial > *, .dg-layout-dashboard-shell > *, .dg-layout-command-center > *, .dg-layout-showcase-rail > * { min-width: 0; }
+
+    /* === Stack === */
+    .amana-stack { display: flex; flex-direction: column; gap: var(--space-md); }
+    .amana-cluster {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+        align-items: center;
+        background: linear-gradient(90deg, color-mix(in srgb, var(--surface-elevated) 65%, transparent), color-mix(in srgb, var(--surface-base) 45%, transparent));
+        border: 1px solid color-mix(in srgb, var(--border-subtle) 60%, transparent);
+        padding: 0.65rem 1.5rem;
+        border-radius: var(--radius-3xl);
+        backdrop-filter: blur(12px) saturate(180%);
+        -webkit-backdrop-filter: blur(12px) saturate(180%);
+        width: fit-content;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 color-mix(in srgb, #fff 10%, transparent);
+        transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth), transform var(--transition-smooth);
+    }
+    .amana-cluster:hover {
+        border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45), 0 0 20px 2px color-mix(in srgb, var(--color-primary) 10%, transparent), inset 0 1px 0 0 color-mix(in srgb, #fff 15%, transparent);
+        transform: translateY(-2px);
+    }
+    .amana-split {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(14rem, 0.8fr);
+        gap: var(--space-xl);
+        align-items: stretch;
+        border: 1px solid color-mix(in srgb, var(--border-subtle) 50%, transparent);
+        border-radius: var(--radius-3xl);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--surface-elevated) 60%, transparent), color-mix(in srgb, var(--surface-base) 40%, transparent));
+        padding: var(--space-2xl);
+        box-shadow: var(--shadow-medium);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        position: relative;
+        overflow: hidden;
+        transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+    }
+    .amana-split:hover {
+        border-color: color-mix(in srgb, var(--color-accent) 25%, transparent);
+        box-shadow: var(--shadow-large), 0 0 40px -10px color-mix(in srgb, var(--color-accent) 6%, transparent);
+    }
+    .amana-split > * + * {
+        border-inline-start: 1px solid color-mix(in srgb, var(--border-subtle) 80%, transparent);
+        padding-inline-start: var(--space-xl);
+        position: relative;
+    }
+    .amana-split > * + *::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: -5px;
+        transform: translateY(-50%);
+        width: 9px;
+        height: 24px;
+        background: linear-gradient(180deg, var(--color-accent), var(--color-primary));
+        border-radius: 99px;
+        box-shadow: 0 0 10px var(--color-accent);
+        opacity: 0.85;
+        transition: opacity var(--transition-smooth), height var(--transition-smooth);
+    }
+    [dir="rtl"] .amana-split > * + *::before {
+        left: auto;
+        right: -5px;
+    }
+    .amana-split:hover > * + *::before {
+        opacity: 1;
+        height: 36px;
+    }
+    @media (max-width: 720px) {
+        .amana-split {
+            grid-template-columns: 1fr;
+            padding: var(--space-lg);
+        }
+        .amana-split > * + * {
+            border-inline-start: none;
+            padding-inline-start: 0;
+            border-top: 1px solid color-mix(in srgb, var(--border-subtle) 80%, transparent);
+            padding-top: var(--space-lg);
+        }
+        .amana-split > * + *::before {
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 9px;
+        }
+        [dir="rtl"] .amana-split > * + *::before {
+            left: 50%;
+            right: auto;
+        }
+        .amana-split:hover > * + *::before {
+            width: 36px;
+            height: 9px;
+        }
+    }
+    .amana-sidebar {
+        border: 1px solid color-mix(in srgb, var(--border-subtle) 60%, transparent);
+        border-radius: var(--radius-3xl);
+        background:
+            radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--color-accent) 5%, transparent), transparent 60%),
+            linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 75%, transparent), color-mix(in srgb, var(--surface-base) 55%, transparent));
+        padding: var(--space-2xl);
+        box-shadow: var(--shadow-medium);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        position: relative;
+        overflow: hidden;
+        transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+    }
+    .amana-sidebar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--color-accent), var(--color-primary));
+        opacity: 0.85;
+        transition: opacity var(--transition-smooth), height var(--transition-smooth);
+    }
+    .amana-sidebar:hover::before {
+        height: 6px;
+        opacity: 1;
+    }
+    .amana-sidebar:hover {
+        border-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
+        box-shadow: var(--shadow-large), 0 0 35px -8px color-mix(in srgb, var(--color-accent) 8%, transparent);
+    }
+
+    /* === Center Layout === */
+    .amana-center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-inline: auto;
+        width: 100%;
+        max-width: var(--center-max-width, none);
+        min-height: var(--center-min-height, auto);
+    }
+
+    /* === Cover Layout === */
+    .amana-cover {
+        display: flex;
+        flex-direction: column;
+        min-height: var(--cover-min-height, 100vh);
+        width: 100%;
+        justify-content: space-between;
+        box-sizing: border-box;
+    }
+    .amana-cover > * {
+        margin-block: auto;
+    }
+    .amana-cover > :first-child:not(:only-child) {
+        margin-block-start: 0;
+    }
+    .amana-cover > :last-child:not(:only-child) {
+        margin-block-end: 0;
+    }
+
+    /* === Reel Layout === */
+    .amana-reel {
+        display: flex;
+        gap: var(--reel-gap, var(--space-md, 1.5rem));
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        padding-block-end: var(--space-sm, 1rem);
+        scrollbar-width: thin;
+    }
+    .amana-reel > * {
+        flex: 0 0 var(--reel-item-width, auto);
+        scroll-snap-align: start;
+    }
+    .amana-reel::-webkit-scrollbar {
+        height: 6px;
+    }
+    .amana-reel::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .amana-reel::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--text-primary) 15%, transparent);
+        border-radius: 9999px;
+    }
+
+    /* === Masonry Layout === */
+    .amana-masonry {
+        column-count: var(--masonry-cols, 3);
+        column-gap: var(--masonry-gap, var(--space-lg, 1.5rem));
+        width: 100%;
+    }
+    .amana-masonry > * {
+        display: inline-block;
+        width: 100%;
+        margin-bottom: var(--masonry-gap, var(--space-lg, 1.5rem));
+        break-inside: avoid;
+    }
+    @media (max-width: 768px) {
+        .amana-masonry {
+            column-count: 1;
+        }
+    }
+
+    /* === Skeleton Layout & Shimmer === */
+    .amana-skeleton {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs, 0.5rem);
+        width: 100%;
+    }
+    .amana-skeleton-line {
+        height: 1.1em;
+        border-radius: var(--radius-md, 0.375rem);
+        background: linear-gradient(
+            90deg,
+            var(--surface-elevated) 25%,
+            color-mix(in srgb, var(--surface-elevated) 70%, var(--color-primary, #d4af37)) 50%,
+            var(--surface-elevated) 75%
+        );
+        background-size: 200% 100%;
+        animation: amana-shimmer 1.6s infinite ease-in-out;
+    }
+    .amana-skeleton-image {
+        width: 100%;
+        height: 10rem;
+        border-radius: var(--radius-xl, 0.75rem);
+        background: linear-gradient(
+            90deg,
+            var(--surface-elevated) 25%,
+            color-mix(in srgb, var(--surface-elevated) 70%, var(--color-primary, #d4af37)) 50%,
+            var(--surface-elevated) 75%
+        );
+        background-size: 200% 100%;
+        animation: amana-shimmer 1.6s infinite ease-in-out;
+    }
+    .amana-skeleton-avatar {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+        background: linear-gradient(
+            90deg,
+            var(--surface-elevated) 25%,
+            color-mix(in srgb, var(--surface-elevated) 70%, var(--color-primary, #d4af37)) 50%,
+            var(--surface-elevated) 75%
+        );
+        background-size: 200% 100%;
+        animation: amana-shimmer 1.6s infinite ease-in-out;
+    }
+    @keyframes amana-shimmer {
+        0%   { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* === LoadingState Layout === */
+    .amana-loading-state {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md, 1rem);
+        padding: var(--space-xl, 1.5rem);
+        background: var(--surface-base);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-2xl, 1rem);
+        width: 100%;
+    }
+    .amana-loading-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm, 0.75rem);
+    }
+    .amana-loading-spinner {
+        width: 1.5rem;
+        height: 1.5rem;
+        border: 2px solid color-mix(in srgb, var(--color-primary, #d4af37) 20%, transparent);
+        border-top-color: var(--color-primary, #d4af37);
+        border-radius: 50%;
+        animation: amana-spin 0.8s infinite linear;
+    }
+    .amana-loading-text {
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+    .amana-loading-body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs, 0.5rem);
+        margin-top: var(--space-xs, 0.5rem);
+    }
+    @keyframes amana-spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* === ErrorState Layout === */
+    .amana-error-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: var(--space-3xl, 3rem) var(--space-xl, 1.5rem);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--color-danger, #ef4444) 3%, transparent), transparent);
+        border: 1px solid color-mix(in srgb, var(--color-danger, #ef4444) 15%, var(--border-subtle));
+        border-radius: var(--radius-3xl, 1.5rem);
+        max-width: 32rem;
+        margin-inline: auto;
+        box-shadow: var(--shadow-soft);
+    }
+    .amana-error-state-icon-wrapper {
+        font-size: 3rem;
+        color: var(--color-danger, #ef4444);
+        margin-bottom: var(--space-md, 1rem);
+        display: grid;
+        place-items: center;
+        animation: amana-pulse 2s infinite ease-in-out;
+    }
+    .amana-error-code {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs, 0.75rem);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-danger, #ef4444);
+        background: color-mix(in srgb, var(--color-danger, #ef4444) 10%, transparent);
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        margin-bottom: var(--space-sm, 0.75rem);
+    }
+    .amana-error-state h2 {
+        margin: 0 0 var(--space-xs, 0.5rem);
+        font-size: var(--text-2xl, 1.5rem);
+        font-weight: 800;
+    }
+    .amana-error-state p {
+        margin: 0 0 var(--space-xl, 1.5rem);
+        font-size: var(--text-md, 1rem);
+        max-width: 26ch;
+    }
+
+    /* === OfflineState Layout === */
+    .amana-offline-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: var(--space-2xl, 2rem) var(--space-xl, 1.5rem);
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-2xl, 1rem);
+        max-width: 28rem;
+        margin-inline: auto;
+        box-shadow: var(--shadow-medium);
+    }
+    .amana-offline-icon-wrapper {
+        font-size: 2.5rem;
+        color: var(--text-secondary);
+        margin-bottom: var(--space-md, 1rem);
+    }
+    .amana-offline-state h2 {
+        margin: 0 0 var(--space-xs, 0.5rem);
+        font-size: var(--text-xl, 1.25rem);
+        font-weight: 800;
+    }
+    .amana-offline-state p {
+        margin: 0 0 var(--space-md, 1rem);
+        font-size: var(--text-sm, 0.875rem);
+        max-width: 30ch;
+    }
+
+    @keyframes amana-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(0.96); }
+    }
+
+    /* === Navbar (خصائص منطقية) === */
+    .amana-navbar {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-inline: 0 !important;
+        padding-inline: max(1.5rem, calc((100% - var(--wide-width)) / 2 + 1.5rem)) !important;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--component-gap, var(--space-lg));
+        padding-block: var(--component-padding-y, var(--component-padding, 0.85rem));
+        min-height: var(--component-min-height, 4.25rem);
+        position: relative;
+    }
+    .amana-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        color: var(--text-primary);
+        font-weight: 800;
+        text-decoration: none;
+        letter-spacing: -0.02em;
+        font-size: var(--text-md);
+        transition: var(--transition-fast);
+    }
+    .amana-brand::before {
+        content: "";
+        display: inline-block;
+        width: 0.55rem;
+        height: 0.55rem;
+        border-radius: 50%;
+        background: var(--color-primary);
+        box-shadow: 0 0 10px var(--color-primary), 0 0 20px var(--color-primary);
+        animation: amana-pulse-glow 2s infinite alternate;
+    }
+    @keyframes amana-pulse-glow {
+        0% { opacity: 0.6; transform: scale(0.9); box-shadow: 0 0 4px var(--color-primary); }
+        100% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 12px var(--color-primary), 0 0 20px var(--color-accent); }
+    }
+    .amana-navlinks {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: var(--space-xs);
+        flex-wrap: wrap;
+    }
+    .amana-navlinks a {
+        position: relative;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--text-secondary);
+        transition: all var(--transition-fast);
+    }
+    .amana-navlinks a::after {
+        content: "";
+        position: absolute;
+        bottom: 0.25rem;
+        left: 50%;
+        transform: translateX(-50%) scaleX(0);
+        width: 1.25rem;
+        height: 2px;
+        border-radius: 99px;
+        background: var(--color-primary);
+        transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .amana-navlinks a:hover {
+        color: var(--text-primary);
+        background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    }
+    .amana-navlinks a:hover::after {
+        transform: translateX(-50%) scaleX(1);
+    }
+    .amana-navbar-sticky {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: color-mix(in srgb, var(--surface-base) 70%, transparent);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    }
+    .amana-navbar-floating {
+        position: fixed;
+        top: 1rem;
+        inset-inline-start: 50%;
+        transform: translateX(-50%);
+        width: min(95%, var(--wide-width)) !important;
+        max-width: none !important;
+        margin-inline: auto !important;
+        z-index: 100;
+        background: color-mix(in srgb, var(--surface-elevated) 85%, transparent) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent) !important;
+        border-radius: 999px;
+        padding-inline: 2rem !important;
+        padding-block: 0.65rem !important;
+        box-shadow: var(--shadow-floating);
+    }
+
+    /* === Hero === */
+    .amana-hero {
+        position: relative;
+        isolation: isolate;
+        display: grid;
+        grid-template-columns: var(--component-columns, var(--dg-template, var(--dg-columns, minmax(0, 1fr))));
+        gap: var(--component-gap, var(--custom-gap, var(--dg-gap, clamp(1.5rem, 4vw, 3.5rem))));
+        align-items: center;
+        width: var(--component-width, auto);
+        max-width: var(--component-max-width, none);
+        min-height: var(--component-min-height, auto);
+        height: var(--component-height, auto);
+        padding: var(--component-padding, clamp(2.5rem, 6vw, 5.5rem) clamp(1.5rem, 4vw, 4rem));
+        background: var(--custom-bg, var(--custom-gradient, radial-gradient(circle at 50% -20%, color-mix(in srgb, var(--color-primary) 18%, transparent) 0%, transparent 65%), linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 40%, transparent), var(--surface-base))));
+        border: 1px solid var(--custom-border, color-mix(in srgb, var(--text-primary) 6%, transparent));
+        border-top: 1px solid color-mix(in srgb, var(--text-primary) 14%, transparent);
+        border-radius: var(--custom-radius, var(--radius-3xl));
+        overflow: hidden;
+        box-shadow: var(--custom-shadow, var(--shadow-xl)), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+        opacity: var(--component-opacity, 1);
+        transform: var(--component-transform, none);
+        transition: var(--component-transition, transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease);
+    }
+    .amana-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 15% 20%, rgba(34,211,238,0.12), transparent 28%),
+            radial-gradient(circle at 85% 20%, rgba(99,102,241,0.15), transparent 32%),
+            linear-gradient(rgba(255,255,255,0.007) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.007) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        opacity: 0.85;
+        z-index: -1;
+        pointer-events: none;
+    }
+    .amana-hero-content {
+        display: grid;
+        gap: var(--component-gap, var(--space-md));
+        max-width: var(--component-copy-width, 780px);
+        min-width: 0;
+    }
+    .amana-hero h1 {
+        margin: 0;
+        font-size: var(--component-title-size, clamp(2.5rem, 5.5vw, 4.8rem));
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--text-primary) 30%, color-mix(in srgb, var(--text-primary) 70%, var(--color-primary)) 70%, var(--color-accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .amana-hero-copy {
+        margin: 0;
+        max-width: 66ch;
+        color: var(--text-secondary);
+        font-size: var(--component-copy-size, clamp(1.05rem, 1.8vw, 1.25rem));
+        line-height: 1.8;
+    }
+    .amana-hero-actions {
+        display: flex;
+        gap: var(--component-gap, var(--space-md));
+        flex-wrap: wrap;
+        margin-top: var(--space-md);
+        align-items: center;
+    }
+    .amana-hero-proof {
+        color: color-mix(in srgb, var(--text-secondary) 80%, transparent);
+        font-size: var(--text-xs);
+        font-weight: 600;
+        border-top: 1px dashed color-mix(in srgb, var(--text-primary) 8%, transparent);
+        padding-top: var(--space-md);
+        width: 100%;
+        text-align: inherit;
+    }
+    .amana-eyebrow {
+        align-self: center;
+        color: var(--color-primary);
+        background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+        padding: 0.45rem 1.15rem;
+        border-radius: var(--radius-pill);
+        border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: var(--text-xs);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        display: inline-block;
+        margin-bottom: var(--space-xs);
+    }
+    /* Auto centering if there is no media */
+    .amana-hero:not(:has(.amana-hero-media)) {
+        grid-template-columns: 1fr;
+        text-align: center;
+        justify-items: center;
+    }
+    .amana-hero:not(:has(.amana-hero-media)) .amana-hero-content {
+        max-width: 800px;
+        justify-items: center;
+    }
+    .amana-hero:not(:has(.amana-hero-media)) .amana-hero-actions {
+        justify-content: center;
+    }
+    .amana-hero:not(:has(.amana-hero-media)) .amana-hero-proof {
+        text-align: center;
+    }
+
+    /* === Card === */
+    .amana-card {
+        position: relative;
+        display: grid;
+        gap: var(--component-gap, var(--custom-gap, var(--space-md)));
+        width: var(--component-width, auto);
+        max-width: var(--component-max-width, none);
+        min-width: var(--component-min-width, 0);
+        min-height: var(--component-min-height, auto);
+        height: var(--component-height, auto);
+        background: var(--custom-bg, var(--custom-gradient, radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--color-primary) 7%, transparent) 0%, transparent 65%), var(--surface-elevated)));
+        border: 1px solid var(--custom-border, color-mix(in srgb, var(--text-primary) 12%, transparent));
+        border-top: 1px solid color-mix(in srgb, var(--text-primary) 24%, transparent);
+        border-radius: var(--custom-radius, var(--radius-2xl));
+        padding: var(--component-padding, var(--custom-padding, clamp(1.5rem, 3.5vw, 2.25rem)));
+        box-shadow: inset 0 1px 0 0 color-mix(in srgb, var(--text-primary) 8%, transparent), var(--custom-shadow, var(--shadow-soft));
+        opacity: var(--component-opacity, 1);
+        transform: var(--component-transform, none);
+        overflow: hidden;
+        transition: var(--component-transition, transform 450ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 450ms cubic-bezier(0.16, 1, 0.3, 1), border-color 450ms cubic-bezier(0.16, 1, 0.3, 1), background 450ms ease);
+    }
+    .amana-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--color-primary) 14%, transparent) 0%, transparent 65%);
+        opacity: 0;
+        transition: opacity var(--transition-smooth);
+        pointer-events: none;
+        z-index: 0;
+    }
+    .amana-card:hover {
+        transform: translateY(-8px);
+        background: var(--custom-bg, var(--custom-gradient, radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--color-primary) 15%, transparent) 0%, transparent 60%), var(--surface-elevated)));
+        box-shadow:
+            inset 0 1px 0 0 color-mix(in srgb, var(--text-primary) 15%, transparent),
+            0 24px 48px -18px rgba(0, 0, 0, 0.55),
+            0 0 25px 2px color-mix(in srgb, var(--color-primary) 12%, transparent);
+        border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+    }
+    .amana-card:hover::after {
+        opacity: 1;
+    }
+    .amana-card > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Card Variants */
+    .amana-card-variant-flat {
+        background: var(--surface-base) !important;
+        border: 1px solid var(--border-subtle) !important;
+        box-shadow: none !important;
+    }
+    .amana-card-variant-flat:hover {
+        transform: none !important;
+        box-shadow: none !important;
+        border-color: var(--border-subtle) !important;
+    }
+    .amana-card-variant-flat::after { display: none !important; }
+
+    .amana-card-variant-elevated {
+        background: var(--surface-elevated);
+        box-shadow: var(--shadow-soft);
+    }
+    .amana-card-variant-elevated:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg), 0 0 25px 2px color-mix(in srgb, var(--color-primary) 12%, transparent);
+    }
+
+    .amana-card-variant-outlined {
+        background: transparent !important;
+        border: 1px solid var(--border-subtle) !important;
+        box-shadow: none !important;
+    }
+    .amana-card-variant-outlined:hover {
+        transform: none !important;
+        border-color: var(--color-primary) !important;
+        box-shadow: none !important;
+    }
+    .amana-card-variant-outlined::after { display: none !important; }
+
+    .amana-card-variant-glass {
+        background: var(--glass-bg) !important;
+        border: 1px solid var(--glass-border) !important;
+        backdrop-filter: var(--glass-blur) !important;
+        -webkit-backdrop-filter: var(--glass-blur) !important;
+        box-shadow: var(--shadow-sm) !important;
+    }
+    .amana-card-variant-glass:hover {
+        background: var(--glass-bg) !important;
+        border-color: var(--color-primary) !important;
+        transform: translateY(-2px) !important;
+    }
+    .amana-card h3 {
+        margin: 0;
+        font-size: clamp(1.25rem, 2vw, 1.75rem);
+        line-height: 1.25;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
+    }
+    .amana-card-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 700;
+        font-size: var(--text-sm);
+        text-decoration: none;
+        margin-top: auto;
+        width: fit-content;
+        position: relative;
+        transition: color var(--transition-smooth);
+    }
+    .amana-card-action::after {
+        content: '←';
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+        border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+        font-size: 0.85rem;
+        line-height: 1;
+        transition: transform var(--transition-bounce), background var(--transition-smooth), border-color var(--transition-smooth), color var(--transition-smooth);
+    }
+    [dir="ltr"] .amana-card-action::after {
+        content: '→';
+    }
+    .amana-card:hover .amana-card-action {
+        color: var(--color-primary);
+    }
+    .amana-card:hover .amana-card-action::after {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: #fff;
+        transform: translateX(-5px);
+    }
+    [dir="ltr"] .amana-card:hover .amana-card-action::after {
+        transform: translateX(5px);
+    }
+
+    /* === Feature Card === */
+    .amana-feature-card {
+        min-height: 14.5rem;
+        background:
+            radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-accent) 14%, transparent) 0%, transparent 45%),
+            radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--color-primary) 10%, transparent) 0%, transparent 45%),
+            linear-gradient(to right, color-mix(in srgb, var(--text-primary) 2.5%, transparent) 1px, transparent 1px),
+            linear-gradient(to bottom, color-mix(in srgb, var(--text-primary) 2.5%, transparent) 1px, transparent 1px),
+            linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 96%, transparent) 0%, color-mix(in srgb, var(--surface-base) 88%, transparent) 100%);
+        background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px, 100% 100%;
+        border: 1px solid var(--custom-border, color-mix(in srgb, var(--color-accent) 15%, transparent));
+        box-shadow: var(--shadow-soft);
+    }
+    .amana-feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--color-accent), var(--color-primary), var(--color-accent));
+        background-size: 200% 100%;
+        animation: amana-gradient-shift 3s infinite linear;
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 3;
+        opacity: 0.9;
+    }
+    .amana-feature-card:hover::before {
+        transform: scaleX(1);
+    }
+    .amana-feature-card:hover {
+        transform: translateY(-8px) scale(1.01);
+        border-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+        box-shadow:
+            0 16px 36px -12px rgba(0, 0, 0, 0.45),
+            0 0 30px -5px color-mix(in srgb, var(--color-accent) 22%, transparent);
+    }
+    .amana-feature-card .amana-eyebrow {
+        background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+        color: var(--color-accent);
+        border: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
+        padding: 0.3rem 0.9rem;
+        border-radius: 999px;
+        font-size: var(--text-xs);
+        font-weight: 800;
+        width: fit-content;
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: var(--space-xs);
+        letter-spacing: 0.05em;
+        box-shadow: 0 2px 10px color-mix(in srgb, var(--color-accent) 4%, transparent);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .amana-feature-card:hover .amana-eyebrow {
+        transform: translateY(-2px);
+        background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+        border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
+        box-shadow:
+            0 4px 15px color-mix(in srgb, var(--color-accent) 15%, transparent),
+            0 0 10px color-mix(in srgb, var(--color-accent) 25%, transparent);
+    }
+    .amana-feature-card .amana-eyebrow::before {
+        content: '✦';
+        margin-inline-end: 0.4rem;
+        color: var(--color-accent);
+        display: inline-block;
+        animation: amana-spin 3s infinite linear, amana-glow-pulse 2s infinite ease-in-out;
+    }
+    @keyframes amana-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    @keyframes amana-glow-pulse {
+        0% { text-shadow: 0 0 4px var(--color-accent); opacity: 0.8; }
+        50% { text-shadow: 0 0 12px var(--color-accent), 0 0 18px var(--color-accent); opacity: 1; }
+        100% { text-shadow: 0 0 4px var(--color-accent); opacity: 0.8; }
+    }
+    @keyframes amana-gradient-shift {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 200% 50%; }
+    }
+    .amana-pricing-card { display: flex; flex-direction: column; gap: var(--space-md); border-color: var(--border-subtle); background: var(--surface-elevated); }
+    .amana-pricing-card.amana-variant-featured, .amana-pricing-card.dg-component-variant-featured { border: 2px solid var(--color-primary); transform: scale(1.02); box-shadow: var(--shadow-floating), var(--glow-primary); }
+    .amana-price { font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1; font-weight: 950; }
+    .amana-muted { color: var(--text-secondary); line-height: 1.75; }
+    .amana-card-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); margin-bottom: var(--space-xs); }
+    .amana-card-meta { color: var(--text-secondary); font-size: var(--text-sm); }
+    .amana-card-density-compact { padding: var(--space-md); }
+    .amana-card-density-spacious { padding: var(--space-xl); }
+
+    /* === Button === */
+    .amana-btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--component-gap, 0.65rem);
+        width: var(--component-width, auto);
+        max-width: var(--component-max-width, 100%);
+        min-width: var(--component-min-width, 0);
+        min-height: var(--component-min-height, 3rem);
+        height: var(--component-height, auto);
+        padding: var(--component-padding, 0.78rem 1.35rem);
+        border-radius: var(--custom-radius, 12px); /* Standard 12px rounded corner */
+        font-weight: 900;
+        text-decoration: none;
+        border: 1px solid var(--custom-border, transparent);
+        transition: var(--component-transition, transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease);
+        white-space: nowrap;
+        line-height: 1.15;
+        overflow: visible;
+        opacity: var(--component-opacity, 1);
+        transform: var(--component-transform, none);
+        cursor: pointer;
+    }
+    .amana-btn:hover { transform: translateY(-2px); }
+    .amana-btn:active { transform: translateY(0) scale(0.97); }
+    .amana-btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-accent) 60%, transparent); outline-offset: 3px; }
+    .amana-btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        box-shadow: var(--glow-primary);
+        overflow: hidden;
+    }
+    .amana-btn-primary::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -60%;
+        width: 30%;
+        height: 200%;
+        background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+        transform: rotate(30deg);
+        transition: none;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 1;
+    }
+    .amana-btn-primary:hover {
+        box-shadow: var(--shadow-floating), var(--glow-primary);
+    }
+    .amana-btn-primary:hover::after {
+        left: 130%;
+        opacity: 1;
+        transition: left 600ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .amana-btn-secondary {
+        color: var(--text-primary);
+        background: color-mix(in srgb, var(--text-primary) 7%, transparent);
+        border: 1px solid transparent;
+        box-shadow: var(--shadow-soft);
+    }
+    .amana-btn-secondary:hover {
+        background: color-mix(in srgb, var(--text-primary) 12%, transparent);
+        box-shadow: 0 4px 12px color-mix(in srgb, var(--text-primary) 5%, transparent);
+    }
+    .amana-btn-outline {
+        color: var(--text-primary);
+        background: transparent;
+        border: 1px solid color-mix(in srgb, var(--text-primary) 22%, transparent);
+    }
+    .amana-btn-outline:hover {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+        background: color-mix(in srgb, var(--color-primary) 4%, transparent);
+    }
+    .amana-btn-ghost {
+        color: var(--text-secondary);
+        background: transparent;
+        border: 1px solid transparent;
+        box-shadow: none;
+    }
+    .amana-btn-ghost:hover {
+        background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+        color: var(--color-primary);
+    }
+    .amana-btn-tertiary {
+        position: relative;
+        background: transparent;
+        border: none;
+        color: var(--color-accent);
+        padding: 0.5rem 0;
+        min-height: auto;
+        border-radius: 0;
+        box-shadow: none;
+        width: fit-content;
+    }
+    .amana-btn-tertiary::before {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--color-accent);
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform var(--transition-smooth);
+    }
+    [dir="ltr"] .amana-btn-tertiary::before {
+        transform-origin: left;
+    }
+    .amana-btn-tertiary:hover {
+        color: var(--color-primary);
+        transform: none;
+        background: transparent;
+    }
+    .amana-btn-tertiary:hover::before {
+        transform: scaleX(1);
+        background: var(--color-primary);
+    }
+    .amana-btn-link {
+        background: transparent !important;
+        border: none !important;
+        color: var(--color-primary) !important;
+        text-decoration: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        min-height: auto !important;
+    }
+    .amana-btn-link:hover {
+        text-decoration: underline !important;
+        color: var(--color-accent) !important;
+        background: transparent !important;
+    }
+    .amana-btn-sm { min-height: 2.5rem; padding: 0.52rem 0.95rem; font-size: var(--text-sm); }
+    .amana-btn-lg { min-height: 3.5rem; padding: 0.96rem 1.55rem; font-size: var(--text-lg); }
+    .amana-btn-pill { border-radius: 999px !important; }
+    .amana-icon, .amana-btn-icon, iconify-icon { display: inline-grid; place-items: center; width: 1.25em; min-width: 1.25em; height: 1.25em; line-height: 1; vertical-align: -0.18em; }
+    .amana-icon:not(.amana-btn-icon), iconify-icon.amana-icon { font-size: 1.75rem; width: 1.75rem; height: 1.75rem; color: var(--color-accent); transition: var(--transition-fast); }
+    .amana-icon:not(.amana-btn-icon):hover, iconify-icon.amana-icon:hover { transform: scale(1.15); color: var(--color-primary); }
+    .amana-btn-intent-danger { background: var(--color-danger); color: white; border: none; box-shadow: 0 4px 12px color-mix(in srgb, var(--color-danger) 25%, transparent); overflow: hidden; }
+    .amana-btn-intent-danger:hover { background: color-mix(in srgb, var(--color-danger) 85%, #000000); box-shadow: var(--shadow-floating), 0 6px 16px color-mix(in srgb, var(--color-danger) 35%, transparent); }
+    .amana-btn-intent-success { background: var(--color-success); color: white; border: none; box-shadow: 0 4px 12px color-mix(in srgb, var(--color-success) 25%, transparent); overflow: hidden; }
+    .amana-btn-intent-success:hover { background: color-mix(in srgb, var(--color-success) 85%, #000000); box-shadow: var(--shadow-floating), 0 6px 16px color-mix(in srgb, var(--color-success) 35%, transparent); }
+
+    .amana-field,
+    .amana-form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        margin-bottom: var(--space-xl);
+        width: 100%;
+        text-align: right;
+    }
+    .amana-field span,
+    .amana-label,
+    .amana-form-field-label {
+        color: var(--text-primary);
+        font-weight: 750;
+        font-size: var(--text-sm);
+        text-align: start;
+        display: block;
+    }
+    .amana-form-control,
+    .amana-input,
+    .amana-form-field-input {
+        width: 100%;
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        min-height: 3rem;
+        padding: 0.75rem 1.15rem;
+        background: color-mix(in srgb, var(--surface-base) 88%, transparent);
+        color: var(--text-primary);
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        transition: var(--transition-fast);
+        font-family: inherit;
+        font-size: var(--text-sm, 0.875rem);
+    }
+    .amana-form-control:focus,
+    .amana-input:focus,
+    .amana-form-field-input:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        box-shadow: var(--focus-ring);
+    }
+    textarea.amana-form-control,
+    textarea.amana-textarea,
+    textarea.amana-form-field-input {
+        min-height: 8rem;
+        resize: vertical;
+    }
+    .amana-form-card { background: color-mix(in srgb, var(--surface-elevated) 90%, transparent); border: 1px solid var(--border-subtle); border-radius: var(--radius-2xl); padding: var(--space-xl); box-shadow: var(--shadow-premium); }
+    .amana-help { color: var(--text-secondary); font-size: var(--text-sm); }
+    .amana-alert { border-radius: var(--radius-xl); border: 1px solid var(--border-subtle); padding: var(--space-md); background: var(--surface-muted); display: flex; flex-direction: column; gap: 0.35rem; box-shadow: var(--shadow-soft); border-inline-start: 4px solid var(--color-primary); }
+    .amana-alert-info { border-inline-start-color: var(--color-primary); background: color-mix(in srgb, var(--color-primary-soft) 40%, var(--surface-muted)); }
+    .amana-alert-success { border-inline-start-color: var(--color-success); background: color-mix(in srgb, var(--color-success) 8%, var(--surface-muted)); }
+    .amana-alert-warning { border-inline-start-color: var(--color-warning); background: color-mix(in srgb, var(--color-warning) 8%, var(--surface-muted)); }
+    .amana-alert-danger { border-inline-start-color: var(--color-danger); background: color-mix(in srgb, var(--color-danger) 8%, var(--surface-muted)); }
+
+    /* === Modal === */
+    .amana-modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(2,6,23,0.55); padding: var(--space-lg); backdrop-filter: var(--glass-blur); z-index: var(--layer-modal, 100); }
+    .amana-modal-panel { position: relative; width: min(100%, 36rem); background: var(--surface-elevated); border-radius: var(--radius-2xl); padding: var(--space-xl); box-shadow: var(--shadow-strong); border: 1px solid var(--border-subtle); animation: amanaFadeIn var(--transition-fast) ease-out; }
+    .amana-modal-title { margin-top: 0; margin-bottom: var(--space-md); font-size: var(--text-xl); font-weight: 800; color: var(--text-primary); }
+    .amana-modal-close { position: absolute; top: var(--space-md); inset-inline-end: var(--space-md); background: transparent; border: none; font-size: 1.75rem; font-weight: 400; color: var(--text-secondary); cursor: pointer; transition: var(--transition-fast); line-height: 1; padding: 0.25rem; }
+    .amana-modal-close:hover { color: var(--text-primary); transform: scale(1.1); }
+
+    /* === Tabs === */
+    .amana-tabs {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin-bottom: var(--space-xl);
+        background: color-mix(in srgb, var(--surface-elevated) 45%, transparent);
+        border: 1px solid color-mix(in srgb, var(--border-subtle) 60%, transparent);
+        border-radius: var(--radius-2xl);
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+    .amana-tabs-header {
+        display: flex;
+        background: color-mix(in srgb, var(--surface-muted) 65%, transparent);
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding: 0.35rem;
+        gap: 0.35rem;
+        border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 40%, transparent);
+    }
+    .amana-tabs-header::-webkit-scrollbar { display: none; }
+    .amana-tab-button {
+        flex: 1;
+        text-align: center;
+        padding: 0.75rem 1.5rem;
+        font-weight: 750;
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+        background: transparent;
+        border: none;
+        border-radius: var(--radius-xl);
+        cursor: pointer;
+        transition: all var(--transition-smooth);
+        white-space: nowrap;
+    }
+    .amana-tab-button:hover {
+        color: var(--text-primary);
+        background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+    }
+    .amana-tab-button.active {
+        color: var(--color-accent);
+        background: var(--surface-elevated);
+        box-shadow: var(--shadow-soft), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    }
+    .amana-tabs-content {
+        padding: var(--space-2xl);
+        background: color-mix(in srgb, var(--surface-elevated) 20%, transparent);
+    }
+    .amana-tab-panel { animation: amanaFadeIn var(--transition-fast) ease-out; }
+
+    /* === Accordions === */
+    .amana-accordion { display: flex; flex-direction: column; gap: var(--space-md); width: 100%; margin-bottom: var(--space-xl); }
+    .amana-accordion-item { background: var(--surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-soft); transition: border-color var(--transition-fast); }
+    .amana-accordion-item:focus-within { border-color: var(--color-primary-soft); }
+    .amana-accordion-header { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 1.15rem 1.5rem; background: var(--surface-muted); border: none; color: var(--text-primary); font-weight: 800; font-size: var(--text-sm); cursor: pointer; text-align: inherit; transition: background var(--transition-fast); }
+    .amana-accordion-header:hover { background: color-mix(in srgb, var(--surface-muted) 90%, var(--color-primary-soft)); }
+    .amana-accordion-title { flex: 1; }
+    .amana-accordion-chevron { width: 1.25rem; height: 1.25rem; transition: transform var(--transition-smooth); color: var(--text-secondary); flex-shrink: 0; margin-inline-start: var(--space-md); }
+    .amana-accordion-content { padding: var(--space-xl); background: var(--surface-elevated); border-top: 1px solid var(--border-subtle); animation: amanaFadeIn var(--transition-fast) ease-out; }
+    .rotate-180 { transform: rotate(180deg); }
+
+    /* === Slides === */
+    .amana-slides { position: relative; overflow: hidden; width: 100%; border-radius: var(--radius-2xl); min-height: var(--slides-height, 22rem); background: var(--surface-muted); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; box-shadow: var(--shadow-soft); }
+    .amana-slides-inner { position: relative; width: 100%; height: 100%; display: grid; grid-template-columns: 1fr; grid-template-rows: 1fr; }
+    .amana-slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: var(--space-2xl); opacity: 0; transition: opacity var(--transition-smooth); pointer-events: none; }
+    .amana-slide.active { opacity: 1; pointer-events: auto; animation: amanaSlideIn var(--transition-smooth) ease-out; }
+    @keyframes amanaSlideIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+    .amana-slides-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-primary); width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); transition: var(--transition-fast); z-index: 10; font-size: 1.3rem; box-shadow: var(--shadow-soft); }
+    .amana-slides-arrow:hover { background: var(--color-primary); color: white; transform: translateY(-50%) scale(1.08); }
+    .amana-slides-arrow.prev { left: var(--space-lg); }
+    .amana-slides-arrow.next { right: var(--space-lg); }
+    .amana-slides-dots { position: absolute; bottom: 1.25rem; left: 50%; transform: translateX(-50%); display: flex; gap: var(--space-xs); z-index: 10; }
+    .amana-slides-dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: rgba(255, 255, 255, 0.35); border: 1px solid rgba(0, 0, 0, 0.05); cursor: pointer; transition: var(--transition-fast); }
+    .amana-slides-dot.active { background: var(--color-primary); width: 1.4rem; border-radius: var(--radius-pill); }
+
+    /* === Collapsible === */
+    .amana-collapse-section { display: flex; flex-direction: column; width: 100%; margin-bottom: var(--space-xl); background: var(--surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-soft); }
+    .amana-collapse-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: var(--surface-muted); border-bottom: 1px solid var(--border-subtle); cursor: pointer; user-select: none; }
+    .amana-collapse-header:hover { background: color-mix(in srgb, var(--surface-muted) 90%, var(--color-primary-soft)); }
+    .amana-collapse-title-wrapper { flex: 1; display: flex; align-items: center; min-width: 0; }
+    .amana-collapse-title-wrapper > * { margin: 0 !important; }
+    .amana-collapse-chevron { width: 1.25rem; height: 1.25rem; transition: transform var(--transition-smooth); color: var(--text-secondary); flex-shrink: 0; margin-inline-start: 1rem; }
+    .amana-collapse-body { padding: var(--space-xl); background: var(--surface-elevated); animation: amanaFadeIn var(--transition-fast) ease-out; }
+
+    /* === KPI, Badge, Testimonial, etc. === */
+    .amana-badge { display: inline-flex; align-items: center; width: fit-content; gap: 0.35rem; border: 1px solid var(--border-subtle); border-radius: 999px; padding: 0.38rem 0.78rem; font-size: var(--text-sm); font-weight: 900; background: color-mix(in srgb, var(--surface-muted) 78%, transparent); color: var(--text-primary); box-shadow: var(--shadow-soft); }
+    .amana-badge-success { border-color: rgba(22,163,74,0.35); color: var(--color-success); }
+    .amana-badge-warning { border-color: rgba(202,138,4,0.35); color: var(--color-warning); }
+    .amana-badge-danger { border-color: rgba(220,38,38,0.35); color: var(--color-danger); }
+    .amana-kpi {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs);
+        padding: var(--space-xl);
+        border: 1px solid color-mix(in srgb, var(--border-subtle) 60%, transparent);
+        border-radius: var(--radius-3xl);
+        background:
+            radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-primary) 7%, transparent), transparent 60%),
+            linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 70%, transparent), color-mix(in srgb, var(--surface-base) 45%, transparent));
+        box-shadow: var(--shadow-medium);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-smooth);
+    }
+    .amana-kpi:hover {
+        border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-large), 0 0 25px -5px color-mix(in srgb, var(--color-primary) 8%, transparent);
+    }
+    .amana-kpi-label {
+        order: -1;
+        text-transform: uppercase;
+        font-size: var(--text-xs);
+        font-weight: 800;
+        color: var(--text-secondary);
+        letter-spacing: 0.06em;
+    }
+    .amana-kpi-value {
+        font-size: clamp(1.85rem, 3.5vw, 2.75rem);
+        line-height: 1.1;
+        font-weight: 950;
+        font-feature-settings: "tnum";
+        background: linear-gradient(180deg, var(--text-primary), color-mix(in srgb, var(--text-primary) 75%, transparent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-block: 0.25rem;
+    }
+    .amana-kpi-trend {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        font-size: var(--text-xs);
+        font-weight: bold;
+        padding: 0.25rem 0.65rem;
+        border-radius: var(--radius-pill);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        backdrop-filter: blur(4px);
+    }
+    .amana-kpi-trend-up {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        color: #10b981;
+    }
+    .amana-kpi-trend-down {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+    }
+    .amana-kpi-trend-neutral {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+    }
+    .amana-logo-cloud { display: grid; gap: var(--space-md); padding-block: var(--space-lg); }
+    .amana-logo-row { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: center; color: var(--text-secondary); }
+    .amana-testimonial {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--space-lg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl, 24px);
+      padding: var(--space-xl);
+      background: linear-gradient(135deg, var(--surface-elevated), var(--surface-base));
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-bounce, all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1));
+    }
+    .amana-testimonial:hover {
+      transform: translateY(-6px);
+      border-color: color-mix(in srgb, var(--color-primary) 50%, var(--border-subtle));
+      box-shadow: var(--shadow-floating);
+    }
+    .amana-testimonial::before {
+      content: '“';
+      position: absolute;
+      top: -1.5rem;
+      inset-inline-start: var(--space-md);
+      font-size: 8rem;
+      font-family: serif;
+      color: var(--color-primary);
+      opacity: 0.08;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .amana-testimonial blockquote {
+      margin: 0;
+      font-size: var(--text-md);
+      line-height: 1.7;
+      color: var(--text-primary);
+      font-weight: 500;
+      position: relative;
+      z-index: 1;
+    }
+    .amana-testimonial figcaption {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-top: var(--space-md);
+      border-top: 1px solid var(--border-subtle);
+      padding-top: var(--space-md);
+    }
+    .amana-testimonial-avatar {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: var(--text-md);
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+      flex-shrink: 0;
+    }
+    .amana-testimonial-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+    .amana-testimonial-info strong {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .amana-testimonial-info span {
+      font-size: var(--text-xs);
+      color: var(--color-accent, var(--text-secondary));
+      font-weight: 600;
+    }
+    .amana-empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: var(--space-md);
+      min-height: 20rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl, 24px);
+      padding: var(--space-xl);
+      background: linear-gradient(135deg, var(--surface-muted) 0%, rgba(15, 23, 42, 0.4) 100%);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      position: relative;
+      overflow: hidden;
+    }
+    .amana-empty-state::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(79, 70, 229, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .amana-empty-state-icon {
+      font-size: 3.5rem;
+      color: var(--color-accent, var(--color-primary));
+      filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.5));
+      margin-bottom: var(--space-xs);
+      animation: amana-pulse 2s infinite ease-in-out;
+    }
+    .amana-empty-state h2 {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      margin: 0;
+      color: var(--text-primary);
+      letter-spacing: -0.025em;
+    }
+    .amana-empty-state p {
+      font-size: var(--text-md);
+      color: var(--text-secondary);
+      max-width: 28rem;
+      margin: 0;
+      line-height: 1.6;
+    }
+    @keyframes amana-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.75)); }
+    }
+    .amana-footer { width: min(100% - 2rem, var(--wide-width)); margin: var(--space-3xl) auto 0; padding-block: var(--space-xl); color: var(--text-secondary); border-top: 1px solid var(--border-subtle); }
+
+    /* === Timeline === */
+    .amana-timeline { display: flex; flex-direction: column; gap: var(--space-lg); list-style: none; margin: 0; padding: 0; padding-inline-start: 2.5rem; position: relative; }
+    .amana-timeline::before { content: ""; position: absolute; inset-inline-start: 0.75rem; top: 0.75rem; bottom: 0.75rem; width: 2px; background: linear-gradient(to bottom, var(--color-primary), color-mix(in srgb, var(--border-subtle) 60%, transparent)); }
+    .amana-timeline-item { position: relative; padding: var(--space-lg); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); background: var(--surface-elevated); box-shadow: var(--shadow-soft); transition: var(--transition-fast); }
+    .amana-timeline-item:hover { border-color: color-mix(in srgb, var(--color-primary) 30%, var(--border-subtle)); transform: translateX(4px); }
+    [dir="rtl"] .amana-timeline-item:hover { transform: translateX(-4px); }
+    .amana-timeline-item::before { content: ""; position: absolute; inset-inline-start: -2.12rem; top: 1.4rem; width: 0.85rem; height: 0.85rem; border-radius: 50%; background: var(--color-primary); border: 3px solid var(--bg-secondary); box-shadow: 0 0 0 3px var(--color-primary-soft); z-index: 2; }
+    .amana-timeline-meta { font-size: var(--text-xs); font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: var(--space-xs); }
+    .amana-timeline-title { font-weight: 800; font-size: var(--text-md); color: var(--text-primary); margin: 0 0 var(--space-xs); }
+
+
+    /* === Dashboard Layouts === */
+    .dg-layout-split-diagonal,
+    .dg-layout-asymmetric { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(0, 1.1fr) minmax(16rem, 0.85fr))); align-items: center; gap: var(--component-gap, var(--dg-gap, clamp(1.5rem, 5vw, 4rem))); }
+    :where(.dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, .dg-layout-magazine, .dg-layout-bento, .dg-layout-command-center, .dg-layout-showcase-rail) > .amana-container { grid-column: 1 / -1; width: min(100% - 2rem, var(--content-width)); }
+    .dg-layout-centered { text-align: center; justify-items: center; }
+    .dg-layout-editorial { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 0.55fr) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, clamp(2rem, 6vw, 5rem))); align-items: start; }
+    .dg-layout-dashboard-shell,
+    :where(.dg-layout-dashboard-shell) .amana-runtime-shell > :not(script):not(style):not(.amana-state-scope),
+    :where(.dg-layout-dashboard-shell) .amana-runtime-shell > .amana-state-scope > :not(script):not(style) { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 18rem) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); align-items: start; }
+    :where(.dg-layout-dashboard-shell) { height: 100dvh; overflow: hidden; }
+    :where(.dg-layout-dashboard-shell) .amana-runtime-shell { height: 100%; min-height: 0; overflow: hidden; }
+    :where(.dg-layout-dashboard-shell) .app-shell { height: 100%; min-height: 0; overflow: hidden; }
+    :where(.dg-layout-dashboard-shell) .side-rail { height: 100%; min-height: 0; overflow: auto; }
+    :where(.dg-layout-dashboard-shell) .dashboard-main { height: 100%; min-height: 0; overflow: auto; }
+    :where(.dg-layout-dashboard-shell) .panel { display: flex; flex-direction: column; min-height: 0; }
+    :where(.dg-layout-dashboard-shell) .amana-resource { display: flex; flex-direction: column; min-height: 0; }
+    :where(.dg-layout-dashboard-shell) .dashboard-grid,
+    :where(.dg-layout-dashboard-shell) .customers-container,
+    :where(.dg-layout-dashboard-shell) .tickets-container,
+    :where(.dg-layout-dashboard-shell) .agents-container,
+    :where(.dg-layout-dashboard-shell) .reports-layout,
+    :where(.dg-layout-dashboard-shell) .settings-layout,
+    :where(.dg-layout-dashboard-shell) .ticket-detail-grid { min-height: 0; }
+    :where(.dg-layout-dashboard-shell) .amana-resource-list { max-height: clamp(14rem, 38vh, 22rem); overflow: auto; }
+    :where(.dg-layout-dashboard-shell) .agent-status-list,
+    :where(.dg-layout-dashboard-shell) .urgent-list { max-height: clamp(10rem, 28vh, 18rem); overflow: auto; }
+    .dg-layout-magazine { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, repeat(12, minmax(0, 1fr)))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); }
+    .dg-layout-magazine > * { grid-column: span 6; }
+    .dg-layout-bento { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, repeat(6, minmax(0, 1fr)))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); }
+    .dg-layout-bento > * { grid-column: span 2; }
+    .dg-layout-bento > *:first-child { grid-column: span 4; grid-row: span 2; }
+    .dg-layout-command-center { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, 0.9fr 1.2fr 0.9fr)); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); align-items: stretch; }
+    .dg-layout-showcase-rail { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(0, 0.95fr) minmax(16rem, 0.45fr))); gap: var(--component-gap, var(--dg-gap, var(--space-lg))); }
+    .dg-layout-masonry { columns: 3 18rem; column-gap: var(--space-lg); }
+    .dg-layout-masonry > * { break-inside: avoid; margin-bottom: var(--space-lg); }
+    .dg-flow-sectional > * + * { margin-top: var(--space-2xl); }
+    .dg-flow-immersive { min-height: 100vh; display: grid; align-content: center; }
+    .dg-flow-dashboard { display: grid; grid-template-columns: var(--component-columns, var(--dg-template, minmax(14rem, 18rem) minmax(0, 1fr))); gap: var(--component-gap, var(--dg-gap, var(--space-xl))); }
+
+    /* === Rhythm & Density === */
+    .dg-rhythm-compact { gap: var(--space-sm); padding-block: var(--space-md); }
+    .dg-rhythm-balanced { gap: var(--space-lg); }
+    .dg-rhythm-spacious { gap: var(--space-xl); padding-block: var(--space-2xl); }
+    .dg-rhythm-dramatic { gap: clamp(2rem, 7vw, 6rem); padding-block: clamp(4rem, 10vw, 8rem); }
+    .dg-density-compact { --space-md: 0.75rem; --space-lg: 1rem; --space-xl: 1.35rem; }
+    .dg-density-comfortable { --space-md: 1rem; --space-lg: 1.5rem; --space-xl: 2rem; }
+    .dg-density-spacious { --space-md: 1.25rem; --space-lg: 2rem; --space-xl: 3rem; }
+
+    /* === Surfaces === */
+    .dg-surface-layered,
+    .dg-surface-glass-layered,
+    .dg-visual-surface-layered { position: relative; isolation: isolate; background: var(--surface-elevated); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-floating); }
+    .dg-surface-glass,
+    .dg-visual-surface-glass { background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
+    .dg-surface-custom,
+    .dg-visual-surface-custom,
+    .dg-component-variant-custom { background: var(--custom-bg, var(--surface-elevated)); color: var(--custom-text, var(--text-primary)); border-color: var(--custom-border, var(--border-subtle)); border-radius: var(--custom-radius, inherit); box-shadow: var(--custom-shadow, var(--shadow-soft)); }
+    .dg-gradient-custom,
+    .dg-visual-gradient-custom { background: var(--custom-gradient, var(--gradient-primary)); }
+
+    /* === Mode Overrides (component-level) === */
+    .dg-mode-light, .dg-visual-mode-light, .dg-mode-day, .dg-visual-mode-day { color-scheme: light; --bg-secondary: #f8fafc; --surface-base: #ffffff; --surface-muted: #f8fafc; --surface-elevated: #ffffff; --text-primary: #0f172a; --text-secondary: #475569; --border-subtle: rgba(15,23,42,0.12); }
+    .dg-mode-dark, .dg-visual-mode-dark, .dg-mode-night, .dg-visual-mode-night { color-scheme: dark; --bg-secondary: #050816; --surface-base: #0b1020; --surface-muted: #111827; --surface-elevated: #151d31; --text-primary: #f8fafc; --text-secondary: rgba(255, 255, 255, 0.72); --border-subtle: rgba(148,163,184,0.18); }
+
+    /* === Gradients === */
+    .dg-gradient-mesh-aurora, .dg-visual-gradient-mesh-aurora { background: radial-gradient(circle at 12% 18%, rgba(6,182,212,0.28), transparent 32%), radial-gradient(circle at 86% 20%, rgba(79,70,229,0.26), transparent 34%), linear-gradient(135deg, var(--surface-base), var(--surface-muted)); }
+    .dg-gradient-mesh-cyan-indigo, .dg-visual-gradient-mesh-cyan-indigo { background: radial-gradient(circle at top left, rgba(34,211,238,0.30), transparent 35%), radial-gradient(circle at bottom right, rgba(79,70,229,0.28), transparent 38%), var(--surface-base); }
+    .dg-gradient-spotlight, .dg-visual-gradient-spotlight { background: radial-gradient(circle at 50% 0%, var(--color-primary-soft), transparent 42%), var(--surface-base); }
+
+    /* === Shapes === */
+    .dg-shape-diagonal-cut, .dg-visual-shape-diagonal-cut { clip-path: polygon(0 0, 100% 0, 96% 100%, 0 92%); }
+    .dg-shape-soft-blob, .dg-visual-shape-soft-blob { border-radius: 32px 18px 42px 22px; }
+    .dg-shape-squircle, .dg-visual-shape-squircle, .dg-component-shape-squircle { border-radius: 28% 22% 30% 20%; }
+    .dg-shape-ticket, .dg-visual-shape-ticket, .dg-component-shape-ticket { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1rem), calc(100% - 1rem) 100%, 0 100%); }
+    .dg-component-shape-pill { border-radius: 999px; }
+    .dg-component-density-compact { padding: var(--space-sm); gap: var(--space-sm); }
+    .dg-component-density-spacious { padding: var(--space-xl); gap: var(--space-lg); }
+    .dg-component-chrome-minimal { border-color: transparent; box-shadow: none; background: transparent; }
+    .dg-component-chrome-bold { border-width: 2px; box-shadow: var(--custom-shadow, var(--shadow-floating)); }
+
+    /* === Palettes & Colorways === */
+    .dg-palette-mono-luxe { --color-primary: #111827; --color-accent: #64748b; --color-primary-soft: rgba(100,116,139,0.14); }
+    .dg-palette-neon-lab { --color-primary: #7c3aed; --color-accent: #06b6d4; --color-primary-soft: rgba(124,58,237,0.18); }
+    .dg-palette-earth-tech { --color-primary: #0f766e; --color-accent: #a16207; --color-primary-soft: rgba(15,118,110,0.16); }
+    .dg-colorway-calm-saas { --color-primary: #2563eb; --color-accent: #14b8a6; --color-primary-soft: rgba(37,99,235,0.13); }
+    .dg-colorway-editorial-ink { --color-primary: #18181b; --color-accent: #be123c; --color-primary-soft: rgba(190,18,60,0.12); }
+    .dg-colorway-cyber-cyan { --color-primary: #0891b2; --color-accent: #a78bfa; --color-primary-soft: rgba(8,145,178,0.18); }
+
+    /* === Art, Motif, Lighting, Texture === */
+    .dg-art-minimal-editorial { letter-spacing: 0; }
+    .dg-art-cinematic-product { box-shadow: inset 0 0 0 1px var(--border-subtle), var(--shadow-strong); }
+    .dg-art-technical-blueprint { background-image: linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px); background-size: 32px 32px; }
+    .dg-motif-orbit { position: relative; overflow: hidden; }
+    .dg-motif-orbit::after { content: ""; position: absolute; width: 18rem; aspect-ratio: 1; border: 1px solid var(--border-subtle); border-radius: 999px; inset-inline-end: -5rem; top: -5rem; pointer-events: none; }
+    .dg-motif-grid { background-image: linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px); background-size: 28px 28px; }
+    .dg-lighting-rim { box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), var(--shadow-floating); }
+    .dg-lighting-spot { background: radial-gradient(circle at 50% 0%, var(--color-primary-soft), transparent 45%), var(--surface-base); }
+    .dg-texture-noise { position: relative; isolation: isolate; }
+    .dg-texture-noise::before { content: ""; position: absolute; inset: 0; opacity: var(--dg-texture-opacity, 0.06); pointer-events: none; background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 4px); z-index: -1; }
+    .dg-texture-paper { background-image: linear-gradient(rgba(255,255,255,0.05), rgba(255,255,255,0.02)); }
+    .dg-frame-device { border-radius: 28px; border: 10px solid color-mix(in srgb, var(--text-primary) 82%, transparent); box-shadow: var(--shadow-strong); }
+    .dg-frame-browser { border-top: 2rem solid color-mix(in srgb, var(--surface-muted) 88%, var(--text-primary)); border-radius: var(--radius-xl); }
+
+    /* === Brand === */
+    .dg-brand-voice-premium, .dg-brand-personality-premium { --shadow-soft: 0 18px 45px -28px rgba(2,6,23,0.7); }
+    .dg-brand-voice-playful, .dg-brand-personality-playful { --radius-xl: 28px; --radius-soft: 22px; }
+    .dg-brand-trust-high { border-color: color-mix(in srgb, var(--color-success) 28%, var(--border-subtle)); }
+
+    /* === Interaction & A11y === */
+    .dg-visual-border-glow-subtle { border-color: color-mix(in srgb, var(--color-accent) 38%, var(--border-subtle)); box-shadow: var(--shadow-soft), var(--glow-accent); }
+    .dg-feedback-tactile :is(a, button, .amana-card) { transition: transform 160ms ease, box-shadow 160ms ease; }
+    .dg-feedback-tactile :is(a, button, .amana-card):active { transform: translateY(1px) scale(0.99); }
+    .dg-affordance-obvious :is(a, button) { box-shadow: var(--glow-primary); }
+    .dg-cursor-precise { cursor: crosshair; }
+    [style*="--state-hover-bg"]:hover { background: var(--state-hover-bg) !important; color: var(--state-hover-text, var(--custom-text, var(--text-primary))) !important; box-shadow: var(--state-hover-shadow, var(--custom-shadow, var(--shadow-floating))) !important; }
+    [style*="--state-focus-ring"]:focus-visible,
+    [style*="--state-focus-ring"] :focus-visible { outline: 3px solid var(--state-focus-ring) !important; outline-offset: 3px; }
+    .dg-a11y-contrast-enhanced { --text-secondary: color-mix(in srgb, var(--text-primary) 76%, var(--bg-secondary)); }
+    .dg-focus-visible-strong :focus-visible { outline: max(2px, var(--dg-focus-strength, 3px)) solid var(--color-accent); outline-offset: 3px; }
+    .dg-align-start { justify-items: start; text-align: start; }
+    .dg-align-center { justify-items: center; text-align: center; }
+    .dg-align-end { justify-items: end; text-align: end; }
+    .dg-focus-path-z .amana-card:nth-child(2), .dg-focus-path-z > *:nth-child(2) { transform: translateY(1rem); }
+    .dg-focus-path-radial { position: relative; }
+    .dg-focus-path-radial::before { content: ""; position: absolute; inset: 10%; border-radius: 999px; background: radial-gradient(circle, var(--color-primary-soft), transparent 62%); opacity: 0.42; pointer-events: none; z-index: -1; }
+
+    /* === Typography === */
+    .dg-type-scale-dramatic h1, .dg-type-scale-dramatic h2 { font-size: clamp(3rem, 9vw, 7rem); line-height: 0.95; }
+    .dg-type-scale-editorial h1, .dg-type-scale-editorial h2 { font-size: clamp(2.4rem, 6vw, 5rem); line-height: 1.02; max-width: 10ch; }
+    .dg-type-align-center { text-align: center; }
+    .dg-type-align-start { text-align: start; }
+    .dg-type-contrast-high h1, .dg-type-contrast-high h2 { color: var(--text-primary); }
+    .dg-type-measure-tight { --dg-type-measure: 48ch; }
+    .dg-type-measure-readable { --dg-type-measure: 68ch; }
+    .dg-type-measure-wide { --dg-type-measure: 82ch; }
+    .dg-type-measure-tight p, .dg-type-measure-readable p, .dg-type-measure-wide p { max-width: var(--dg-type-measure); }
+    .dg-type-hierarchy-strong h1, .dg-type-hierarchy-strong h2, .dg-type-hierarchy-strong h3 { font-weight: 850; }
+    .dg-type-tone-technical { font-family: var(--font-mono); }
+    .dg-type-tone-editorial h1, .dg-type-tone-editorial h2 { font-family: Georgia, "Times New Roman", serif; font-weight: 700; }
+
+    /* === Motion === */
+    @keyframes dgFadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes dgBlurIn { from { opacity: 0; filter: blur(14px); transform: translateY(12px); } to { opacity: 1; filter: blur(0); transform: translateY(0); } }
+    @keyframes dgClipIn { from { opacity: 0; clip-path: inset(18% 0 0 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
+    .dg-motion-stagger-up > * { animation: dgFadeUp var(--dg-motion-speed, 560ms) ease both; }
+    .dg-motion-stagger-up > *:nth-child(2) { animation-delay: 90ms; }
+    .dg-motion-stagger-up > *:nth-child(3) { animation-delay: 180ms; }
+    .dg-motion-fade { animation: dgFadeUp var(--dg-motion-speed, 520ms) ease both; }
+    .dg-hover-lift-glow:hover, .dg-hover-lift:hover { transform: translateY(-4px); box-shadow: var(--shadow-floating), var(--glow-primary); }
+    .dg-hover-scale:hover { transform: scale(1.015); }
+    .dg-hover-lift-glow, .dg-hover-lift, .dg-hover-scale { transition: var(--transition-smooth); will-change: transform; }
+    .dg-reveal-blur { animation: dgBlurIn var(--dg-motion-speed, 640ms) ease both; }
+    .dg-reveal-clip { animation: dgClipIn var(--dg-motion-speed, 720ms) ease both; }
+    .dg-rsp-mobile-stacked { --dg-mobile-layout: stacked; }
+    .dg-rsp-mobile-scroll-snap { scroll-snap-type: x mandatory; overflow-x: auto; }
+    .dg-rsp-mobile-scroll-snap > * { scroll-snap-align: start; }
+    .dg-rsp-collapse-stack { --dg-collapse: stack; }
+    .dg-rsp-columns-adaptive { grid-template-columns: repeat(auto-fit, minmax(var(--grid-min, 16rem), 1fr)); }
+
+    /* === Breakpoint Responsive === */
+    @media (min-width: 1201px) {
+      [style*="--bp-desktop-columns"] { --component-columns: var(--bp-desktop-columns) !important; --dg-columns: var(--bp-desktop-columns) !important; grid-template-columns: var(--bp-desktop-columns) !important; }
+      [style*="--bp-desktop-padding"] { --component-padding: var(--bp-desktop-padding) !important; }
+      [style*="--bp-desktop-gap"] { --component-gap: var(--bp-desktop-gap) !important; --dg-gap: var(--bp-desktop-gap) !important; gap: var(--bp-desktop-gap) !important; }
+    }
+    @media (max-width: 1200px) and (min-width: 901px) {
+      [style*="--bp-laptop-columns"] { --component-columns: var(--bp-laptop-columns) !important; --dg-columns: var(--bp-laptop-columns) !important; grid-template-columns: var(--bp-laptop-columns) !important; }
+      [style*="--bp-laptop-padding"] { --component-padding: var(--bp-laptop-padding) !important; }
+      [style*="--bp-laptop-gap"] { --component-gap: var(--bp-laptop-gap) !important; --dg-gap: var(--bp-laptop-gap) !important; gap: var(--bp-laptop-gap) !important; }
+    }
+    @media (max-width: 900px) and (min-width: 641px) {
+      [style*="--bp-tablet-columns"] { --component-columns: var(--bp-tablet-columns) !important; --dg-columns: var(--bp-tablet-columns) !important; grid-template-columns: var(--bp-tablet-columns) !important; }
+      [style*="--bp-tablet-padding"] { --component-padding: var(--bp-tablet-padding) !important; }
+      [style*="--bp-tablet-gap"] { --component-gap: var(--bp-tablet-gap) !important; --dg-gap: var(--bp-tablet-gap) !important; gap: var(--bp-tablet-gap) !important; }
+    }
+    @media (max-width: 640px) {
+      [style*="--bp-mobile-columns"] { --component-columns: var(--bp-mobile-columns) !important; --dg-columns: var(--bp-mobile-columns) !important; grid-template-columns: var(--bp-mobile-columns) !important; }
+      [style*="--bp-mobile-padding"] { --component-padding: var(--bp-mobile-padding) !important; }
+      [style*="--bp-mobile-gap"] { --component-gap: var(--bp-mobile-gap) !important; --dg-gap: var(--bp-mobile-gap) !important; gap: var(--bp-mobile-gap) !important; }
+    }
+    @media (max-width: 720px) {
+      .amana-hero { padding: var(--space-lg); }
+      .amana-hero h1 { font-size: 2.25rem; }
+      .amana-card { padding: clamp(1.25rem, 5vw, 1.75rem) !important; }
+      .amana-btn { width: auto; max-width: 100%; min-height: 2.75rem; padding: 0.62rem 1.15rem; font-size: var(--text-sm); }
+      .amana-field .amana-btn, .amana-form-card .amana-btn { width: 100% !important; }
+      .amana-tag, .amana-page-btn, .amana-tab-button { min-height: 2.85rem !important; padding: 0.65rem 1.25rem !important; font-size: var(--text-sm) !important; display: inline-flex; align-items: center; justify-content: center; }
+      .amana-filter-track, .amana-scroll-track { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; overflow-x: auto !important; scrollbar-width: none; -webkit-overflow-scrolling: touch; gap: var(--space-sm) !important; padding-bottom: 0.5rem; width: 100%; }
+      .amana-filter-track::-webkit-scrollbar, .amana-scroll-track::-webkit-scrollbar { display: none; }
+      .amana-grid,
+      .amana-split,
+      .dg-flow-dashboard,
+      .dg-layout-split-diagonal,
+      .dg-layout-asymmetric,
+      .dg-layout-editorial,
+      .dg-layout-dashboard-shell,
+      :where(.dg-layout-dashboard-shell) .amana-runtime-shell > :not(script):not(style):not(.amana-state-scope),
+      :where(.dg-layout-dashboard-shell) .amana-runtime-shell > .amana-state-scope > :not(script):not(style),
+      .dg-layout-magazine,
+      .dg-layout-bento,
+      .dg-layout-command-center,
+      .dg-layout-showcase-rail { grid-template-columns: 1fr !important; }
+      .dg-layout-magazine > *,
+      .dg-layout-bento > *,
+      .dg-layout-bento > *:first-child { grid-column: auto; grid-row: auto; }
+      :where(.dg-layout-dashboard-shell) .reports-container { padding: 1.05rem !important; gap: 1rem !important; }
+      :where(.dg-layout-dashboard-shell) .dashboard-grid,
+      :where(.dg-layout-dashboard-shell) .settings-layout,
+      :where(.dg-layout-dashboard-shell) .ticket-detail-grid,
+      :where(.dg-layout-dashboard-shell) .reports-grid,
+      :where(.dg-layout-dashboard-shell) .reports-secondary { gap: 0.85rem !important; }
+      :where(.dg-layout-dashboard-shell) .panel { padding: 1rem !important; border-radius: 12px !important; }
+      :where(.dg-layout-dashboard-shell) .amana-kpi { padding: 1.25rem !important; border-radius: 10px !important; gap: 0.25rem !important; }
+      :where(.dg-layout-dashboard-shell) .amana-kpi-value { font-size: 1.8rem !important; }
+      :where(.dg-layout-dashboard-shell) .volume-chart { height: 130px !important; }
+      :where(.dg-layout-dashboard-shell) .chart-bars-large { height: 110px !important; }
+      :where(.dg-layout-dashboard-shell) .bar-wrap-lg { height: 80px !important; }
+      :where(.dg-layout-dashboard-shell) .chart-wrap { min-height: 140px !important; }
+      :where(.dg-layout-dashboard-shell) .chart-bars { height: 100px !important; }
+      :where(.dg-layout-dashboard-shell) .bar-wrap { height: 70px !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .dg-reduce-motion-auto *,
+      .dg-reduce-motion-strict * { animation: none !important; transition: none !important; }
+    }
+
+    /* === Custom Select, Checkbox & Radio === */
+    select.amana-form-control {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
+      font-size: var(--text-md);
+      font-family: var(--font-body);
+      line-height: 1.5;
+    }
+    [dir="rtl"] select.amana-form-control {
+      background-position: left 1rem center;
+      padding-right: 1.15rem;
+      padding-left: 2.5rem;
+    }
+
+    input[type="checkbox"].amana-check,
+    input[type="radio"].amana-radio {
+      appearance: none; -webkit-appearance: none;
+      width: 1.2rem; height: 1.2rem;
+      border: 2px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      background: var(--surface-base);
+      cursor: pointer;
+      transition: var(--transition-fast);
+      flex-shrink: 0;
+    }
+    input[type="checkbox"].amana-check:checked {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 8l4 4 6-6' stroke='white' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+      background-size: 80%;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    input[type="radio"].amana-radio { border-radius: 50%; }
+    input[type="radio"].amana-radio:checked {
+      background: radial-gradient(circle, var(--color-primary) 45%, transparent 46%);
+      border-color: var(--color-primary);
+    }
+
+    /* === Resource & Data Tables === */
+    /* === Resource & Data Tables === */
+    .amana-resource {
+      width: 100%; overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--border-subtle) 60%, transparent);
+      border-radius: var(--radius-3xl);
+      box-shadow: var(--shadow-medium);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 70%, transparent), color-mix(in srgb, var(--surface-base) 40%, transparent));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .amana-resource-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--space-md) var(--space-xl);
+      border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 40%, transparent);
+      background: color-mix(in srgb, var(--surface-muted) 70%, transparent);
+    }
+    .amana-resource-table {
+      width: 100%; border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+    .amana-resource-table th {
+      text-align: start; padding: var(--space-md) var(--space-lg);
+      font-size: var(--text-xs); font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 40%, transparent);
+      background: color-mix(in srgb, var(--surface-muted) 80%, transparent);
+      white-space: nowrap;
+    }
+    .amana-resource-table td {
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 40%, transparent);
+      color: var(--text-primary);
+      vertical-align: middle;
+    }
+    .amana-resource-table tr:hover td {
+      background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+    }
+    .amana-resource-table tr:last-child td { border-bottom: none; }
+    .amana-resource-item {
+      display: flex; align-items: center; gap: var(--space-md);
+      padding: 1.15rem var(--space-xl);
+      border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 35%, transparent);
+      transition: all var(--transition-smooth);
+      position: relative;
+    }
+    .amana-resource-item::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      box-shadow: 0 0 8px var(--color-accent);
+      flex-shrink: 0;
+      transition: transform var(--transition-smooth);
+      opacity: 0.7;
+    }
+    .amana-resource-item:hover::before {
+      transform: scale(1.4);
+      opacity: 1;
+    }
+    .amana-resource-item:hover {
+      background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+      padding-inline-start: calc(var(--space-xl) + 6px);
+    }
+    .amana-resource-item::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--color-accent), var(--color-primary));
+      opacity: 0;
+      transition: opacity var(--transition-smooth);
+    }
+    .amana-resource-item:hover::after {
+      opacity: 1;
+    }
+    [dir="ltr"] .amana-resource-item::after { left: 0; }
+    [dir="rtl"] .amana-resource-item::after { right: 0; }
+    .amana-resource-item:last-child {
+      border-bottom: none;
+    }
+
+    /* === Pagination === */
+    .amana-pagination {
+      display: flex; align-items: center; justify-content: center;
+      gap: var(--space-xs); flex-wrap: wrap;
+      padding-block: var(--space-lg);
+    }
+    .amana-page-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 2.5rem; height: 2.5rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-soft);
+      background: var(--surface-elevated);
+      color: var(--text-secondary);
+      font-size: var(--text-sm); font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      transition: var(--transition-fast);
+    }
+    .amana-page-btn:hover { color: var(--color-primary); border-color: var(--color-primary); }
+    .amana-page-btn.active {
+      background: var(--color-primary); color: white;
+      border-color: var(--color-primary); box-shadow: var(--glow-primary);
+    }
+    .amana-page-btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+    /* === Progress Bar === */
+    .amana-progress {
+      width: 100%; height: 0.55rem;
+      background: var(--surface-muted);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+    .amana-progress-bar {
+      height: 100%;
+      background: var(--gradient-primary);
+      border-radius: inherit;
+      transition: width var(--transition-spring);
+      box-shadow: var(--glow-primary);
+    }
+    .amana-progress-lg { height: 0.875rem; }
+    .amana-progress-sm { height: 0.35rem; }
+
+    /* === Avatar & User Profiles === */
+    .amana-avatar {
+      display: inline-grid; place-items: center;
+      width: 2.5rem; height: 2.5rem;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      color: white; font-weight: 800; font-size: var(--text-sm);
+      border: 2px solid var(--surface-elevated);
+      box-shadow: var(--shadow-soft);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .amana-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .amana-avatar-sm { width: 2rem; height: 2rem; font-size: var(--text-xs); }
+    .amana-avatar-lg { width: 3.5rem; height: 3.5rem; font-size: var(--text-lg); }
+    .amana-avatar-xl { width: 5rem; height: 5rem; font-size: var(--text-2xl); }
+    .amana-avatar-group { display: flex; }
+    .amana-avatar-group .amana-avatar { margin-inline-start: -0.75rem; }
+    .amana-avatar-group .amana-avatar:first-child { margin-inline-start: 0; }
+
+    /* === Tags & Badges === */
+    .amana-tag {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.22rem 0.72rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-pill);
+      font-size: var(--text-xs); font-weight: 700;
+      background: var(--surface-muted);
+      color: var(--text-secondary);
+      transition: var(--transition-fast);
+      cursor: default; white-space: nowrap;
+    }
+    .amana-tag.clickable:hover {
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+      border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+    }
+    .amana-tag-primary {
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+      border-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
+    }
+    .amana-tag-removable .amana-tag-remove {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 1rem; height: 1rem;
+      border-radius: 50%; border: none;
+      background: var(--text-secondary); color: white;
+      cursor: pointer; font-size: 0.65rem; line-height: 1;
+      transition: var(--transition-fast);
+    }
+    .amana-tag-removable .amana-tag-remove:hover { background: var(--color-danger); }
+
+    /* === Dividers === */
+    .amana-divider {
+      width: 100%; height: 1px;
+      background: var(--border-subtle);
+      border: none; margin-block: var(--space-xl);
+    }
+    .amana-divider-text {
+      display: flex; align-items: center; gap: var(--space-md);
+      color: var(--text-secondary); font-size: var(--text-sm); font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-block: var(--space-xl);
+    }
+    .amana-divider-text::before,
+    .amana-divider-text::after {
+      content: ""; flex: 1; height: 1px;
+      background: var(--border-subtle);
+    }
+    .amana-divider-glow {
+      background: linear-gradient(
+        90deg, transparent, var(--color-primary), transparent
+      );
+      height: 2px; opacity: 0.6;
+    }
+
+    /* === Toast Notifications === */
+    .amana-toast-container {
+      position: fixed; z-index: var(--z-toast, 120);
+      bottom: var(--space-xl); inset-inline-end: var(--space-xl);
+      display: flex; flex-direction: column; gap: var(--space-md);
+      pointer-events: none;
+      max-width: min(22rem, 90vw);
+    }
+    .amana-toast {
+      display: flex; align-items: flex-start; gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-floating);
+      backdrop-filter: var(--blur-sm);
+      pointer-events: all;
+      animation: amanaToastIn 300ms var(--transition-bounce) both;
+    }
+    .amana-toast-success { border-inline-start: 3px solid var(--color-success); }
+    .amana-toast-danger  { border-inline-start: 3px solid var(--color-danger); }
+    .amana-toast-warning { border-inline-start: 3px solid var(--color-warning); }
+    .amana-toast-wrapper {
+        pointer-events: all;
+    }
+    @keyframes amanaToastIn {
+      from { opacity: 0; transform: translateY(1rem) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* === Banner Layout === */
+    .amana-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-md, 1rem);
+        padding: var(--space-md, 1rem) var(--space-lg, 1.5rem);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl, 0.75rem);
+        font-size: var(--text-sm, 0.875rem);
+        width: 100%;
+        margin-bottom: var(--space-lg, 1.5rem);
+        position: relative;
+        box-sizing: border-box;
+    }
+    .amana-banner-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+    }
+    .amana-banner-content {
+        flex: 1;
+        color: var(--text-primary);
+    }
+    .amana-banner-content p {
+        margin: 0;
+        line-height: 1.5;
+    }
+    .amana-banner-close {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 0.2rem;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color var(--transition-fast, 150ms);
+        margin-inline-start: var(--space-xs, 0.5rem);
+    }
+    .amana-banner-close:hover {
+        color: var(--text-primary);
+    }
+
+    .amana-banner-info {
+        background: color-mix(in srgb, var(--color-primary, #d4af37) 8%, var(--surface-base));
+        border-color: color-mix(in srgb, var(--color-primary, #d4af37) 20%, transparent);
+    }
+    .amana-banner-info .amana-banner-icon {
+        color: var(--color-primary, #d4af37);
+    }
+
+    .amana-banner-success {
+        background: color-mix(in srgb, var(--color-success, #10b981) 8%, var(--surface-base));
+        border-color: color-mix(in srgb, var(--color-success, #10b981) 20%, transparent);
+    }
+    .amana-banner-success .amana-banner-icon {
+        color: var(--color-success, #10b981);
+    }
+
+    .amana-banner-warning {
+        background: color-mix(in srgb, var(--color-warning, #f59e0b) 8%, var(--surface-base));
+        border-color: color-mix(in srgb, var(--color-warning, #f59e0b) 20%, transparent);
+    }
+    .amana-banner-warning .amana-banner-icon {
+        color: var(--color-warning, #f59e0b);
+    }
+
+    .amana-banner-danger {
+        background: color-mix(in srgb, var(--color-danger, #ef4444) 8%, var(--surface-base));
+        border-color: color-mix(in srgb, var(--color-danger, #ef4444) 20%, transparent);
+    }
+    .amana-banner-danger .amana-banner-icon {
+        color: var(--color-danger, #ef4444);
+    }
+
+    /* === DashboardShell Pattern === */
+    :root {
+        --db-navbar-height: 4rem;
+        --db-sidebar-width: 16rem;
+    }
+    .amana-dashboard-shell {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        width: 100%;
+        background: var(--bg-secondary);
+        position: relative;
+        transform: translate3d(0, 0, 0);
+        overflow: hidden;
+        border-radius: inherit;
+    }
+    .amana-db-navbar {
+        height: var(--db-navbar-height);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-inline: var(--space-xl, 1.5rem);
+        background: var(--surface-elevated);
+        border-bottom: 1px solid var(--border-subtle);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: var(--z-sticky, 30);
+    }
+    .amana-db-toggle {
+        display: none;
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: var(--radius-md, 0.375rem);
+    }
+    .amana-db-toggle:hover {
+        background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+    }
+    .amana-db-brand {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm, 0.75rem);
+        font-weight: 800;
+        font-size: var(--text-lg, 1.125rem);
+    }
+    .amana-db-logo {
+        height: 2rem;
+        width: auto;
+    }
+    .amana-db-user {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs, 0.5rem);
+    }
+    .amana-db-container {
+        display: flex;
+        flex: 1;
+        margin-top: var(--db-navbar-height);
+        min-height: 0;
+        position: relative;
+    }
+    .amana-db-sidebar {
+        width: var(--db-sidebar-width);
+        background: var(--surface-base);
+        border-inline-end: 1px solid var(--border-subtle);
+        position: fixed;
+        top: var(--db-navbar-height);
+        bottom: 0;
+        inset-inline-start: 0;
+        z-index: var(--z-raised, 10);
+        transition: transform var(--transition-smooth, 280ms);
+    }
+    .amana-db-sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs, 0.5rem);
+        padding: var(--space-md, 1rem);
+    }
+    .amana-db-sidebar-nav a {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-lg, 0.5rem);
+        color: var(--text-secondary);
+        font-weight: 500;
+        text-decoration: none;
+        transition: all var(--transition-fast, 150ms);
+    }
+    .amana-db-sidebar-nav a:hover,
+    .amana-db-sidebar-nav a.active {
+        color: var(--text-primary);
+        background: color-mix(in srgb, var(--color-primary, #d4af37) 8%, var(--surface-elevated));
+    }
+    .amana-db-main {
+        flex: 1;
+        margin-inline-start: var(--db-sidebar-width);
+        padding: var(--space-xl, 1.5rem);
+        min-width: 0;
+    }
+    .amana-db-sidebar-backdrop {
+        display: none;
+    }
+
+    @media (max-width: 992px) {
+        .amana-db-toggle {
+            display: block;
+        }
+        .amana-db-sidebar {
+            transform: translateX(-100%);
+        }
+        [dir="rtl"] .amana-db-sidebar {
+            transform: translateX(100%);
+        }
+        .amana-db-sidebar.open {
+            transform: translateX(0);
+        }
+        .amana-db-sidebar.open .amana-db-sidebar-backdrop {
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: -1;
+        }
+        .amana-db-main {
+            margin-inline-start: 0;
+            padding: var(--space-md, 1rem);
+        }
+    }
+
+    /* === AuthPage Pattern === */
+    .amana-auth-page {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: var(--bg-secondary);
+        padding: var(--space-xl, 1.5rem);
+    }
+    .amana-auth-card {
+        width: min(100%, 28rem);
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-2xl, 1rem);
+        padding: var(--space-2xl, 2rem);
+        box-shadow: var(--shadow-premium);
+    }
+    .amana-auth-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: var(--space-sm, 0.75rem);
+        margin-bottom: var(--space-2xl, 2rem);
+    }
+    .amana-auth-logo {
+        height: 3rem;
+        width: auto;
+    }
+    .amana-auth-header h2 {
+        margin: 0;
+        font-size: var(--text-2xl, 1.5rem);
+        font-weight: 800;
+    }
+    .amana-auth-body {
+        width: 100%;
+    }
+    .amana-auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md, 1rem);
+    }
+    .amana-auth-form button[type="submit"] {
+        margin-top: var(--space-sm, 0.5rem);
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* === PricingSection Pattern === */
+    .amana-pricing-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-2xl, 2.5rem);
+        padding-block: var(--space-2xl, 2.5rem);
+        width: 100%;
+    }
+    .amana-pricing-section-header {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-md, 1rem);
+    }
+    .amana-pricing-section-header h2 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 900;
+    }
+    .amana-pricing-billing-toggle {
+        display: inline-flex;
+        padding: 0.25rem;
+        background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-full, 9999px);
+    }
+    .amana-pricing-billing-toggle button {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: var(--text-sm, 0.875rem);
+        padding: 0.5rem 1.25rem;
+        border-radius: var(--radius-full, 9999px);
+        cursor: pointer;
+        transition: all var(--transition-fast, 150ms);
+    }
+    .amana-pricing-billing-toggle button.active {
+        background: var(--surface-elevated);
+        color: var(--text-primary);
+        box-shadow: var(--shadow-soft);
+    }
+    .amana-pricing-section-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+        gap: var(--space-xl, 1.5rem);
+        width: 100%;
+        max-width: 72rem;
+        align-items: stretch;
+    }
+    .amana-pricing-card {
+        display: flex;
+        flex-direction: column;
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-2xl, 1rem);
+        padding: var(--space-2xl, 2rem);
+        box-shadow: var(--shadow-soft);
+        position: relative;
+        transition: all var(--transition-smooth, 280ms);
+    }
+    .amana-pricing-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-medium);
+        border-color: color-mix(in srgb, var(--color-primary, #d4af37) 25%, transparent);
+    }
+    .amana-pricing-card-highlighted {
+        border-color: var(--color-primary, #d4af37);
+        box-shadow: var(--shadow-medium);
+    }
+    .amana-pricing-card-highlighted::before {
+        content: "الموصى بها";
+        position: absolute;
+        top: -0.75rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--color-primary, #d4af37);
+        color: var(--bg-secondary, #000);
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        letter-spacing: 0.05em;
+    }
+    .amana-pricing-card-header h3 {
+        margin: 0 0 var(--space-xs, 0.5rem);
+        font-size: var(--text-xl, 1.25rem);
+        font-weight: 800;
+    }
+    .amana-pricing-card-price {
+        margin-bottom: var(--space-xl, 1.5rem);
+    }
+    .amana-price-value {
+        font-size: 2.25rem;
+        font-weight: 900;
+        color: var(--text-primary);
+    }
+    .amana-pricing-card-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 var(--space-2xl, 2rem);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-sm, 0.75rem);
+        flex: 1;
+    }
+    .amana-pricing-feature {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs, 0.5rem);
+        font-size: var(--text-sm, 0.875rem);
+        color: var(--text-secondary);
+    }
+    .amana-pricing-feature iconify-icon {
+        color: var(--color-success, #10b981);
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .amana-pricing-card-cta .amana-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* === Breadcrumb Component === */
+    .amana-breadcrumb {
+        width: 100%;
+        margin-bottom: var(--space-md, 1rem);
+    }
+    .amana-breadcrumb-list {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: var(--space-xs, 0.5rem);
+        font-size: var(--text-sm, 0.875rem);
+    }
+    .amana-breadcrumb-item {
+        display: flex;
+        align-items: center;
+        color: var(--text-secondary);
+    }
+    .amana-breadcrumb-item a {
+        text-decoration: none;
+        color: var(--text-secondary);
+        transition: color var(--transition-fast, 150ms);
+    }
+    .amana-breadcrumb-item a:hover {
+        color: var(--text-primary);
+    }
+    .amana-breadcrumb-sep {
+        color: var(--text-muted, #94a3b8);
+        user-select: none;
+        padding-inline: 0.25rem;
+    }
+    .amana-breadcrumb-current {
+        color: var(--text-primary);
+        font-weight: 600;
+        pointer-events: none;
+    }
+
+    /* === Dropdown Component === */
+    .amana-dropdown-menu {
+        min-width: 12rem;
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl, 0.75rem);
+        box-shadow: var(--shadow-strong, 0 10px 25px -5px rgba(0,0,0,0.1));
+        padding: var(--space-xs, 0.5rem);
+        margin-top: 0.25rem;
+    }
+    .amana-dropdown-align-right {
+        inset-inline-end: 0;
+    }
+    .amana-dropdown-align-left {
+        inset-inline-start: 0;
+    }
+    .amana-dropdown-item-wrapper > * {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius-lg, 0.5rem);
+        font-size: var(--text-sm, 0.875rem);
+        color: var(--text-secondary);
+        text-decoration: none;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        text-align: start;
+        transition: all var(--transition-fast, 150ms);
+    }
+    .amana-dropdown-item-wrapper > *:hover {
+        color: var(--text-primary);
+        background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+    }
+    .amana-dropdown-trigger-icon {
+        font-size: 1rem;
+        margin-inline-start: var(--space-xs, 0.5rem);
+    }
+
+    /* === CommandPalette Component === */
+    .amana-command-palette-backdrop {
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(8px);
+        display: grid;
+        place-items: center;
+        padding: var(--space-xl, 1.5rem);
+    }
+    .amana-command-palette {
+        width: min(100%, 36rem);
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-2xl, 1rem);
+        box-shadow: var(--shadow-strong);
+        overflow: hidden;
+        animation: amanaFadeIn var(--transition-fast) ease-out;
+        display: flex;
+        flex-direction: column;
+    }
+    .amana-cp-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm, 0.75rem);
+        padding: var(--space-md, 1rem) var(--space-xl, 1.5rem);
+        border-bottom: 1px solid var(--border-subtle);
+    }
+    .amana-cp-search-icon {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+    }
+    .amana-cp-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--text-primary);
+        font-size: var(--text-md, 1rem);
+        padding: 0;
+    }
+    .amana-cp-input::placeholder {
+        color: var(--text-muted);
+    }
+    .amana-cp-close {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 0.2rem;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .amana-cp-body {
+        max-height: 18rem;
+        overflow-y: auto;
+        padding: var(--space-xs, 0.5rem);
+    }
+    .amana-cp-results {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .amana-cp-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md, 1rem);
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-xl, 0.75rem);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all var(--transition-fast, 150ms);
+    }
+    .amana-cp-item:hover,
+    .amana-cp-item:focus {
+        color: var(--text-primary);
+        background: color-mix(in srgb, var(--color-primary, #d4af37) 8%, var(--surface-base));
+        outline: none;
+    }
+    .amana-cp-item iconify-icon {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+    }
+    .amana-cp-item:hover iconify-icon,
+    .amana-cp-item:focus iconify-icon {
+        color: var(--color-primary, #d4af37);
+    }
+    .amana-cp-no-results {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-2xl, 2rem);
+        color: var(--text-secondary);
+        gap: var(--space-sm, 0.75rem);
+    }
+    .amana-cp-no-results iconify-icon {
+        font-size: 2rem;
+    }
+    .amana-cp-footer {
+        padding: var(--space-sm, 0.75rem) var(--space-xl, 1.5rem);
+        background: color-mix(in srgb, var(--text-primary) 3%, var(--surface-base));
+        border-top: 1px solid var(--border-subtle);
+    }
+    .amana-cp-shortcuts {
+        display: flex;
+        gap: var(--space-md, 1rem);
+        font-size: var(--text-xs, 0.75rem);
+        color: var(--text-secondary);
+    }
+    .amana-cp-shortcuts kbd {
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        padding: 0.1rem 0.35rem;
+        font-family: var(--font-mono);
+        box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+    }
+
+    /* === SearchBar Component === */
+    .amana-searchbar {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 24rem;
+    }
+    .amana-searchbar-icon {
+        position: absolute;
+        inset-inline-start: var(--space-md, 1rem);
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        pointer-events: none;
+    }
+    .amana-searchbar-input {
+        width: 100%;
+        padding: 0.65rem var(--space-2xl, 2.5rem);
+        padding-inline-start: var(--space-2xl, 2.5rem);
+        padding-inline-end: var(--space-3xl, 3.5rem);
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-full, 9999px);
+        color: var(--text-primary);
+        font-size: var(--text-sm, 0.875rem);
+        outline: none;
+        transition: all var(--transition-fast, 150ms);
+    }
+    .amana-searchbar-input:focus {
+        border-color: var(--color-primary, #d4af37);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #d4af37) 15%, transparent);
+    }
+    .amana-searchbar-shortcut {
+        position: absolute;
+        inset-inline-end: var(--space-md, 1rem);
+        background: var(--surface-base);
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        padding: 0.1rem 0.35rem;
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        color: var(--text-secondary);
+        box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+        pointer-events: none;
+    }
+
+    /* === FilterBar Component === */
+    .amana-filterbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-sm, 0.75rem);
+        padding: var(--space-md, 1rem);
+        background: var(--surface-base);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl, 0.75rem);
+        width: 100%;
+        margin-bottom: var(--space-md, 1rem);
+        box-sizing: border-box;
+    }
+
+    /* === Paginator Component === */
+    .amana-paginator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-md, 1rem);
+        padding-block: var(--space-md, 1rem);
+        width: 100%;
+    }
+    .amana-page-info {
+        font-size: var(--text-sm, 0.875rem);
+        color: var(--text-secondary);
+    }
+    .amana-page-info strong {
+        color: var(--text-primary);
+    }
+    .amana-page-btn {
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg, 0.5rem);
+        padding: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-primary);
+        transition: all var(--transition-fast, 150ms);
+    }
+    .amana-page-btn:hover:not(:disabled) {
+        background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+        border-color: var(--text-secondary);
+    }
+    .amana-page-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    /* === DataTable Component === */
+    .amana-datatable-container {
+        width: 100%;
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-2xl, 1rem);
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        margin-bottom: var(--space-lg, 1.5rem);
+    }
+    .amana-table-search-wrapper {
+        padding: var(--space-md, 1rem) var(--space-xl, 1.5rem);
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm, 0.75rem);
+        max-width: 20rem;
+    }
+    .amana-table-search-wrapper iconify-icon {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+    .amana-table-search-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--text-primary);
+        font-size: var(--text-sm, 0.875rem);
+    }
+    .amana-table-search-input::placeholder {
+        color: var(--text-muted);
+    }
+    .amana-table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .amana-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: start;
+        font-size: var(--text-sm, 0.875rem);
+    }
+    .amana-table th,
+    .amana-table td {
+        padding: 1rem var(--space-xl, 1.5rem);
+        border-bottom: 1px solid var(--border-subtle);
+    }
+    .amana-table th {
+        background: color-mix(in srgb, var(--text-primary) 2%, var(--surface-elevated));
+        color: var(--text-secondary);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: var(--text-xs, 0.75rem);
+        letter-spacing: 0.05em;
+    }
+    .amana-table tbody tr {
+        transition: background-color var(--transition-fast, 150ms);
+    }
+    .amana-table tbody tr:hover {
+        background: color-mix(in srgb, var(--text-primary) 3%, transparent);
+    }
+    .amana-table-select-col {
+        width: 3rem;
+        text-align: center;
+        padding-inline: 0 !important;
+    }
+    .amana-table-select-col input[type="checkbox"] {
+        cursor: pointer;
+        width: 1rem;
+        height: 1rem;
+        accent-color: var(--color-primary, #d4af37);
+    }
+    .amana-table td input[type="checkbox"] {
+        cursor: pointer;
+        width: 1rem;
+        height: 1rem;
+        accent-color: var(--color-primary, #d4af37);
+    }
+    .amana-table-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-3xl, 3rem) var(--space-xl, 1.5rem);
+        color: var(--text-secondary);
+        gap: var(--space-md, 1rem);
+        text-align: center;
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-2xl, 1rem);
+        width: 100%;
+    }
+    .amana-table-empty iconify-icon {
+        font-size: 2.5rem;
+        color: var(--text-muted);
+    }
+    .amana-table-empty p {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    /* === Login Page Shell === */
+    .amana-login-shell {
+      min-height: 100vh;
+      display: grid; place-items: center;
+      background: var(--gradient-mesh, var(--bg-secondary));
+      padding: var(--space-lg);
+    }
+    .amana-login-card {
+      width: min(100%, 28rem);
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl);
+      padding: var(--space-2xl);
+      box-shadow: var(--shadow-floating);
+    }
+    .amana-login-title {
+      font-size: var(--text-2xl); font-weight: 900;
+      color: var(--text-primary); margin: 0 0 var(--space-xl);
+      text-align: center;
+    }
+    .amana-login-error {
+      padding: var(--space-md); border-radius: var(--radius-xl);
+      background: color-mix(in srgb, var(--color-danger) 10%, var(--surface-muted));
+      border: 1px solid color-mix(in srgb, var(--color-danger) 25%, transparent);
+      color: var(--color-danger); font-size: var(--text-sm);
+      margin-bottom: var(--space-lg);
+    }
+
+    /* === Navbar Responsive Mobile Button & Dropdown === */
+    .hidden { display: none !important; }
+    .inline-flex { display: inline-flex !important; }
+
+    .amana-navbar-menu-btn {
+      display: none;
+      background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+      border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+      color: var(--text-primary); cursor: pointer;
+      padding: 0.55rem; border-radius: var(--radius-lg);
+      transition: all var(--transition-fast);
+      align-items: center; justify-content: center;
+    }
+    .amana-navbar-menu-btn:hover {
+      background: color-mix(in srgb, var(--text-primary) 10%, transparent);
+      transform: scale(1.05);
+    }
+    .amana-navbar-menu-btn svg {
+      width: 1.35rem;
+      height: 1.35rem;
+    }
+
+    @media (max-width: 720px) {
+      .amana-navbar-menu-btn { display: inline-flex; }
+      .amana-navlinks {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        inset-inline-start: 1rem;
+        inset-inline-end: 1rem;
+        background: color-mix(in srgb, var(--surface-elevated) 92%, transparent);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+        border-radius: var(--radius-xl);
+        padding: var(--space-md);
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-xs);
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.25);
+        z-index: 100;
+        /* Hide properties */
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-10px);
+        transition: opacity 250ms ease, transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex; /* keep flex, but hide using opacity & pointer-events */
+      }
+      .amana-navlinks.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+      .amana-navlinks a {
+        padding: 0.75rem 1rem;
+        width: 100%;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .amana-navlinks a::after {
+        display: none; /* Hide bottom line on mobile list */
+      }
+      /* Indent transition on hover for mobile links */
+      .amana-navlinks a:hover {
+        padding-inline-start: 1.25rem;
+      }
+    }
+
+    /* === KPI Enhanced Decoration === */
+    .amana-kpi::before {
+      content: "";
+      position: absolute;
+      inset-inline-end: -1.5rem;
+      top: -1.5rem;
+      width: 6rem;
+      height: 6rem;
+      border-radius: 50%;
+      background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 25%, transparent), transparent 70%);
+      opacity: 0.4;
+      pointer-events: none;
+      transition: all var(--transition-smooth);
+    }
+    .amana-kpi:hover::before {
+      transform: scale(1.2);
+      opacity: 0.6;
+    }
+
+    /* === ResourceGrid Card Specific Overrides === */
+    .amana-resource-grid .amana-card {
+        background: linear-gradient(185deg, color-mix(in srgb, var(--surface-elevated) 85%, transparent) 0%, color-mix(in srgb, var(--surface-base) 95%, transparent) 100%);
+        border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
+        box-shadow: var(--shadow-soft), inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
+        position: relative;
+    }
+    .amana-resource-grid .amana-card:hover {
+        border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+        box-shadow:
+            0 12px 30px -10px rgba(0, 0, 0, 0.45),
+            0 0 20px -3px color-mix(in srgb, var(--color-primary) 12%, transparent);
+    }
+
+    /* === Chart Wrapper === */
+    .amana-chart-wrapper {
+        position: relative;
+        height: 340px;
+        width: 100%;
+        padding: var(--space-lg);
+        background: linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 45%, transparent), color-mix(in srgb, var(--surface-base) 20%, transparent));
+        border: 1px solid color-mix(in srgb, var(--border-subtle) 50%, transparent);
+        border-radius: var(--radius-3xl);
+        box-shadow: var(--shadow-medium);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* === FileUpload Component === */
+    .amana-fileupload-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs, 0.5rem);
+        margin-bottom: var(--space-md, 1rem);
+        text-align: start;
+    }
+    .amana-fileupload-label {
+        font-size: var(--text-sm, 0.875rem);
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    .amana-fileupload-dropzone {
+        border: 2px dashed var(--border-subtle);
+        border-radius: var(--radius-xl, 0.75rem);
+        padding: var(--space-xl, 1.5rem);
+        background: var(--surface-base);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--transition-smooth, 200ms);
+        outline: none;
+    }
+    .amana-fileupload-dropzone:focus-visible {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent);
+    }
+    .amana-fileupload-dropzone-active,
+    .amana-fileupload-dropzone:hover {
+        border-color: var(--color-primary);
+        background: color-mix(in srgb, var(--color-primary) 4%, var(--surface-base));
+    }
+    .amana-fileupload-icon {
+        font-size: 2.25rem;
+        color: var(--color-primary);
+        margin-bottom: var(--space-xs, 0.5rem);
+    }
+    .amana-fileupload-text {
+        font-size: var(--text-sm, 0.875rem);
+        color: var(--text-secondary);
+        margin: 0 0 0.25rem 0;
+        font-weight: 500;
+    }
+    .amana-fileupload-browse {
+        color: var(--color-primary);
+        font-weight: 700;
+        text-decoration: underline;
+    }
+    .amana-fileupload-info {
+        font-size: var(--text-xs, 0.75rem);
+        color: var(--text-muted);
+        margin: 0;
+    }
+    .amana-fileupload-preview-list {
+        list-style: none;
+        padding: 0;
+        margin: var(--space-xs, 0.5rem) 0 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs, 0.5rem);
+    }
+    .amana-fileupload-preview-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md, 1rem);
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg, 0.5rem);
+        padding: var(--space-sm, 0.75rem);
+        animation: amana-fade-in var(--transition-fast, 150ms) ease;
+    }
+    .amana-fileupload-preview-img {
+        width: 3rem;
+        height: 3rem;
+        object-fit: cover;
+        border-radius: var(--radius-md, 0.375rem);
+        border: 1px solid var(--border-subtle);
+    }
+    .amana-fileupload-preview-fallback {
+        width: 3rem;
+        height: 3rem;
+        display: grid;
+        place-items: center;
+        background: color-mix(in srgb, var(--text-primary) 5%, transparent);
+        border-radius: var(--radius-md, 0.375rem);
+        color: var(--text-secondary);
+        font-size: 1.5rem;
+    }
+    .amana-fileupload-preview-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+    .amana-fileupload-preview-name {
+        font-size: var(--text-sm, 0.875rem);
+        font-weight: 600;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .amana-fileupload-preview-size {
+        font-size: var(--text-xs, 0.75rem);
+        color: var(--text-muted);
+    }
+    .amana-fileupload-preview-remove {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 1.25rem;
+        padding: 0.25rem;
+        border-radius: var(--radius-md, 0.375rem);
+        display: grid;
+        place-items: center;
+        transition: all var(--transition-fast, 150ms);
+    }
+    .amana-fileupload-preview-remove:hover {
+        color: var(--color-danger);
+        background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+    }
+
+    /* === RichEditor Component === */
+    .amana-richeditor {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs, 0.5rem);
+        margin-bottom: var(--space-md, 1rem);
+        text-align: start;
+    }
+    .amana-richeditor-label {
+        font-size: var(--text-sm, 0.875rem);
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    .amana-richeditor-container {
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl, 0.75rem);
+        background: var(--surface-elevated);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-soft);
+    }
+    .amana-richeditor-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.25rem;
+        padding: var(--space-xs, 0.5rem);
+        background: color-mix(in srgb, var(--text-primary) 3%, var(--surface-elevated));
+        border-bottom: 1px solid var(--border-subtle);
+    }
+    .amana-richeditor-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 0.4rem;
+        border-radius: var(--radius-md, 0.375rem);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2rem;
+        min-height: 2rem;
+        transition: all var(--transition-fast, 150ms);
+        font-size: 1.1rem;
+    }
+    .amana-richeditor-btn:hover {
+        background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+        color: var(--text-primary);
+    }
+    .amana-richeditor-separator {
+        width: 1px;
+        height: 1.25rem;
+        background: var(--border-subtle);
+        margin-inline: 0.25rem;
+    }
+    .amana-richeditor-content {
+        padding: var(--space-md, 1rem);
+        min-height: 15rem;
+        max-height: 30rem;
+        overflow-y: auto;
+        background: var(--surface-elevated);
+        color: var(--text-primary);
+        outline: none;
+        font-size: var(--text-sm, 0.875rem);
+        line-height: 1.6;
+        text-align: start;
+    }
+    .amana-richeditor-content[contenteditable="true"]:empty:before {
+        content: attr(placeholder);
+        color: var(--text-muted);
+        display: block;
+    }
+
+    /* === ColorPicker Component === */
+    .amana-colorpicker-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs, 0.5rem);
+        margin-bottom: var(--space-md, 1rem);
+        text-align: start;
+    }
+    .amana-colorpicker-label {
+        font-size: var(--text-sm, 0.875rem);
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    .amana-colorpicker-input-group {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm, 0.75rem);
+    }
+    .amana-colorpicker-preview-wrapper {
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: var(--radius-lg, 0.5rem);
+        border: 1px solid var(--border-subtle);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        flex-shrink: 0;
+    }
+    .amana-colorpicker-native {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+    }
+    .amana-colorpicker-text-input {
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg, 0.5rem);
+        padding: 0.6rem var(--space-md, 1rem);
+        color: var(--text-primary);
+        font-family: monospace;
+        font-size: var(--text-sm, 0.875rem);
+        width: 10rem;
+        outline: none;
+        transition: all var(--transition-fast, 150ms);
+    }
+    .amana-colorpicker-text-input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent);
+    }
+    .amana-colorpicker-presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+    }
+    .amana-colorpicker-preset-btn {
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all var(--transition-fast, 150ms);
+        padding: 0;
+    }
+    .amana-colorpicker-preset-btn:hover {
+        transform: scale(1.15);
+    }
+    .amana-colorpicker-preset-active {
+        box-shadow: 0 0 0 2px var(--color-primary);
+        border-color: var(--surface-base);
+    }
+
+    /* === HeroSection Component === */
+    .amana-hero-section {
+        padding: var(--space-3xl, 3rem) var(--space-xl, 1.5rem);
+        background: radial-gradient(circle at top left, color-mix(in srgb, var(--color-primary) 6%, transparent), transparent 45%);
+        position: relative;
+        overflow: hidden;
+    }
+    .amana-hero-split-container {
+        max-width: 80rem;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3xl, 3rem);
+        align-items: center;
+    }
+    .amana-hero-center-container {
+        max-width: 50rem;
+        margin: 0 auto;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .amana-hero-eyebrow {
+        display: inline-block;
+        font-size: var(--text-xs, 0.75rem);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--color-primary);
+        margin-bottom: var(--space-sm, 0.75rem);
+    }
+    .amana-hero-title {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 900;
+        line-height: 1.15;
+        color: var(--text-primary);
+        margin: 0 0 var(--space-md, 1rem) 0;
+        background: linear-gradient(135deg, var(--text-primary) 30%, color-mix(in srgb, var(--text-primary) 60%, var(--color-primary)));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .amana-hero-subtitle {
+        font-size: var(--text-xl, 1.25rem);
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin: 0 0 var(--space-md, 1rem) 0;
+    }
+    .amana-hero-description {
+        font-size: var(--text-md, 1.125rem);
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin: 0 0 var(--space-xl, 1.5rem) 0;
+        max-width: 42rem;
+    }
+    .amana-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-md, 1rem);
+        margin-bottom: var(--space-xl, 1.5rem);
+    }
+    .amana-hero-media {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+    .amana-hero-media::before {
+        content: "";
+        position: absolute;
+        width: 120%;
+        height: 120%;
+        background: radial-gradient(circle, color-mix(in srgb, var(--color-primary) 12%, transparent), transparent 70%);
+        z-index: 0;
+        pointer-events: none;
+    }
+    .amana-hero-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: var(--radius-3xl, 1.5rem);
+        border: 1px solid var(--border-subtle);
+        box-shadow: var(--shadow-floating);
+        z-index: 1;
+        position: relative;
+    }
+    .amana-hero-align-right .amana-hero-split-container {
+        direction: rtl;
+    }
+    .amana-hero-align-right .amana-hero-content {
+        direction: rtl;
+        text-align: right;
+    }
+    .amana-hero-align-right .amana-hero-actions {
+        justify-content: flex-start;
+    }
+    .amana-hero-align-left .amana-hero-split-container {
+        direction: ltr;
+    }
+    .amana-hero-align-left .amana-hero-content {
+        direction: ltr;
+        text-align: left;
+    }
+    .amana-hero-align-left .amana-hero-actions {
+        justify-content: flex-start;
+    }
+    @media (max-width: 960px) {
+        .amana-hero-split-container {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: var(--space-2xl, 2rem);
+        }
+        .amana-hero-align-left .amana-hero-content,
+        .amana-hero-align-right .amana-hero-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .amana-hero-align-left .amana-hero-actions,
+        .amana-hero-align-right .amana-hero-actions {
+            justify-content: center;
+        }
+    }
+
+    /* === SettingsPage Component === */
+    .amana-settings-page {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xl, 1.5rem);
+        padding: var(--space-lg, 1rem);
+        max-width: 75rem;
+        margin: 0 auto;
+        text-align: start;
+    }
+    .amana-settings-header {
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: var(--space-md, 1rem);
+    }
+    .amana-settings-header h2 {
+        font-size: var(--text-2xl, 1.5rem);
+        font-weight: 800;
+        color: var(--text-primary);
+        margin: 0 0 var(--space-xs, 0.5rem) 0;
+    }
+    .amana-settings-header p {
+        font-size: var(--text-sm, 0.875rem);
+        color: var(--text-muted);
+        margin: 0;
+    }
+    .amana-settings-layout {
+        display: grid;
+        grid-template-columns: 16rem 1fr;
+        gap: var(--space-2xl, 2rem);
+        align-items: start;
+    }
+    .amana-settings-sidebar {
+        position: sticky;
+        top: 2rem;
+    }
+    .amana-settings-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .amana-settings-link {
+        display: block;
+        padding: 0.65rem 1rem;
+        border-radius: var(--radius-lg, 0.5rem);
+        font-size: var(--text-sm, 0.875rem);
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all var(--transition-fast, 150ms);
+    }
+    .amana-settings-link:hover {
+        background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+        color: var(--text-primary);
+    }
+    .amana-settings-link.active {
+        background: color-mix(in srgb, var(--color-primary) 8%, var(--surface-elevated));
+        color: var(--color-primary);
+        box-shadow: inset 3px 0 0 var(--color-primary);
+    }
+    .amana-settings-main {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3xl, 3rem);
+    }
+    .amana-settings-section {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: var(--space-xl, 1.5rem);
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: var(--space-2xl, 2rem);
+        scroll-margin-top: 2rem;
+    }
+    .amana-settings-section:last-child {
+        border-bottom: none;
+    }
+    .amana-settings-section-info h3 {
+        font-size: var(--text-md, 1.125rem);
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 0.5rem 0;
+    }
+    .amana-settings-section-info p {
+        font-size: var(--text-sm, 0.875rem);
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin: 0;
+    }
+    .amana-settings-section-fields {
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl, 0.75rem);
+        padding: var(--space-xl, 1.5rem);
+        box-shadow: var(--shadow-soft);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md, 1rem);
+    }
+    @media (max-width: 860px) {
+        .amana-settings-layout {
+            grid-template-columns: 1fr;
+        }
+        .amana-settings-sidebar {
+            position: static;
+        }
+        .amana-settings-nav {
+            flex-direction: row;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .amana-settings-section {
+            grid-template-columns: 1fr;
+            gap: var(--space-md, 1rem);
+        }
+    }
+
+    /* === StatsSection Component === */
+    .amana-stats-section {
+        padding: var(--space-2xl, 2rem) var(--space-lg, 1rem);
+    }
+    .amana-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+        gap: var(--space-lg, 1.5rem);
+        margin-top: var(--space-xl, 1.5rem);
+    }
+
+    /* === FAQSection Component === */
+    .amana-faq-section {
+        padding: var(--space-2xl, 2rem) var(--space-lg, 1rem);
+        max-width: 50rem;
+        margin: 0 auto;
+    }
+    .amana-faq-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md, 1rem);
+        margin-top: var(--space-xl, 1.5rem);
+    }
+
+    /* === BlogSection Component === */
+    .amana-blog-section {
+        padding: var(--space-2xl, 2rem) var(--space-lg, 1rem);
+        max-width: 80rem;
+        margin: 0 auto;
+        text-align: start;
+    }
+    .amana-blog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: var(--space-md, 1rem);
+        margin-bottom: var(--space-xl, 1.5rem);
+    }
+    .amana-blog-header-content h2 {
+        font-size: var(--text-2xl, 1.5rem);
+        font-weight: 800;
+        color: var(--text-primary);
+        margin: 0 0 0.25rem 0;
+    }
+    .amana-blog-view-all {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: var(--text-sm, 0.875rem);
+        font-weight: 700;
+        color: var(--color-primary);
+        text-decoration: none;
+        transition: all var(--transition-fast, 150ms);
+    }
+    .amana-blog-view-all:hover {
+        opacity: 0.85;
+    }
+    .amana-blog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+        gap: var(--space-xl, 1.5rem);
+    }
+
+    /* === TestimonialsSection Component === */
+    .amana-testimonials-section {
+        padding: var(--space-2xl, 2rem) var(--space-lg, 1rem);
+        max-width: 80rem;
+        margin: 0 auto;
+    }
+    .amana-testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+        gap: var(--space-lg, 1.5rem);
+        margin-top: var(--space-xl, 1.5rem);
+    }
+
+    /* === ContactSection Component === */
+    .amana-contact-section {
+        padding: var(--space-3xl, 3rem) var(--space-xl, 1.5rem);
+        background: linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 20%, transparent), transparent);
+    }
+    .amana-contact-container {
+        max-width: 70rem;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1.25fr;
+        gap: var(--space-3xl, 3rem);
+        align-items: start;
+        text-align: start;
+    }
+    .amana-contact-info-pane h2 {
+        font-size: var(--text-2xl, 1.5rem);
+        font-weight: 800;
+        color: var(--text-primary);
+        margin: 0 0 var(--space-xs, 0.5rem) 0;
+    }
+    .amana-contact-pane-description {
+        font-size: var(--text-sm, 0.875rem);
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin-bottom: var(--space-xl, 2rem);
+    }
+    .amana-contact-info-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-lg, 1.5rem);
+    }
+    .amana-contact-info-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md, 1rem);
+    }
+    .amana-contact-info-icon {
+        width: 3rem;
+        height: 3rem;
+        background: color-mix(in srgb, var(--color-primary) 8%, var(--surface-elevated));
+        border-radius: var(--radius-xl, 0.75rem);
+        color: var(--color-primary);
+        display: grid;
+        place-items: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+    }
+    .amana-contact-info-item h4 {
+        font-size: var(--text-xs, 0.75rem);
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin: 0 0 0.25rem 0;
+    }
+    .amana-contact-info-item a,
+    .amana-contact-info-item p {
+        font-size: var(--text-sm, 0.875rem);
+        font-weight: 600;
+        color: var(--text-primary);
+        text-decoration: none;
+        margin: 0;
+    }
+    .amana-contact-info-item a:hover {
+        color: var(--color-primary);
+    }
+    .amana-contact-form-pane {
+        background: var(--surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-2xl, 1rem);
+        padding: var(--space-2xl, 2rem);
+        box-shadow: var(--shadow-medium);
+    }
+    .amana-contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md, 1rem);
+    }
+    @media (max-width: 860px) {
+        .amana-contact-container {
+            grid-template-columns: 1fr;
+            gap: var(--space-2xl, 2rem);
+        }
+    }
+
+
+    :where(.amana-runtime-shell, .amana-page, .page) { width: 100%; max-width: 100%; overflow-x: hidden; }
+    :where(.amana-runtime-shell, .amana-page, .page) :where(section, header, main, footer, div, article, aside, form) { min-width: 0; }
+    :where(.amana-runtime-shell, .amana-page, .page) :where(h1, h2, h3, p, a, button, span, strong, label, input, textarea, pre) { max-width: 100%; overflow-wrap: break-word; }
+    :where(.dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, .dg-layout-magazine, .dg-layout-bento, .dg-layout-command-center, .dg-layout-showcase-rail) > .amana-container { grid-column: 1 / -1; }
+    @media (max-width: 1200px) {
+      :where(.hero-title, .section-title, .auth-card h1, .cta-box h2, .amana-hero h1, h1) { font-size: clamp(2.15rem, 8vw, 4.4rem) !important; line-height: 1.08 !important; max-width: 100% !important; }
+      :where(.hero-lead, .section-lead, .amana-hero-copy, p) { font-size: clamp(1rem, 2.4vw, 1.2rem); }
+      :where(.hero-shell, .section-space, .workflow, .pricing-section, .testimonials, .cta-section, .auth-shell) { padding-inline: clamp(1rem, 4vw, 2rem) !important; }
+      :where(.hero-grid, .split, .workflow-grid, .pricing-grid, .testimonial-grid, .cta-box, .amana-split, .dg-layout-split-diagonal, .dg-layout-asymmetric, .dg-layout-editorial, .dg-layout-dashboard-shell, :where(.dg-layout-dashboard-shell) .amana-runtime-shell > :not(script):not(style), .dg-layout-command-center, .dg-layout-showcase-rail):not([style*="--bp-laptop-columns"]):not([style*="--bp-tablet-columns"]):not([style*="--bp-mobile-columns"]) { grid-template-columns: minmax(0, 1fr) !important; }
+    }
+    @media (max-width: 720px) {
+      :where(.hero-title, .section-title, .auth-card h1, .cta-box h2, .amana-hero h1, h1) { font-size: clamp(2rem, 11vw, 3.4rem) !important; }
+      :where(.hero-panel, .workflow-box, .visual-card, .price-card, .testimonial-card, .cta-box, .auth-card, .contact-card, .amana-card) { padding: clamp(1rem, 5vw, 1.5rem) !important; border-radius: min(var(--radius-2xl), 22px) !important; }
+      :where(.hero-actions, .trust-strip, .badge-row, .token-list, .logo-row, .amana-hero-actions, .amana-cluster) { align-items: stretch; }
+      :where(.amana-btn, .plan-button, button) { white-space: normal; text-align: center; }
+    }
+  </style>
+  <%- typeof styles !== 'undefined' && styles ? '<style>' + styles + '</style>' : '' %>
+</head>
+<body class="amana-page dg-canvas-layout-center dg-layout-center dg-canvas-flow-immersive dg-canvas-density-comfortable dg-density-comfortable" data-dg-blocks="canvas" data-dg-canvas="layout:center;flow:immersive;density:comfortable">
+  <main class="amana-runtime-shell">
+  <div class="amana-container amana-container-default"><div class="amana-auth-page"><div class="amana-auth-card"><div class="amana-auth-header"><img class="amana-auth-logo" src="/logo.png" alt="Logo" /><h2>تسجيل الدخول للنظام</h2></div><div class="amana-auth-body"><form action="/form-submit/user/login" method="POST">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <label class="amana-field" for="email">
+    <span>البريد الإلكتروني</span>
+    <input class="amana-form-control" type="email" id="email" name="email" placeholder="name@example.com" required>
+  </label>
+  <label class="amana-field" for="password">
+    <span>كلمة المرور</span>
+    <input class="amana-form-control" type="password" id="password" name="password" required>
+  </label>
+  <button type="submit" class="amana-btn amana-btn-primary">Submit</button>
+</form>
+</div></div></div></div>
+  </main>
+</body>
+</html>

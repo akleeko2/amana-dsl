@@ -37,32 +37,26 @@ fn named_color_scale(name: &str) -> Option<(&'static str, &'static str, &'static
         "emerald" => Some(("#059669", "#ecfdf5", "#064e3b")),
         "rose" => Some(("#e11d48", "#fff1f2", "#881337")),
         "slate" => Some(("#334155", "#f1f5f9", "#0f172a")),
+        "amber" => Some(("#d97706", "#fffbeb", "#78350f")),
+        "zinc" => Some(("#71717a", "#fafafa", "#18181b")),
+        "pink" => Some(("#db2777", "#fdf2f8", "#831843")),
         _ => None,
     }
 }
 
 fn safe_css_literal(value: &str, fallback: &str) -> String {
     let text = value.trim();
-    if text.is_empty() || text.len() > 260 {
+    if text.is_empty() || text.len() > 512 {
         return fallback.to_string();
     }
     let lower = text.to_lowercase();
     if lower.contains("javascript:")
-        || lower.contains("expression")
-        || lower.contains("behavior")
+        || lower.contains("expression(")
+        || lower.contains("behavior:")
         || lower.contains("@import")
-        || lower.contains("url")
-        || lower.contains('<')
-        || lower.contains('>')
-        || lower.contains(';')
-        || lower.contains('{')
-        || lower.contains('}')
-    {
-        return fallback.to_string();
-    }
-    if !text
-        .chars()
-        .all(|c| c.is_ascii_alphanumeric() || c.is_ascii_whitespace() || ".,#%()+-/*".contains(c))
+        || lower.contains("</")
+        || lower.contains("/>")
+        || lower.contains('\x00')
     {
         return fallback.to_string();
     }
@@ -74,9 +68,14 @@ fn safe_font_name(value: &str, fallback: &str) -> String {
     if text.is_empty() || text.len() > 80 {
         return fallback.to_string();
     }
-    if !text
-        .chars()
-        .all(|c| c.is_alphanumeric() || c.is_whitespace() || matches!(c, '.' | '_' | '-'))
+    let lower = text.to_lowercase();
+    if lower.contains("javascript:")
+        || lower.contains('<')
+        || lower.contains('>')
+        || lower.contains(';')
+        || lower.contains('"')
+        || lower.contains('\'')
+        || lower.contains('\\')
     {
         return fallback.to_string();
     }
@@ -186,18 +185,66 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
         }
     }
 
-    let primary_val = settings.get("primary").copied().unwrap_or("indigo");
+    // Resolve presets
+    let preset = settings.get("preset").copied().unwrap_or("");
+    let mut default_mode = "light";
+    let mut default_primary = "indigo";
+    let mut default_accent = "cyan";
+    let mut default_radius = "soft";
+    let default_density = "comfortable";
+    let default_typography = "modern";
+    let mut default_canvas = "";
+    let mut default_base = "";
+    let mut default_elevated = "";
+    let mut default_text = "";
+    let mut default_muted = "";
+    let mut default_border = "";
+
+    if preset == "luxury" {
+        default_mode = "dark";
+        default_primary = "amber";
+        default_accent = "zinc";
+        default_radius = "soft";
+        default_canvas = "#050507";
+        default_base = "#0e0e11";
+        default_elevated = "#16161b";
+        default_text = "#f4f4f5";
+        default_muted = "#a1a1aa";
+        default_border = "rgba(234,179,8,0.12)";
+    } else if preset == "linear" {
+        default_mode = "dark";
+        default_primary = "indigo";
+        default_accent = "cyan";
+        default_radius = "sharp";
+        default_canvas = "#020204";
+        default_base = "#08070b";
+        default_elevated = "#121016";
+        default_text = "#f8fafc";
+        default_muted = "#94a3b8";
+        default_border = "rgba(255,255,255,0.08)";
+    } else if preset == "stripe" {
+        default_mode = "light";
+        default_primary = "violet";
+        default_accent = "pink";
+        default_radius = "soft";
+        default_canvas = "#f6f9fc";
+        default_base = "#ffffff";
+        default_elevated = "#ffffff";
+        default_text = "#0a2540";
+        default_muted = "#425466";
+        default_border = "#e6ebf1";
+    }
+
+    let mode_val = settings.get("mode").copied().unwrap_or(default_mode);
+    let dark = mode_val == "dark" || mode_val == "night";
+
+    let primary_val = settings.get("primary").copied().unwrap_or(default_primary);
     let primary = theme_color(primary_val, "indigo");
 
-    let accent_val = settings.get("accent").copied().unwrap_or("cyan");
+    let accent_val = settings.get("accent").copied().unwrap_or(default_accent);
     let accent = theme_color(accent_val, "cyan");
 
-    let dark = settings
-        .get("mode")
-        .map(|&v| v == "dark" || v == "night")
-        .unwrap_or(false);
     let direction = settings.get("direction").copied().unwrap_or("ltr");
-
     let start = if direction == "rtl" { "right" } else { "left" };
     let end = if direction == "rtl" { "left" } else { "right" };
 
@@ -207,12 +254,12 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
     let radius_round = ("12px", "20px", "28px", "34px", "42px");
     let radius_pill = ("9999px", "9999px", "9999px", "9999px", "9999px");
 
-    let radius_setting = settings.get("radius").copied().unwrap_or("soft");
+    let radius_setting = settings.get("radius").copied().unwrap_or(default_radius);
     let radius = match radius_setting {
-        "none" => radius_none,
+        "none" | "sharp" if radius_setting == "none" => radius_none,
         "sharp" => radius_sharp,
         "soft" => radius_soft,
-        "round" => radius_round,
+        "medium" | "round" => radius_round,
         "pill" => radius_pill,
         _ => radius_soft,
     };
@@ -221,10 +268,10 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
     let density_comfortable = ("1rem", "1.5rem", "2.25rem");
     let density_spacious = ("1.25rem", "2rem", "3rem");
 
-    let density_setting = settings.get("density").copied().unwrap_or("comfortable");
+    let density_setting = settings.get("density").copied().unwrap_or(default_density);
     let density = match density_setting {
         "compact" => density_compact,
-        "comfortable" => density_comfortable,
+        "default" | "comfortable" => density_comfortable,
         "spacious" => density_spacious,
         _ => density_comfortable,
     };
@@ -234,7 +281,7 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
         .map(|&v| v == "glass")
         .unwrap_or(false);
 
-    let canvas_fallback = if dark { "#020617" } else { "#f8fafc" };
+    let canvas_fallback = if !default_canvas.is_empty() { default_canvas } else if dark { "#020617" } else { "#f8fafc" };
     let canvas = safe_css_literal(
         settings
             .get("canvas")
@@ -245,7 +292,7 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
         canvas_fallback,
     );
 
-    let base_fallback = if dark { "#0f172a" } else { "#ffffff" };
+    let base_fallback = if !default_base.is_empty() { default_base } else if dark { "#0f172a" } else { "#ffffff" };
     let base = safe_css_literal(
         settings
             .get("base")
@@ -255,7 +302,7 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
         base_fallback,
     );
 
-    let muted_fallback = if dark { "#111827" } else { "#f8fafc" };
+    let muted_fallback = if !default_muted.is_empty() { default_muted } else if dark { "#111827" } else { "#f8fafc" };
     let muted = safe_css_literal(
         settings
             .get("muted_surface")
@@ -265,7 +312,9 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
         muted_fallback,
     );
 
-    let elevated_fallback = if surface_glass {
+    let elevated_fallback = if !default_elevated.is_empty() {
+        default_elevated
+    } else if surface_glass {
         if dark {
             "rgba(15,23,42,0.74)"
         } else {
@@ -283,7 +332,7 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
         elevated_fallback,
     );
 
-    let text_fallback = if dark { "#f8fafc" } else { "#0f172a" };
+    let text_fallback = if !default_text.is_empty() { default_text } else if dark { "#f8fafc" } else { "#0f172a" };
     let text = safe_css_literal(
         settings
             .get("text")
@@ -293,7 +342,7 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
         text_fallback,
     );
 
-    let text_muted_fallback = if dark { "#cbd5e1" } else { "#475569" };
+    let text_muted_fallback = if !default_muted.is_empty() { default_muted } else if dark { "rgba(255, 255, 255, 0.72)" } else { "#475569" };
     let text_muted = safe_css_literal(
         settings
             .get("muted")
@@ -303,7 +352,7 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
         text_muted_fallback,
     );
 
-    let border_fallback = if dark {
+    let border_fallback = if !default_border.is_empty() { default_border } else if dark {
         "rgba(148,163,184,0.22)"
     } else {
         "rgba(15,23,42,0.10)"
@@ -370,7 +419,14 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
         &radius_2xl_fallback,
     );
 
-    let font_provider = settings.get("font_provider").copied().unwrap_or("system");
+    let typography_setting = settings.get("typography").copied().unwrap_or(default_typography);
+    let (default_body, default_heading, default_arabic) = match typography_setting {
+        "classic" => ("Merriweather", "Playfair Display", "Amiri"),
+        "tech" => ("Fira Code", "JetBrains Mono", "Courier New"),
+        _ => ("Plus Jakarta Sans", "Outfit", "IBM Plex Sans Arabic"),
+    };
+
+    let font_provider = settings.get("font_provider").copied().unwrap_or(if typography_setting == "system" { "system" } else { "google" });
     let has_google_fonts = font_provider == "google";
     let body_family = safe_font_name(
         settings
@@ -378,8 +434,8 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
             .or_else(|| settings.get("body_font"))
             .or_else(|| settings.get("font"))
             .copied()
-            .unwrap_or("Plus Jakarta Sans"),
-        "Plus Jakarta Sans",
+            .unwrap_or(default_body),
+        default_body,
     );
     let heading_family = safe_font_name(
         settings
@@ -387,16 +443,16 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
             .or_else(|| settings.get("heading_font"))
             .or_else(|| settings.get("display_font"))
             .copied()
-            .unwrap_or("Outfit"),
-        "Outfit",
+            .unwrap_or(default_heading),
+        default_heading,
     );
     let arabic_family = safe_font_name(
         settings
             .get("arabic_font_family")
             .or_else(|| settings.get("arabic_font"))
             .copied()
-            .unwrap_or("IBM Plex Sans Arabic"),
-        "IBM Plex Sans Arabic",
+            .unwrap_or(default_arabic),
+        default_arabic,
     );
     let system_fallbacks = "-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif";
     let body_stack = font_stack(
@@ -422,13 +478,23 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
             "@import url('https://fonts.googleapis.com/css2?{}&display=swap');\n",
             font_query
         )
+    } else if font_provider == "local" {
+        "@import url('/fonts/fonts.css');\n".to_string()
     } else {
         String::new()
     };
 
-    let body_font = format!("400 1rem/1.6 {}", body_stack);
+    let body_weight = settings.get("font_weight")
+        .or(settings.get("weight"))
+        .copied().unwrap_or("400");
+    let heading_weight = settings.get("heading_weight")
+        .or(settings.get("display_weight"))
+        .copied().unwrap_or("800");
+    let display_weight = settings.get("display_weight").copied().unwrap_or("900");
 
-    let heading_font = format!("700 1.75rem/1.2 {}", heading_stack);
+    let body_font = format!("{} 1rem/1.6 {}", body_weight, body_stack);
+
+    let heading_font = format!("{} 1.75rem/1.2 {}", heading_weight, heading_stack);
 
     let gradient_mesh_fallback = format!(
         "radial-gradient(circle at 10% 20%, {}, transparent 34%), radial-gradient(circle at 80% 0%, {}, transparent 38%), {}",
@@ -461,8 +527,8 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
     let warning_color = safe_css_literal(settings.get("warning").copied().unwrap_or(""), "#ca8a04");
     let danger_color = safe_css_literal(settings.get("danger").copied().unwrap_or(""), "#dc2626");
 
-    let glow_primary = format!("0 0 0 4px {}, 0 18px 40px -24px {}", primary.1, primary.0);
-    let glow_accent = format!("0 0 0 4px {}, 0 18px 40px -24px {}", accent.1, accent.0);
+    let glow_primary = format!("0 4px 12px color-mix(in srgb, {} 30%, transparent)", primary.0);
+    let glow_accent = format!("0 4px 12px color-mix(in srgb, {} 30%, transparent)", accent.0);
 
     let mut css = format!(
         r#"{}
@@ -545,9 +611,23 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
       --glow-accent: {};
       --font-body: {};
       --font-heading: {};
+      --color-primary-dark: {};
+      --radius-pill: 9999px;
+      --radius-none: 0px;
+      --space-2xs: 0.125rem;
+      --font-weight-body: {};
+      --font-weight-heading: {};
+      --font-weight-display: {};
+      --transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      --transition-spring: 600ms cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-reveal: 560ms cubic-bezier(0.16, 1, 0.3, 1);
+      --blur-sm: blur(4px);
+      --blur-md: blur(8px);
+      --blur-lg: blur(16px);
+      --blur-xl: blur(24px);
     }}
     html {{ direction: {}; }}
-    body {{ direction: {}; color-scheme: {}; background: var(--bg-secondary); color: var(--text-primary); font: var(--font-body); }}
+    body {{ direction: {}; color-scheme: {}; background-color: var(--bg-secondary); color: var(--text-primary); font: var(--font-body); }}
     :where(h1, h2, h3, h4, h5, h6) {{ font: var(--font-heading); }}
 "#,
         font_import,
@@ -588,10 +668,60 @@ pub(super) fn theme_css(theme: Option<&ThemeIR>, tokens: Option<&TokenConfigBloc
         glow_accent,
         body_font,
         heading_font,
+        primary.2,
+        body_weight,
+        heading_weight,
+        display_weight,
         direction,
         direction,
         if dark { "dark" } else { "light" }
     );
     css.push_str(&token_css(tokens));
+    if preset == "luxury" {
+        css.push_str(r#"
+/* Luxury theme modal input overrides */
+.amana-modal-panel .amana-form-control,
+.amana-modal-panel .amana-input,
+.amana-modal-panel .amana-form-field-input {
+  background-color: color-mix(in srgb, var(--surface-elevated) 90%, #ffffff 4%) !important;
+  border-color: rgba(234, 179, 8, 0.25) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(234, 179, 8, 0.05) !important;
+  color: var(--text-primary) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+}
+.amana-modal-panel .amana-form-control:hover,
+.amana-modal-panel .amana-input:hover,
+.amana-modal-panel .amana-form-field-input:hover {
+  background-color: color-mix(in srgb, var(--surface-elevated) 88%, #ffffff 6%) !important;
+  border-color: rgba(234, 179, 8, 0.45) !important;
+}
+.amana-modal-panel .amana-form-control:focus,
+.amana-modal-panel .amana-input:focus,
+.amana-modal-panel .amana-form-field-input:focus {
+  background-color: color-mix(in srgb, var(--surface-elevated) 85%, #ffffff 8%) !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.22), inset 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  outline: none !important;
+}
+.amana-modal-panel .amana-form-control::placeholder,
+.amana-modal-panel .amana-input::placeholder,
+.amana-modal-panel .amana-form-field-input::placeholder {
+  color: rgba(161, 161, 170, 0.45) !important;
+}
+.amana-modal-panel .amana-form-group,
+.amana-modal-panel .amana-form-field {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  margin-bottom: 1.25rem !important;
+}
+.amana-modal-panel .amana-label,
+.amana-modal-panel .amana-form-field-label {
+  font-weight: 600 !important;
+  color: rgba(244, 244, 245, 0.9) !important;
+  letter-spacing: 0.025em !important;
+}
+"#);
+    }
     css
 }

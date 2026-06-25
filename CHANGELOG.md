@@ -19,30 +19,43 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Added
-- **`doc/getting-started.md`** — first end-user onboarding guide (install → first app → auth + data). Bilingual.
-- **`doc/design-anti-patterns.md`** — unified bilingual design anti-patterns reference; each rule tagged `SOLVED` / `ACTIVE RISK` / `ENFORCED`.
-- **`CHANGELOG.md`** — this file.
-- **Known Issues table** in `doc/language-runtime-trust-plan.md` — canonical, maintained list of active component/layout bugs (`Modal`, `Grid` stretch, tablet breakpoints, laptop overflow, `FormField` textarea in modals), with severity and workarounds.
-- Explicit clarification of `n/a` cells in the trust-plan coverage matrix.
+## [v3.0.0] — 2026-06-23: Production-Ready Layout Components, Design Tokens & Arabic Canvas RTL Fixes
 
-### Changed
-- **Governance rule strengthened:** a feature with an active Known Issue can no longer be described as `implemented` / `production_safe: yes` in the coverage matrix. The `roadmap.md` "Implemented" table is now scoped to core language/runtime surfaces; visual component polish gaps live in Known Issues.
-- **`doc/examples-gallery.md`** rewritten to reflect the actual `examples/` directory (`landing.amana`, `royal_deck.amana`, `test_ternary.amana`). The deleted numbered examples (`01_saas_aura` … `09_multi_file_portal`) are explicitly marked non-authoritative.
-- **`doc/cli-dx.md`** now contains the full `amana dev` / live-rebuild workflow; the standalone `live-preview.md` is merged in.
-- **`.gitignore`** expanded to cover `scratch/`, `المستقبل/`, `task.md`, `*_dist/`, `examples_dist_test/`, `examples_dist/`, `royal_deck_dist/`, `.amana_live_dist/`, and other build/test artifact directories.
-- **`AMANA_VISUAL_LANGUAGE_AUDIT.md`** "Remaining Verified Bugs" section now points to the trust-plan Known Issues as the source of truth.
+### Added
+- **Design Tokens & Theme Presets**: Support for luxury, stripe, and linear themes with dynamic switching of CSS variables (colors, border-radius, spacing, density, etc.).
+- **Localized Styling Overrides for Luxury Modals**: Form inputs inside Luxury theme modals elevated with gold/amber borders, custom hover/focus glows, and structured vertical spacing and label alignments.
+- **Accessibility Enhancements (Layer 1-A)**: Completed ARIA annotations and keyboard navigation (left/right arrow controls for Tabs, accordion ARIA integration, focus traps).
+- **Layout Components (Layer 1-B)**: Added `Center`, `Cover`, `Reel`, and `Masonry` components to the compiler and styling libraries.
+- **State System Components (Layer 1-C)**: Added `Skeleton` components (shimmer loading text/avatar), `LoadingState`, `ErrorState`, and `OfflineState` network connection listeners.
+- **Feedback System (Layer 1-D)**: Added `Toast` (auto-dismiss alerts) and `Banner` (with info/success/warning/danger types and close triggers).
+- **Core Page Shells (Layer 2-A)**: Added `DashboardShell`, `AuthPage`, and `PricingSection` components.
+- **Navigation Components (Layer 2-B)**: Added `Breadcrumb`, `Dropdown`, and `CommandPalette` (with escape key listener and focus traps).
+- **Data Components (Layer 3-A)**: Added `SearchBar`, `FilterBar`, `Paginator`, `DataTable` client-side search/select-all.
+- **Advanced Interaction (Layer 3-B)**: Added `FileUpload`, `RichEditor`, and `ColorPicker`.
+- **Content Sections (Layer 3-C)**: Added `HeroSection`, `SettingsPage`, `StatsSection`, `FAQSection`, `BlogSection`, `TestimonialsSection`, and `ContactSection`.
+- **DX Tools (Layer 4)**: Integrated `amana generate` boilerplate creator, `amana dev/watch` live-reloader, and `amana check` compiler diagnostics checks.
 
 ### Fixed
-- **Missing compiler sources in git** — 20 source files under `src/parser/`, `src/semantic/`, and `src/codegen/express/` (~7,979 lines, including the entire `static_files/` runtime generator, `express/theme.rs`, `express/views.rs`, `parser/{css,design,expressions,styles,top_level,views}.rs`, and `semantic/{schema,scope,suggestions,types,views}.rs`) were untracked and are now committed.
-- **Missing apps/docs/scripts/examples in git** — the `apps/` multi-file applications, the generated `doc/language-inventory.generated.md`, `doc/language-runtime-trust-plan.md`, `doc/AMANA_VISUAL_LANGUAGE_AUDIT.md`, `scripts/language_inventory.py`, `scripts/search-language.ps1`, `examples/{landing,royal_deck,test_ternary}.amana`, and `AMANA_DEVELOPMENT_STANDARDS.md` were untracked and are now committed.
+- **Arabic Canvas Ligatures & RTL Flow**: Re-ordered and shaped Arabic contextual characters on HTML5 canvas contexts using jsDelivr `arabic-reshaper` and a custom Javascript string segmenter.
+- **Blank Chart Element ID Collision**: Implemented thread-local `CHART_COUNTER` (compile-time) and random suffixing (runtime) to prevent duplicate canvas element IDs on a single page view.
+- **Compiler Warnings Suppression**: Resolved all dead-code and unused-import warnings in `tokens.rs`, `hooks.rs`, and `static_files/` via local attributes (`#![allow(dead_code)]`) and removed the unused `HashMap` import.
 
-### Removed
-- **`doc/design-bugs-prevention.md`** and **`doc/design-mistakes-avoidance.md`** — superseded by the unified `doc/design-anti-patterns.md`.
-- **`doc/live-preview.md`** — merged into `doc/cli-dx.md`.
+## [v2.6.0] — 2026-06-20: Production-ready Modal & Grid Alignment
+
+### Added
+- **Visual Smoke Tests** — Created visual smoke testing environment using Playwright with npm scripts (`npm run test:visual`), including a self-contained visual testing application (`examples/test_modal_grid.amana`) and CI pipeline in `.github/workflows/visual.yml`.
+- **Monotonic Modal IDs** — Modals generate unique monotonically increasing title IDs per view (`amana-modal-title-0`, etc.) to prevent ARIA identifier collisions.
+- **Pure JavaScript Focus Trap** — Pure JS tab event handler on Modal to ensure keyboard focus is locked inside without loading external Alpine Focus plugins.
+
+### Changed
+- **Modal Component Hardening** — Improved the standard Modal component: securely escape titles utilizing EJS `<%= %>` syntax, lock page scrolling via client-side `x-effect` on `document.body.style.overflow`, and support closable backdrop/overlay click and ESC key events.
+- **Grid Layout Alignment** — Content-led grids default to top-alignment (`align-items: start`) to avoid card/content stretching. Explicit stretching can be opted into using `Grid(stretch: true)`, which appends the `amana-grid-stretch` CSS utility.
+- **Cleaned Up Known Issues** — Reconciled resolved layout issues in `doc/language-runtime-trust-plan.md` and `doc/AMANA_VISUAL_LANGUAGE_AUDIT.md`.
 
 ### Docs
-- Reconciled the contradiction between `roadmap.md` (claimed everything "Implemented") and `AMANA_VISUAL_LANGUAGE_AUDIT.md` (listed 5 verified current bugs). The audit bugs are now first-class entries in the trust-plan Known Issues and the roadmap's Remaining Work.
+- Updated `doc/language.md` and `doc/html-components-forms.md` to document the updated Modal API parameters.
+- Updated `doc/design-anti-patterns.md` to document card grid top-alignment and dashboard stretching guidelines.
+- Updated `CONTRIBUTING.md` with instructions on running visual smoke tests.
 
 ---
 

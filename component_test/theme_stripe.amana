@@ -1,0 +1,28 @@
+theme:
+    preset: stripe
+    radius: soft
+    density: default
+    direction: rtl
+
+route /theme_stripe -> view theme_stripe
+
+view theme_stripe:
+    render:
+        Container:
+            Section:
+                h2: "اختبار ثيم Stripe"
+                Grid(columns: "4"):
+                    Card(title: "Flat Card", variant: "flat"):
+                        p: "محتوى Flat"
+                    Card(title: "Elevated Card", variant: "elevated"):
+                        p: "محتوى Elevated"
+                    Card(title: "Outlined Card", variant: "outlined"):
+                        p: "محتوى Outlined"
+                    Card(title: "Glass Card", variant: "glass"):
+                        p: "محتوى Glass"
+                Cluster:
+                    Button(label: "Primary", variant: "primary")
+                    Button(label: "Secondary", variant: "secondary")
+                    Button(label: "Outline", variant: "outline")
+                    Button(label: "Ghost", variant: "ghost")
+                    Button(label: "Link", variant: "link")

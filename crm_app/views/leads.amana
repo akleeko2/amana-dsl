@@ -1,0 +1,101 @@
+route /leads -> view Leads
+
+view Leads:
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+    canvas:
+        layout: column
+        density: comfortable
+    client:
+        state show_create_modal = false
+        state show_edit_modal = false
+        state show_delete_modal = false
+    server:
+        fetch leads = Lead.all(limit: 100)
+        fetch lead = Lead.find(1)
+    render:
+        DashboardShell(brand: "نظام إدارة العملاء", user: "المدير العام"):
+            sidebar:
+                a(href: "/dashboard"): "الرئيسية"
+                a(href: "/customers"): "عرض العملاء"
+                a(href: "/leads"): "عرض الـ Leads"
+                a(href: "/reports"): "التقارير والإحصائيات"
+                a(href: "/logout"): "تسجيل الخروج"
+            main:
+                Container:
+                    Section(title: "إدارة الفرص البيعية (Leads)", subtitle: "عرض وتحديث وحذف الفرص البيعية الجارية والمستقبلية"):
+                        Cluster:
+                            Button(label: "إضافة Lead جديد", variant: "primary", click: "show_create_modal = true")
+                        
+                        DataTable(data: leads):
+                            column(title: "الطلب"):
+                                p: lead.title
+                            column(title: "القيمة"):
+                                p: f"${lead.value}"
+                            column(title: "الحالة"):
+                                p: lead.status
+                            column(title: "رقم العميل المرتبط"):
+                                p: f"{lead.customer_id}"
+                            column(title: "الإجراءات"):
+                                Cluster:
+                                    button(class: "amana-btn amana-btn-outline amana-btn-md amana-btn-intent-default", type: "button", data_id: lead.id, data_title: lead.title, data_value: lead.value, data_status: lead.status, data_customer_id: lead.customer_id, click: "document.querySelector('.edit-modal-wrapper input[name=id]').value = $el.getAttribute('data_id'); document.querySelector('.edit-modal-wrapper input[name=title]').value = $el.getAttribute('data_title'); document.querySelector('.edit-modal-wrapper input[name=value]').value = $el.getAttribute('data_value'); document.querySelector('.edit-modal-wrapper input[name=status]').value = $el.getAttribute('data_status'); document.querySelector('.edit-modal-wrapper input[name=customer_id]').value = $el.getAttribute('data_customer_id'); show_edit_modal = true"): "تعديل"
+                                    button(class: "amana-btn amana-btn-ghost amana-btn-md amana-btn-intent-default", type: "button", data_id: lead.id, click: "document.querySelector('.delete-modal-wrapper input[name=id]').value = $el.getAttribute('data_id'); show_delete_modal = true"): "حذف"
+                        
+                        # Create Lead Modal
+                        Modal(title: "إضافة Lead جديد", open: "show_create_modal"):
+                            form [title, value, status, customer_id]:
+                                connect Lead.create
+                                redirect success -> /leads
+                                field title:
+                                    label: "عنوان الطلب"
+                                    placeholder: "مثال: بوابة دفع الكتروني"
+                                    required: true
+                                field value:
+                                    label: "القيمة المتوقعة"
+                                    placeholder: "50000"
+                                    type: number
+                                    required: true
+                                field status:
+                                    label: "الحالة (new / in_progress / won / lost)"
+                                    placeholder: "new"
+                                    required: true
+                                field customer_id:
+                                    label: "رقم العميل المرتبط"
+                                    placeholder: "مثال: 1"
+                                    type: number
+                                    required: true
+                        
+                        # Update Lead Modal (Scoped)
+                        div.edit-modal-wrapper:
+                            Modal(title: "تعديل بيانات الـ Lead", open: "show_edit_modal"):
+                                form [id, title, value, status, customer_id]:
+                                    connect Lead.update
+                                    redirect success -> /leads
+                                    field id:
+                                        type: hidden
+                                    field title:
+                                        label: "عنوان الطلب"
+                                        required: true
+                                    field value:
+                                        label: "القيمة المتوقعة"
+                                        type: number
+                                        required: true
+                                    field status:
+                                        label: "الحالة"
+                                        required: true
+                                    field customer_id:
+                                        label: "رقم العميل المرتبط"
+                                        type: number
+                                        required: true
+                        
+                        # Delete Lead Modal (Scoped)
+                        div.delete-modal-wrapper:
+                            Modal(title: "تأكيد حذف الـ Lead", open: "show_delete_modal"):
+                                p: "هل أنت متأكد من رغبتك في حذف هذا الـ Lead نهائياً؟"
+                                form [id]:
+                                    connect Lead.delete
+                                    redirect success -> /leads
+                                    field id:
+                                        type: hidden

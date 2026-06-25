@@ -273,7 +273,12 @@ impl Parser {
                         }
                         TokenKind::StringLiteral(s) => {
                             self.advance();
-                            (format!("\"{}\"", s), true)
+                            let prop_lower = prop.to_lowercase();
+                            if prop_lower == "content" || prop_lower == "font-family" || prop_lower == "font" {
+                                (format!("\"{}\"", s), true)
+                            } else {
+                                (s.clone(), true)
+                            }
                         }
                         TokenKind::Dot => {
                             self.advance();

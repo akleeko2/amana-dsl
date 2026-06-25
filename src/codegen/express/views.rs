@@ -441,6 +441,19 @@ fn target_base_selector(target: &str) -> String {
         "Cluster" => ".amana-cluster".to_string(),
         "Sidebar" => ".amana-sidebar".to_string(),
         "Slides" => ".amana-slides".to_string(),
+        "Center" => ".amana-center".to_string(),
+        "Cover" => ".amana-cover".to_string(),
+        "Reel" => ".amana-reel".to_string(),
+        "Masonry" => ".amana-masonry".to_string(),
+        "Skeleton" => ".amana-skeleton".to_string(),
+        "LoadingState" => ".amana-loading-state".to_string(),
+        "ErrorState" => ".amana-error-state".to_string(),
+        "OfflineState" => ".amana-offline-state".to_string(),
+        "Toast" => ".amana-toast".to_string(),
+        "Banner" => ".amana-banner".to_string(),
+        "DashboardShell" => ".amana-dashboard-shell".to_string(),
+        "AuthPage" => ".amana-auth-page".to_string(),
+        "PricingSection" => ".amana-pricing-section".to_string(),
         _ => format!(".amana-component-{}", token),
     }
 }
@@ -589,45 +602,44 @@ fn alpine_state_data(view: &ViewIR, auth_model: &str) -> String {
 pub(crate) fn compile_default_login_ejs(
     html_lang: &str,
     html_dir: &str,
-    bootstrap_css: &str,
+    theme_css: &str,
 ) -> String {
     format!(
         r#"<!DOCTYPE html>
 <html lang="{}" dir="{}">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>تسجيل الدخول</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/{}" rel="stylesheet">
   <style>
-    body {{ background-color: #f8f9fa; height: 100vh; display: flex; align-items: center; justify-content: center; }}
-    .login-card {{ width: 400px; padding: 2rem; border-radius: 8px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }}
+    {}
   </style>
 </head>
-<body>
-  <div class="login-card">
-    <h2 class="text-center mb-4">تسجيل الدخول</h2>
-    <% if (error) {{ %>
-      <div class="alert alert-danger"><%= error %></div>
+<body class="amana-login-shell">
+  <div class="amana-login-card">
+    <h2 class="amana-login-title">تسجيل الدخول</h2>
+    <% if (typeof error !== 'undefined' && error) {{ %>
+      <div class="amana-login-error"><%= error %></div>
     <% }} %>
     <form action="/login" method="POST">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <div class="mb-3">
-        <label class="form-label" for="email">البريد الإلكتروني</label>
-        <input class="form-control" type="email" id="email" name="email" required>
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+      <div class="amana-field">
+        <span>البريد الإلكتروني</span>
+        <input class="amana-form-control" type="email" id="email" name="email" required>
       </div>
-      <div class="mb-3">
-        <label class="form-label" for="password">كلمة المرور</label>
-        <input class="form-control" type="password" id="password" name="password" required>
+      <div class="amana-field">
+        <span>كلمة المرور</span>
+        <input class="amana-form-control" type="password" id="password" name="password" required>
       </div>
-      <button class="btn btn-primary w-100" type="submit">دخول</button>
+      <button class="amana-btn amana-btn-primary" style="width: 100%" type="submit">دخول</button>
     </form>
-    <div class="mt-3 text-center text-muted">
+    <div style="margin-top: 1.5rem; text-align: center; color: var(--text-secondary); font-size: var(--text-xs)">
       <small>Use AMANA_SEED_ADMIN=true with AMANA_ADMIN_EMAIL and AMANA_ADMIN_PASSWORD to create an initial admin account.</small>
     </div>
   </div>
 </body>
 </html>"#,
-        html_lang, html_dir, bootstrap_css
+        html_lang, html_dir, theme_css
     )
 }
 
@@ -982,21 +994,12 @@ fn normalize_design_style_value(key: &str, value: &str) -> String {
 fn safe_design_var_value(val: &str) -> String {
     let lower = val.to_lowercase();
     if lower.contains("javascript:")
-        || lower.contains("expression")
-        || lower.contains("behavior")
+        || lower.contains("expression(")
+        || lower.contains("behavior:")
         || lower.contains("@import")
-        || lower.contains("url")
-        || lower.contains('<')
-        || lower.contains('>')
-        || lower.contains(';')
-        || lower.contains('{')
-        || lower.contains('}')
-    {
-        return String::new();
-    }
-    if !val
-        .chars()
-        .all(|c| c.is_ascii_alphanumeric() || c.is_ascii_whitespace() || " .,%#()+-/*".contains(c))
+        || lower.contains("</")
+        || lower.contains("/>")
+        || lower.contains('\x00')
     {
         return String::new();
     }
@@ -1114,6 +1117,8 @@ pub(crate) fn design_style_vars(canvas: &DesignBlock) -> String {
                 styles.push(format!("--dg-template:{}", clean_value))
             }
             ("motion", "speed") => styles.push(format!("--dg-motion-speed:{}", clean_value)),
+            ("motion", "delay") => styles.push(format!("animation-delay:{}", clean_value)),
+            ("motion", "duration") => styles.push(format!("animation-duration:{}", clean_value)),
             ("type", "measure") => styles.push(format!("--dg-type-measure:{}", clean_value)),
             ("type", "weight") => styles.push(format!("--dg-type-weight:{}", clean_value)),
             ("type", "size" | "font-size") => styles.push(format!("font-size:{}", clean_value)),
@@ -1353,7 +1358,11 @@ fn escape_html_attr(s: &str) -> String {
         .replace('>', "&gt;")
 }
 
-const BASE_CSS_CLASSES: &str = r#"
+use crate::codegen::express::base_css::BASE_CSS;
+const BASE_CSS_CLASSES: &str = BASE_CSS;
+
+#[allow(dead_code)]
+const BASE_CSS_CLASSES_UNUSED: &str = r#"
     *, *::before, *::after { box-sizing: border-box; }
     html { width: 100%; max-width: 100%; overflow-x: hidden; scroll-behavior: smooth; }
     body { width: 100%; max-width: 100%; min-width: 0; margin: 0; overflow-x: hidden; background-color: var(--bg-secondary); color: var(--text-primary); font: var(--font-body); text-rendering: geometricPrecision; }

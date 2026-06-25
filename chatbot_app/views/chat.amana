@@ -1,0 +1,347 @@
+route /chat -> view Chat
+
+import "../components/chat_sidebar.amana"
+import "../components/message_bubble.amana"
+
+view Chat:
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+    canvas:
+        layout: column
+        density: comfortable
+    style:
+        .dashboard-shell:
+            display: "grid"
+            grid-template-columns: "260px 1fr"
+            min-height: "100vh"
+            background: "#080b11"
+            color: "#f8fafc"
+            font-family: "'Outfit', 'Inter', sans-serif"
+            direction: "rtl"
+
+        # Responsive Layout Classes
+        .mobile-layout:
+            grid-template-columns: "1fr"
+
+        .sidebar-backdrop:
+            position: "fixed"
+            top: "0"
+            left: "0"
+            width: "100vw"
+            height: "100vh"
+            background: "rgba(0, 0, 0, 0.6)"
+            z-index: "90"
+            backdrop-filter: "blur(4px)"
+
+        .sidebar-brand-row:
+            display: "flex"
+            justify-content: "space-between"
+            align-items: "center"
+            width: "100%"
+
+        .sidebar-close-btn:
+            background: "transparent"
+            border: "none"
+            color: "#64748b"
+            font-size: "1.5rem"
+            cursor: "pointer"
+            padding: "0.25rem"
+            line-height: "1"
+        .sidebar-close-btn:hover:
+            color: "#ffffff"
+
+        .sidebar-toggle-btn:
+            background: "rgba(255, 255, 255, 0.03)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            color: "#ffffff"
+            font-size: "1.25rem"
+            border-radius: "8px"
+            width: "2.5rem"
+            height: "2.5rem"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            cursor: "pointer"
+            transition: "all 0.2s ease"
+            line-height: "1"
+        .sidebar-toggle-btn:hover:
+            background: "rgba(99, 102, 241, 0.15)"
+            border-color: "rgba(99, 102, 241, 0.3)"
+
+        # Sidebar Styles
+        .custom-sidebar:
+            background: "rgba(12, 15, 23, 0.6)"
+            border-left: "1px solid rgba(255, 255, 255, 0.05)"
+            padding: "2rem 1.5rem"
+            display: "flex"
+            flex-direction: "column"
+            gap: "2.5rem"
+            backdrop-filter: "blur(12px)"
+
+        .mobile-layout .custom-sidebar:
+            position: "fixed"
+            top: "0"
+            right: "0"
+            height: "100vh"
+            width: "280px"
+            z-index: "100"
+            background: "#0c0f17"
+            transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+            box-shadow: "-10px 0 30px rgba(0, 0, 0, 0.5)"
+            border-left: "none"
+
+        .sidebar-brand:
+            font-size: "1.3rem"
+            font-weight: "900"
+            background: "linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%)"
+            -webkit-background-clip: "text"
+            -webkit-text-fill-color: "transparent"
+            letter-spacing: "-0.02em"
+            padding-right: "0.5rem"
+        .sidebar-menu:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.5rem"
+            flex-grow: "1"
+        .menu-item:
+            display: "flex"
+            align-items: "center"
+            padding: "0.85rem 1rem"
+            color: "#94a3b8"
+            text-decoration: "none"
+            font-weight: "600"
+            font-size: "0.95rem"
+            border-radius: "10px"
+            transition: "all 0.2s ease"
+        .menu-item:hover:
+            background: "rgba(255, 255, 255, 0.02)"
+            color: "#ffffff"
+        .menu-item.active:
+            background: "rgba(99, 102, 241, 0.1)"
+            color: "#a5b4fc"
+            border: "1px solid rgba(99, 102, 241, 0.15)"
+        .logout-item:
+            color: "#f87171"
+        .logout-item:hover:
+            background: "rgba(248, 113, 113, 0.08)"
+            color: "#ef4444"
+        .sidebar-user:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+            padding-top: "1.5rem"
+            border-top: "1px solid rgba(255, 255, 255, 0.05)"
+        .user-avatar:
+            width: "2.5rem"
+            height: "2.5rem"
+            border-radius: "50%"
+            background: "rgba(99, 102, 241, 0.15)"
+            color: "#a5b4fc"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-weight: "700"
+        .user-details:
+            display: "flex"
+            flex-direction: "column"
+        .user-name:
+            font-weight: "700"
+            font-size: "0.9rem"
+            color: "#ffffff"
+        .user-role:
+            font-size: "0.75rem"
+            color: "#64748b"
+
+        # Main Panel & Chat Console Layout
+        .dashboard-main:
+            display: "flex"
+            flex-direction: "column"
+            height: "100vh"
+        .chat-layout:
+            display: "flex"
+            flex: "1"
+            height: "calc(100vh - 4.5rem)"
+            overflow: "hidden"
+
+        # Left Panel (Incoming Sessions list)
+        .session-panel:
+            width: "320px"
+            background: "rgba(12, 15, 23, 0.3)"
+            border-left: "1px solid rgba(255, 255, 255, 0.05)"
+            padding: "1.5rem"
+            overflow-y: "auto"
+            display: "flex"
+            flex-direction: "column"
+
+        .mobile-layout .session-panel:
+            width: "100%"
+            border-left: "none"
+
+        .session-panel-title:
+            font-size: "1.1rem"
+            font-weight: "700"
+            color: "#ffffff"
+            margin: "0 0 1.25rem 0"
+            padding-right: "0.25rem"
+
+        # Right Panel (Message thread feed)
+        .feed-panel:
+            flex: "1"
+            display: "flex"
+            flex-direction: "column"
+            background: "#080b11"
+            height: "100%"
+            min-width: "0"
+
+        .mobile-layout .feed-panel:
+            width: "100%"
+
+        .feed-header:
+            padding: "1.25rem 2.5rem"
+            background: "rgba(12, 15, 23, 0.4)"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+            display: "flex"
+            justify-content: "space-between"
+            align-items: "center"
+        .feed-header-info:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.25rem"
+        .back-btn-row:
+            display: "flex"
+            align-items: "center"
+            gap: "1rem"
+        .chat-back-btn:
+            color: "#a5b4fc"
+            text-decoration: "none"
+            font-weight: "700"
+            font-size: "0.9rem"
+        .chat-back-btn:hover:
+            color: "#ffffff"
+        .feed-header-name:
+            font-size: "1.1rem"
+            font-weight: "700"
+            color: "#ffffff"
+            margin: "0"
+        .feed-header-email:
+            font-size: "0.8rem"
+            color: "#64748b"
+        .session-id-tag:
+            font-size: "0.75rem"
+            font-weight: "700"
+            color: "#22d3ee"
+            background: "rgba(34, 211, 238, 0.1)"
+            border: "1px solid rgba(34, 211, 238, 0.2)"
+            padding: "0.35rem 0.85rem"
+            border-radius: "50px"
+
+        .feed-messages:
+            flex: "1"
+            padding: "2rem 2.5rem"
+            overflow-y: "auto"
+            min-height: "0"
+            background: "radial-gradient(100% 100% at 50% 0%, rgba(99, 102, 241, 0.03) 0%, transparent 100%)"
+        .feed-footer:
+            padding: "1.5rem 2.5rem"
+            background: "rgba(12, 15, 23, 0.4)"
+            border-top: "1px solid rgba(255, 255, 255, 0.05)"
+
+        .empty-chat-state:
+            display: "flex"
+            flex-direction: "column"
+            align-items: "center"
+            justify-content: "center"
+            height: "100%"
+            color: "#64748b"
+            text-align: "center"
+            gap: "1rem"
+        .empty-icon:
+            font-size: "3.5rem"
+            margin-bottom: "0.5rem"
+            display: "block"
+        .empty-title:
+            font-size: "1.2rem"
+            font-weight: "700"
+            color: "#94a3b8"
+            margin: "0"
+
+    server:
+        fetch sessions = ChatSession.all(limit: 100)
+        fetch active_session = ChatSession.filter(id: query.id)
+        fetch messages = ChatMessage.filter(session_id: query.id)
+
+    render:
+        div.dashboard-shell(x_data: "{ sidebarOpen: false, isMobile: window.innerWidth < 1024 }", init: "window.addEventListener('resize', () => { isMobile = window.innerWidth < 1024 })", class: "isMobile ? 'mobile-layout' : ''"):
+            # Mobile Backdrop
+            div.sidebar-backdrop(show: "isMobile && sidebarOpen", click: "sidebarOpen = false"): ""
+
+            # Custom Sidebar Navigation
+            aside.custom-sidebar(style: "isMobile ? (sidebarOpen ? 'transform: translateX(0)' : 'transform: translateX(100%)') : ''"):
+                div.sidebar-brand-row:
+                    div.sidebar-brand: "لوحة تحكم بوت"
+                    button.sidebar-close-btn(show: "isMobile", click: "sidebarOpen = false"): "✕"
+                nav.sidebar-menu:
+                    a.menu-item(href: "/dashboard"): "الرئيسية"
+                    a.menu-item.active(href: "/chat"): "المحادثات الحية"
+                    a.menu-item(href: "/settings"): "إعدادات البوت"
+                    a.menu-item.logout-item(href: "/logout"): "تسجيل الخروج"
+                div.sidebar-user:
+                    div.user-avatar: "👤"
+                    div.user-details:
+                        span.user-name: "الموظف المناوب"
+                        span.user-role: "متابع الدعم"
+
+            # Main Dashboard Page Content
+            main.dashboard-main:
+                header.dashboard-header:
+                    button.sidebar-toggle-btn(show: "isMobile", click: "sidebarOpen = true"): "⋮"
+                    span.breadcrumb: "الرئيسية / المحادثات الحية"
+
+                div.chat-layout:
+                    # Session panel (hidden on mobile if active chat is open)
+                    div.session-panel(show: "!isMobile || query.id == null"):
+                        h3.session-panel-title: "المحادثات الواردة"
+                        for sess in sessions:
+                            ChatSidebar(session: sess)
+
+                    # Message Thread Feed Panel (hidden on mobile if no active chat is open)
+                    div.feed-panel(show: "!isMobile || query.id != null"):
+                        if query.id != null:
+                            for active in active_session:
+                                # Header showing customer info
+                                div.feed-header:
+                                    div.feed-header-info:
+                                        div.back-btn-row:
+                                            a.chat-back-btn(show: "isMobile", href: "/chat"): "← العودة"
+                                            h3.feed-header-name: active.customer_name
+                                        span.feed-header-email: active.customer_email
+                                    span.session-id-tag: f"معرف الجلسة: #{active.id}"
+
+                                # Message Feed Scroll Area
+                                div.feed-messages:
+                                    ResourceGrid(messages):
+                                        item MessageBubble(message)
+                                        empty:
+                                            div.empty-chat-state:
+                                                span.empty-icon: "💬"
+                                                p.empty-title: "بدء محادثة جديدة! أرسل رسالة ترحيبية للعميل."
+
+                                # Footer Send Form
+                                div.feed-footer:
+                                    form [content]:
+                                        connect ChatMessage.create
+                                        default session_id = query.id
+                                        default sender = "agent"
+                                        submit: "إرسال الرد"
+                                        redirect success -> /chat
+                                        field content:
+                                            label: "اكتب رسالتك هنا..."
+                                            placeholder: "مرحباً! كيف يمكنني مساعدتك اليوم؟"
+                                            required: true
+                        else:
+                            div.empty-chat-state:
+                                span.empty-icon: "🤖"
+                                h3.empty-title: "لم يتم اختيار محادثة"
+                                p: "اختر أحد العملاء من القائمة الجانبية لعرض تفاصيل الجلسة والبدء في المساعدة الحية."

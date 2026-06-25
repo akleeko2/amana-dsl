@@ -1,0 +1,227 @@
+route /settings -> view Settings
+
+view Settings:
+    protected:
+        allow: User.current != null
+        deny: -> /login
+        unauthenticated: -> /login
+    canvas:
+        layout: column
+        density: comfortable
+    style:
+        .dashboard-shell:
+            display: "grid"
+            grid-template-columns: "260px 1fr"
+            min-height: "100vh"
+            background: "#080b11"
+            color: "#f8fafc"
+            font-family: "'Outfit', 'Inter', sans-serif"
+            direction: "rtl"
+
+        # Sidebar Styles (Identical for visual consistency)
+        .custom-sidebar:
+            background: "rgba(12, 15, 23, 0.6)"
+            border-left: "1px solid rgba(255, 255, 255, 0.05)"
+            padding: "2rem 1.5rem"
+            display: "flex"
+            flex-direction: "column"
+            gap: "2.5rem"
+            backdrop-filter: "blur(12px)"
+        .sidebar-brand:
+            font-size: "1.3rem"
+            font-weight: "900"
+            background: "linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%)"
+            -webkit-background-clip: "text"
+            -webkit-text-fill-color: "transparent"
+            letter-spacing: "-0.02em"
+            padding-right: "0.5rem"
+        .sidebar-menu:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.5rem"
+            flex-grow: "1"
+        .menu-item:
+            display: "flex"
+            align-items: "center"
+            padding: "0.85rem 1rem"
+            color: "#94a3b8"
+            text-decoration: "none"
+            font-weight: "600"
+            font-size: "0.95rem"
+            border-radius: "10px"
+            transition: "all 0.2s ease"
+        .menu-item:hover:
+            background: "rgba(255, 255, 255, 0.02)"
+            color: "#ffffff"
+        .menu-item.active:
+            background: "rgba(99, 102, 241, 0.1)"
+            color: "#a5b4fc"
+            border: "1px solid rgba(99, 102, 241, 0.15)"
+        .logout-item:
+            color: "#f87171"
+        .logout-item:hover:
+            background: "rgba(248, 113, 113, 0.08)"
+            color: "#ef4444"
+        .sidebar-user:
+            display: "flex"
+            align-items: "center"
+            gap: "0.75rem"
+            padding-top: "1.5rem"
+            border-top: "1px solid rgba(255, 255, 255, 0.05)"
+        .user-avatar:
+            width: "2.5rem"
+            height: "2.5rem"
+            border-radius: "50%"
+            background: "rgba(99, 102, 241, 0.15)"
+            color: "#a5b4fc"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-weight: "700"
+        .user-details:
+            display: "flex"
+            flex-direction: "column"
+        .user-name:
+            font-weight: "700"
+            font-size: "0.9rem"
+            color: "#ffffff"
+        .user-role:
+            font-size: "0.75rem"
+            color: "#64748b"
+
+        # Main Panel Styles
+        .dashboard-main:
+            display: "flex"
+            flex-direction: "column"
+            height: "100vh"
+            overflow-y: "auto"
+        .dashboard-header:
+            padding: "1.5rem 3rem"
+            border-bottom: "1px solid rgba(255, 255, 255, 0.05)"
+            display: "flex"
+            justify-content: "space-between"
+            align-items: "center"
+        .breadcrumb:
+            font-size: "0.85rem"
+            color: "#64748b"
+            font-weight: "600"
+        .dashboard-content:
+            padding: "3rem"
+            display: "flex"
+            flex-direction: "column"
+            gap: "2.5rem"
+
+        # Settings Page custom layout
+        .settings-container:
+            background: "rgba(255, 255, 255, 0.01)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "24px"
+            padding: "3rem"
+            display: "grid"
+            grid-template-columns: "1.2fr 1.8fr"
+            gap: "3rem"
+            backdrop-filter: "blur(12px)"
+        .settings-info:
+            display: "flex"
+            flex-direction: "column"
+            gap: "1rem"
+        .settings-title:
+            font-size: "1.75rem"
+            font-weight: "800"
+            color: "#ffffff"
+            margin: "0"
+        .settings-desc:
+            font-size: "0.95rem"
+            color: "#64748b"
+            line-height: "1.6"
+            margin: "0 0 1.5rem 0"
+        .settings-tabs:
+            display: "flex"
+            flex-direction: "column"
+            gap: "0.5rem"
+        .tab-btn:
+            display: "block"
+            padding: "0.85rem 1rem"
+            border-radius: "10px"
+            background: "rgba(255, 255, 255, 0.02)"
+            border: "1px solid rgba(255, 255, 255, 0.04)"
+            color: "#ffffff"
+            text-decoration: "none"
+            font-weight: "700"
+            font-size: "0.9rem"
+            transition: "all 0.2s ease"
+            text-align: "right"
+        .tab-btn.active:
+            background: "rgba(99, 102, 241, 0.12)"
+            border-color: "rgba(99, 102, 241, 0.3)"
+            color: "#a5b4fc"
+        .tab-btn:hover:
+            background: "rgba(255, 255, 255, 0.05)"
+            color: "#ffffff"
+
+        .settings-form-card:
+            display: "flex"
+            flex-direction: "column"
+            gap: "1.5rem"
+
+    server:
+        fetch bot = Bot.find(1)
+
+    render:
+        div.dashboard-shell:
+            # Custom Sidebar Navigation
+            aside.custom-sidebar:
+                div.sidebar-brand: "لوحة تحكم بوت"
+                nav.sidebar-menu:
+                    a.menu-item(href: "/dashboard"): "الرئيسية"
+                    a.menu-item(href: "/chat"): "المحادثات الحية"
+                    a.menu-item.active(href: "/settings"): "إعدادات البوت"
+                    a.menu-item.logout-item(href: "/logout"): "تسجيل الخروج"
+                div.sidebar-user:
+                    div.user-avatar: "👤"
+                    div.user-details:
+                        span.user-name: "المشرف"
+                        span.user-role: "المدير العام"
+
+            # Main Dashboard Page Content
+            main.dashboard-main:
+                header.dashboard-header:
+                    span.breadcrumb: "الرئيسية / إعدادات البوت"
+
+                div.dashboard-content:
+                    div.settings-container:
+                        # Left side info & tabs selection
+                        div.settings-info:
+                            h2.settings-title: "تخصيص المساعد الذكي"
+                            p.settings-desc: "تحكم بالكامل في الاسم والترحيب وموديل الذكاء الاصطناعي ليتناسب مع هوية مشروعك"
+                            div.settings-tabs:
+                                a.tab-btn.active(href: "#"): "الملف الشخصي للمساعد"
+
+                        # Right side form inputs card
+                        div.settings-form-card:
+                            form [id, name, greeting, model_name, temperature]:
+                                connect Bot.update
+                                default id = bot.id
+                                default name = bot.name
+                                default greeting = bot.greeting
+                                default model_name = bot.model_name
+                                default temperature = bot.temperature
+                                submit: "حفظ الإعدادات"
+                                redirect success -> /settings
+                                field id:
+                                    type: hidden
+                                field name:
+                                    label: "اسم المساعد الذكي"
+                                    required: true
+                                field greeting:
+                                    label: "رسالة الترحيب الأولى"
+                                    type: textarea
+                                    required: true
+                                field model_name:
+                                    label: "طراز الذكاء الاصطناعي (AI Model)"
+                                    placeholder: "gpt-4o"
+                                    required: true
+                                field temperature:
+                                    label: "معامل الإبداع (Temperature)"
+                                    placeholder: "0.7"
+                                    required: true

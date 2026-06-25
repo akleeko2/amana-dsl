@@ -1,0 +1,15 @@
+theme:
+    preset: stripe
+    radius: soft
+    density: default
+    direction: rtl
+
+route /errors -> view errors
+
+view errors:
+    client:
+        state dummy = "not a boolean"
+    render:
+        Container:
+            if dummy:
+                p: "This condition is a string, not a boolean!"

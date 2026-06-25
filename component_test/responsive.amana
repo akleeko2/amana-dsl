@@ -1,0 +1,75 @@
+theme:
+    preset: stripe
+    radius: soft
+    density: default
+    direction: rtl
+
+model User:
+    email: email [unique]
+    password: password
+    name: str
+
+route /responsive -> view responsive
+
+view responsive:
+    server:
+        fetch users = User.all()
+    render:
+        Container:
+            Section:
+                h2: "اختبار التصميم المتجاوب"
+
+                # 1. Sidebar
+                Sidebar(side_width: "20rem", main_min: "60%"):
+                    Card(title: "القائمة الجانبية"):
+                        p: "محتويات شريط الجنب"
+                    Card(title: "المحتوى الرئيسي"):
+                        p: "محتويات مساحة العرض الرئيسية"
+
+                # 2. DataTable
+                Card(title: "جدول البيانات"):
+                    DataTable(items: users):
+                        column(title: "الاسم", name: "name"):
+                            span: "أحمد علي"
+                        column(title: "الدور", name: "role"):
+                            Badge(text: "CTO", tone: "success")
+
+                # 3. PricingSection
+                PricingSection(title: "التسعير المتجاوب"):
+                    plan(name: "الأساسية", price: "49 ر.س"):
+                        feature: "ميزة 1"
+                        feature: "ميزة 2"
+                    plan(name: "المتقدمة", price: "99 ر.س", highlight: "true"):
+                        feature: "ميزة 1"
+                        feature: "ميزة 2"
+                        feature: "ميزة 3"
+
+                # 4. Reel
+                Card(title: "شريط التمرير الأفقي (Reel)"):
+                    Reel(gap: "1.5rem"):
+                        Card(title: "عنصر 1"):
+                            p: "محتوى 1"
+                        Card(title: "عنصر 2"):
+                            p: "محتوى 2"
+                        Card(title: "عنصر 3"):
+                            p: "محتوى 3"
+
+                # 5. Masonry
+                Card(title: "شبكة Masonry"):
+                    Masonry(columns: "3", gap: "1.5rem"):
+                        Card(title: "كرت 1"):
+                            p: "محتوى قصير"
+                        Card(title: "كرت 2"):
+                            p: "محتوى طويل نسبياً لاختبار تباين الارتفاعات والتناسق الرأسي للميسونري"
+                        Card(title: "كرت 3"):
+                            p: "محتوى متوسط الحجم"
+
+            # 6. DashboardShell
+            Section:
+                h2: "لوحة التحكم المتجاوبة (DashboardShell)"
+                DashboardShell(brand: "أمانة المطورين"):
+                    sidebar:
+                        a(href: "#"): "الرئيسية"
+                        a(href: "#"): "التقارير"
+                    main:
+                        p: "محتوى لوحة التحكم التجريبية المصغرة"

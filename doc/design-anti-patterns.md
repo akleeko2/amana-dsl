@@ -39,7 +39,8 @@ Do not combine `border` and heavy `box-shadow` on the same element unless strict
 ```amana
 Grid(columns: "3"):
     responsive:
-        mobile.columns: 1
+        mobile:
+            columns: 1
 ```
 Or `responsive: mobile: stacked`. For custom mobile grids use auto-fit:
 ```css
@@ -144,11 +145,11 @@ field message:
 ```
 This renders `<textarea class="amana-form-control" rows="4">`.
 
-> **Active Known Issue:** Textareas lack height/overflow constraints inside modals. See [Known Issues](language-runtime-trust-plan.md) for the `FormField textarea` bug and its workaround.
+> **Solved / تم حله:** Textareas inside modal forms are now fully constrained with proper padding, flex spacing, and responsive transitions.
 
 ---
 
-## 8. Card Stretching And CSS Spacing — Partially Solved / تم حله جزئيًا
+## 8. Card Stretching And CSS Spacing — Solved / تم حله
 
 **AR** —
 * تمدد البطاقات لملء الحاوية رأسيًا بسبب `min-height: 100%` افتراضي.
@@ -157,13 +158,7 @@ This renders `<textarea class="amana-form-control" rows="4">`.
 **What is SOLVED / ما تم حله:**
 - Card default height is now `auto` (prevents unwanted stretching).
 - The compiler auto-formats binary operators (`+`, `-`, `*`, `/`) inside `calc`, `min`, `max`, `clamp` with correct spacing.
-
-**What is still an ACTIVE RISK / ما زال خطرًا نشطًا:**
-- Grid columns still stretch to the tallest column on desktop (Known Issue). Workaround:
-```css
-.amana-grid:has(> .dashboard-main-col):
-    align-items: start
-```
+- Grid containers containing cards default to top-alignment (`align-items: start`) preventing stretching, while supporting stretching via `Grid(stretch: true)`.
 
 ---
 

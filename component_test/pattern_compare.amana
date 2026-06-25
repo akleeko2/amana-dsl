@@ -1,0 +1,31 @@
+theme:
+    preset: stripe
+    radius: soft
+    density: default
+    direction: rtl
+
+route /pattern_auth -> view pattern_auth
+route /manual_auth -> view manual_auth
+
+view pattern_auth:
+    render:
+        Container:
+            AuthPage(type: "login", title: "تسجيل الدخول")
+
+view manual_auth:
+    render:
+        Container:
+            div(class: "amana-auth-page"):
+                div(class: "amana-auth-card"):
+                    div(class: "amana-auth-header"):
+                        h2: "تسجيل الدخول"
+                    div(class: "amana-auth-body"):
+                        form(class: "amana-auth-form", method: "POST", action: "/login"):
+                            div(class: "amana-field"):
+                                label(class: "amana-label"): "البريد الإلكتروني"
+                                input(class: "amana-input", type: "email", name: "email", required: "true")
+                            div(class: "amana-field"):
+                                label(class: "amana-label"): "كلمة المرور"
+                                input(class: "amana-input", type: "password", name: "password", required: "true")
+                            button(class: "amana-btn amana-btn-primary amana-btn-md amana-btn-intent-default", type: "submit"):
+                                span: "دخول"

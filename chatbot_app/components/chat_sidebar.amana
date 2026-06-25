@@ -1,0 +1,73 @@
+component ChatSidebar(session):
+    style:
+        .session-item:
+            display: flex
+            align-items: center
+            gap: "1rem"
+            padding: "1rem"
+            background: "rgba(255, 255, 255, 0.02)"
+            border: "1px solid rgba(255, 255, 255, 0.05)"
+            border-radius: "14px"
+            margin-bottom: "0.75rem"
+            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+            text-decoration: "none"
+            color: "#e2e8f0"
+        .session-item:hover:
+            background: "rgba(99, 102, 241, 0.08)"
+            border-color: "rgba(99, 102, 241, 0.3)"
+            transform: "translateX(-4px)"
+            box-shadow: "0 4px 15px rgba(0, 0, 0, 0.2)"
+        .session-avatar:
+            width: "2.75rem"
+            height: "2.75rem"
+            border-radius: "50%"
+            background: "rgba(99, 102, 241, 0.15)"
+            border: "1px solid rgba(99, 102, 241, 0.3)"
+            color: "#a5b4fc"
+            display: "flex"
+            align-items: "center"
+            justify-content: "center"
+            font-weight: "700"
+            font-size: "1.1rem"
+        .session-info:
+            display: "flex"
+            flex-direction: "column"
+            flex-grow: "1"
+            gap: "0.25rem"
+        .session-meta-row:
+            display: "flex"
+            justify-content: "space-between"
+            align-items: "center"
+        .session-name:
+            font-weight: "700"
+            font-size: "0.95rem"
+            color: "#ffffff"
+        .session-email:
+            font-size: "0.8rem"
+            color: "#64748b"
+        .badge-active:
+            background: "rgba(16, 185, 129, 0.15)"
+            color: "#10b981"
+            padding: "0.2rem 0.5rem"
+            border-radius: "50px"
+            font-size: "0.7rem"
+            font-weight: "700"
+        .badge-resolved:
+            background: "rgba(148, 163, 184, 0.15)"
+            color: "#94a3b8"
+            padding: "0.2rem 0.5rem"
+            border-radius: "50px"
+            font-size: "0.7rem"
+            font-weight: "700"
+
+    render:
+        a.session-item(href: f"/chat?id={session.id}"):
+            div.session-avatar: "👤"
+            div.session-info:
+                div.session-meta-row:
+                    span.session-name: session.customer_name
+                    if session.status == "active":
+                        span.badge-active: "نشط"
+                    if session.status == "resolved":
+                        span.badge-resolved: "محلول"
+                span.session-email: session.customer_email

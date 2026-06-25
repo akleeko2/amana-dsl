@@ -1083,10 +1083,72 @@ impl Parser {
         let role = self.expect_identifier()?;
         let action = self.expect_identifier()?;
         let resource = self.expect_identifier()?;
+        let mut where_expr = None;
+        let mut fields = Vec::new();
+
+        while !self.check(TokenKind::NewLine)
+            && !self.check(TokenKind::Dedent)
+            && self.peek_kind().is_some()
+        {
+            let key = self.expect_identifier()?;
+            match key.as_str() {
+                "where" => {
+                    where_expr = Some(self.parse_expression(1)?);
+                }
+                "fields" => {
+                    if self.check(TokenKind::LBracket) {
+                        self.advance();
+                        if !self.check(TokenKind::RBracket) {
+                            loop {
+                                fields.push(self.expect_identifier()?);
+                                if self.check(TokenKind::Comma) {
+                                    self.advance();
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        self.expect(TokenKind::RBracket)?;
+                    } else {
+                        loop {
+                            if self.check(TokenKind::NewLine) || self.check(TokenKind::Dedent) {
+                                break;
+                            }
+                            if let Some(TokenKind::Identifier(next)) = self.peek_kind() {
+                                if next == "where" || next == "fields" {
+                                    break;
+                                }
+                            }
+                            fields.push(self.expect_identifier()?);
+                            if self.check(TokenKind::Comma) {
+                                self.advance();
+                            } else if self.check(TokenKind::NewLine)
+                                || self.check(TokenKind::Dedent)
+                            {
+                                break;
+                            } else if let Some(TokenKind::Identifier(next)) = self.peek_kind() {
+                                if next == "where" || next == "fields" {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                _ => {
+                    return Err(format!(
+                        "Unexpected permission option '{}' at line {}",
+                        key,
+                        self.peek_line()
+                    ));
+                }
+            }
+        }
         Ok(PermissionRule {
             role,
             action,
             resource,
+            where_expr,
+            fields,
         })
     }
 
@@ -2043,6 +2105,146 @@ impl Parser {
                 let mut tag = orig_tag.clone();
                 let element_line = self.peek_line();
                 let element_column = self.peek_column();
+                if tag == "Chart" {
+                    self.advance();
+                    self.expect(TokenKind::LParen)?;
+                    let data_expr = self.expect_identifier()?;
+                    self.expect(TokenKind::Comma)?;
+                    let chart_type = self.expect_identifier()?;
+                    self.expect(TokenKind::Comma)?;
+                    let x_field = self.expect_identifier()?;
+                    self.expect(TokenKind::Comma)?;
+                    let y_field = self.expect_identifier()?;
+                    self.expect(TokenKind::RParen)?;
+                    if self.check(TokenKind::Colon) {
+                        self.advance();
+                        self.consume_newlines();
+                        if self.check(TokenKind::Indent) {
+                            self.advance();
+                            self.consume_newlines();
+                            if !self.check(TokenKind::Dedent) {
+                                return Err("Chart does not accept a nested body.".to_string());
+                            }
+                            self.expect(TokenKind::Dedent)?;
+                        }
+                    }
+                    return Ok(ViewElement::Chart {
+                        data_expr,
+                        chart_type,
+                        x_field,
+                        y_field,
+                    });
+                }
+                if tag == "Accordion" {
+                    self.advance();
+                    self.expect(TokenKind::Colon)?;
+                    self.consume_newlines();
+                    self.expect(TokenKind::Indent)?;
+
+                    let mut panels = Vec::new();
+                    while !self.check(TokenKind::Dedent) {
+                        self.consume_newlines();
+                        if self.check(TokenKind::Dedent) {
+                            break;
+                        }
+                        let peek_token = self.peek_kind().ok_or_else(|| {
+                            format!("Expected panel in Accordion at line {}", self.peek_line())
+                        })?;
+                        match peek_token {
+                            TokenKind::Identifier(ref p_name) if p_name == "panel" => {
+                                self.advance();
+                                let title = match self.peek_kind() {
+                                    Some(TokenKind::StringLiteral(s)) => {
+                                        self.advance();
+                                        s
+                                    }
+                                    _ => {
+                                        return Err(format!(
+                                            "Expected string literal panel title at line {}",
+                                            self.peek_line()
+                                        ));
+                                    }
+                                };
+                                self.expect(TokenKind::Colon)?;
+                                self.consume_newlines();
+                                self.expect(TokenKind::Indent)?;
+
+                                let mut panel_body = Vec::new();
+                                while !self.check(TokenKind::Dedent) {
+                                    panel_body.push(self.parse_view_element()?);
+                                    self.consume_newlines();
+                                }
+                                self.expect(TokenKind::Dedent)?;
+                                panels.push((title, panel_body));
+                            }
+                            _ => {
+                                return Err(format!(
+                                    "Expected 'panel' in Accordion at line {}, found {:?}",
+                                    self.peek_line(),
+                                    peek_token
+                                ));
+                            }
+                        }
+                        self.consume_newlines();
+                    }
+                    self.expect(TokenKind::Dedent)?;
+                    return Ok(ViewElement::Accordion { panels });
+                }
+                if tag == "Tabs" {
+                    self.advance();
+                    self.expect(TokenKind::Colon)?;
+                    self.consume_newlines();
+                    self.expect(TokenKind::Indent)?;
+
+                    let mut tabs = Vec::new();
+                    while !self.check(TokenKind::Dedent) {
+                        self.consume_newlines();
+                        if self.check(TokenKind::Dedent) {
+                            break;
+                        }
+                        let peek_token = self.peek_kind().ok_or_else(|| {
+                            format!("Expected tab in Tabs at line {}", self.peek_line())
+                        })?;
+                        match peek_token {
+                            TokenKind::Identifier(ref t_name) if t_name == "tab" => {
+                                self.advance();
+                                let title = match self.peek_kind() {
+                                    Some(TokenKind::StringLiteral(s)) => {
+                                        self.advance();
+                                        s
+                                    }
+                                    _ => {
+                                        return Err(format!(
+                                            "Expected string literal tab title at line {}",
+                                            self.peek_line()
+                                        ));
+                                    }
+                                };
+                                self.expect(TokenKind::Colon)?;
+                                self.consume_newlines();
+                                self.expect(TokenKind::Indent)?;
+
+                                let mut tab_body = Vec::new();
+                                while !self.check(TokenKind::Dedent) {
+                                    tab_body.push(self.parse_view_element()?);
+                                    self.consume_newlines();
+                                }
+                                self.expect(TokenKind::Dedent)?;
+                                tabs.push((title, tab_body));
+                            }
+                            _ => {
+                                return Err(format!(
+                                    "Expected 'tab' in Tabs at line {}, found {:?}",
+                                    self.peek_line(),
+                                    peek_token
+                                ));
+                            }
+                        }
+                        self.consume_newlines();
+                    }
+                    self.expect(TokenKind::Dedent)?;
+                    return Ok(ViewElement::Tabs { tabs });
+                }
                 if tag == "ResourceGrid" || tag == "ResourceTable" {
                     let is_grid = tag == "ResourceGrid";
                     self.advance();
@@ -2179,10 +2381,20 @@ impl Parser {
 
                 let mut attributes = Vec::new();
                 let mut has_call_parens = false;
-                if self.check(TokenKind::LParen) {
+                let end_token = if self.check(TokenKind::LParen) {
                     has_call_parens = true;
                     self.advance();
-                    while !self.check(TokenKind::RParen) {
+                    Some(TokenKind::RParen)
+                } else if self.check(TokenKind::LBracket) {
+                    has_call_parens = true;
+                    self.advance();
+                    Some(TokenKind::RBracket)
+                } else {
+                    None
+                };
+
+                if let Some(end) = end_token {
+                    while !self.check(end.clone()) {
                         let attr_name = self.expect_identifier()?;
                         self.expect(TokenKind::Colon)?;
                         let attr_val = self.parse_expression(1)?;
@@ -2191,7 +2403,7 @@ impl Parser {
                             self.advance();
                         }
                     }
-                    self.expect(TokenKind::RParen)?;
+                    self.expect(end)?;
                 }
 
                 if !self.check(TokenKind::Colon) {
@@ -2428,7 +2640,12 @@ impl Parser {
                         }
                         TokenKind::StringLiteral(s) => {
                             self.advance();
-                            (format!("\"{}\"", s), true)
+                            let prop_lower = prop.to_lowercase();
+                            if prop_lower == "content" || prop_lower == "font-family" || prop_lower == "font" {
+                                (format!("\"{}\"", s), true)
+                            } else {
+                                (s.clone(), true)
+                            }
                         }
                         TokenKind::Dot => {
                             self.advance();
@@ -2563,7 +2780,7 @@ impl Parser {
             }
 
             self.advance();
-            left = match op {
+             left = match op {
                 TokenKind::Dot => {
                     let property = self.expect_identifier()?;
                     Expression::MemberAccess {
@@ -2576,6 +2793,16 @@ impl Parser {
                     Expression::Call {
                         callee: Box::new(left),
                         args,
+                    }
+                }
+                TokenKind::Question => {
+                    let then_branch = self.parse_expression(1)?;
+                    self.expect(TokenKind::Colon)?;
+                    let else_branch = self.parse_expression(op_precedence)?;
+                    Expression::Ternary {
+                        cond: Box::new(left),
+                        then_branch: Box::new(then_branch),
+                        else_branch: Box::new(else_branch),
                     }
                 }
                 TokenKind::Plus
@@ -2889,6 +3116,7 @@ impl Parser {
             | TokenKind::Gte
             | TokenKind::Lte => 6,
             TokenKind::And | TokenKind::Or => 5,
+            TokenKind::Question => 3,
             TokenKind::Assign => 2,
             _ => 0,
         }

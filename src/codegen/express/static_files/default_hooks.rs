@@ -1,4 +1,5 @@
 // src/codegen/express/static_files/default_hooks.rs
+#![allow(dead_code)]
 
 pub(crate) fn default_hooks_js() -> &'static str {
     r#"// Amana Custom Hooks
